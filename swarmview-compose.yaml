@@ -23,7 +23,7 @@ services:
       - '-loglevel=debug' # set to debug for far more logging
       - '-allowfrom=10.0.0.0/16'
       - '-listenip=0.0.0.0'
-      - '-allowGET=/v1\.45/(version|services|networks|tasks|containers/.*|events.*)' # this regexp allows readonly access only for requests that traefik needs
+      - '-allowGET=/v1\.45/(.+)' # this regexp allows readonly access to anything
       - '-shutdowngracetime=5'
       - '-watchdoginterval=600'
       - '-stoponwatchdog'

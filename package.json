@@ -15,10 +15,16 @@
   "dependencies": {
     "express": "^4.19.2",
     "express-http-proxy": "^2.0.0",
+    "@mui/system": "^5.15.20",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "^1.19.0",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.20",
+    "@mui/material": "^5.15.20",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
@@ -29,6 +35,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "nodemon": "^3.1.4",
+    "react-router-dom": "^6.23.1",
     "typescript": "^5.2.2",
     "vite": "^5.3.1"
   }
