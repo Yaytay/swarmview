@@ -4,7 +4,7 @@ import { BrowserRouter, Link, Routes, Route, Navigate } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 
 import Stacks from './Stacks'
-import Service from './Service'
+import ServiceUi from './Service'
 import Services from './Services'
 
 function App() {
@@ -40,7 +40,7 @@ function App() {
         <div className="content">
           <Routes>
             <Route path='/stacks' element={<Stacks baseUrl={baseUrl} />}></Route>
-            <Route path='/service/:id' element={<Service baseUrl={baseUrl} />}></Route>
+            <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} />}></Route>
             <Route index path='/services' element={<Services baseUrl={baseUrl} />}></Route>
             <Route path="*" element={<Navigate to="/services" replace={true} />} />
           </Routes>

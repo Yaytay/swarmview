@@ -20,3 +20,34 @@ table.primary {
 table.primary th,td {
   border: 1px solid;
 }
+
+div.tabBar {
+  display: flex;
+}
+
+div.tabBar div.tab {
+  margin: 4px;
+}
+
+div.tabBar div.active {
+  border-bottom: 1px solid;
+  border-bottom-color: black;
+}
+
+div.label {
+  width: 200px
+}
+
+div.details {
+  display: block;
+}
+
+div.item {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+td,th {
+  padding-left: 1ex;
+  padding-right: 1ex;
+}

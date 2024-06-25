@@ -13,11 +13,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
+    "@mui/system": "^5.15.20",
     "express": "^4.19.2",
     "express-http-proxy": "^2.0.0",
-    "@mui/system": "^5.15.20",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-json-pretty": "^2.2.0"
   },
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "^1.19.0",

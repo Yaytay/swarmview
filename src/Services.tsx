@@ -6,12 +6,10 @@ interface ServicesProps {
 }
 function Services(props: ServicesProps) {
 
-  const [rawData, setRawData] = useState([] as any[])
-  const [tasks, setTasks] = useState([] as any[])
   const [services, setServices] = useState([] as any[])
 
   useEffect(() => {
-    fetch(props.baseUrl + 'services')
+    fetch(props.baseUrl + 'services?status=true')
       .then(r => {
         console.log('Services response: ', r)
         if (r.ok) {
@@ -20,40 +18,13 @@ function Services(props: ServicesProps) {
       })
       .then(j => {
         console.log('Services: ', j)
-        setRawData(j)
-      })
-    fetch(props.baseUrl + 'tasks?filters={"desired-state":["running"]}')
-      .then(r => {
-        console.log('Tasks response: ', r)
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .then(j => {
-        console.log('Tasks: ', j)
-        setTasks(j)
+        setServices(j)
       })
   }
     , [props.baseUrl])
 
-  useEffect(() => {
-    if (rawData.length > 0 && tasks.length > 0) {
-      console.log('Matching services and tasks')
-      tasks.forEach((t: any) => {
-        const svc = rawData.find(s => s.ID = t.ServiceID)
-        if (svc) {
-          if (svc.tasks) {
-            svc.tasks.push(t)
-          } else {
-            svc.tasks = [t]
-          }
-        }
-      })
-      setServices(rawData)
-    }
-  }, [rawData, tasks])
-
   return (<>
+    <h1>Services</h1>
     <table className='primary'>
       <thead>
         <tr>
@@ -74,9 +45,7 @@ function Services(props: ServicesProps) {
                 <td>{n.Spec.Name}</td>
                 <td>{Object.keys(n.Spec.Mode)[0]}</td>
                 <td>{
-                  (n.tasks ? n.tasks.length : '')
-                  + '/'
-                  + (n.Spec.Mode.Replicated ? n.Spec.Mode.Replicated.Replicas : 'all')
+                  n.ServiceStatus.RunningTasks + ' / ' + n.ServiceStatus.DesiredTasks
                 }</td>
                 <td>{n.Spec.TaskTemplate.ContainerSpec.Image.replace(/@.*/, '')}</td>
                 <td>{n.Endpoint.Ports.map((p: any) => {
