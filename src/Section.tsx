@@ -1,9 +1,9 @@
+import './Section.css'
 
 import { ReactNode, useState} from 'react'
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
-import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface SectionProps {
@@ -35,12 +35,13 @@ function Section(props: SectionProps) {
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1-content"
           id="panel1-header"
+          sx={{margin: '0px'}}
         >
             <HeaderTag>
               {props.heading}
             </HeaderTag>
         </AccordionSummary>
-        <AccordionDetails sx={{width: '100%'}}>
+        <AccordionDetails sx={{width: '100%', padding: '0px'}}>
           {props.children}
         </AccordionDetails>
       </Accordion>

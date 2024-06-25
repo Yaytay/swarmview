@@ -45,12 +45,8 @@ function ServiceUi(props: ServiceProps) {
         </div>
         {tab === 'details' &&
           <div className='details' >
-            <Section id="service.overview" heading="Overview" level={2}>
-              <Box sx={{ 
-                display: 'grid'
-                , width: '100%'
-                , gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))'
-              }}>
+            <Section id="service.overview" heading="Overview" level={2} >
+              <Box sx={{ display: 'grid', width: '100%', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', padding: '8px 16px 16px 16px' }}>
                 <Box sx={{ display:'flex' }}>
                   <Typography sx={{width: '140px'}}>ID:</Typography>
                   <Typography sx={{width: '290px'}}>{service.ID}</Typography>
@@ -65,7 +61,7 @@ function ServiceUi(props: ServiceProps) {
                 </Box>
               </Box>
             </Section>
-            <Section id='service.spec' heading="Spec" level={2}>
+            <Section id='service.spec' heading="Spec" level={2} >
               <div className='item'>
                 <div className='label'>ID</div>
                 <div className='value'>{service.ID}</div>
