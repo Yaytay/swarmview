@@ -4,17 +4,9 @@ import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
 import { Service } from './docker-schema';
-import ServiceStatusUi from './ServiceStatus';
 import Section from './Section'
-import { Typography } from '@mui/material';
-import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+import DataTable, { DataTablePropsEntry } from './DataTable';
 
 
 interface ServiceProps {
@@ -23,10 +15,14 @@ interface ServiceProps {
 }
 function ServiceUi(props: ServiceProps) {
 
-  const [service, setService] = useState(null as Service | null)
+  const [service, setService] = useState<Service | null>(null)
   const [tab, setTab] = useState('details')
 
   const { id } = useParams();
+
+  const [labels, setLabels] = useState<(string | number | DataTablePropsEntry)[][]>([])
+
+
 
   useEffect(() => {
     fetch(props.baseUrl + 'services?status=true&filter={%22id%22:%22' + id + '%22}')
@@ -37,9 +33,27 @@ function ServiceUi(props: ServiceProps) {
         }
       })
       .then(j => {
-        console.log('Service: ', j[0])
-        setService(j[0])
-        props.setTitle('System: ' + j[0].Spec.Name)
+        const buildService = j[0] as Service
+        setService(buildService)
+        props.setTitle('Service: ' + j[0].Spec.Name)
+        var buildLabels = [] as (string | number | DataTablePropsEntry)[][]
+        if (buildService?.Spec?.Labels) {
+          const record = buildService?.Spec?.Labels
+          Object.keys(record).forEach(key => {
+            if (record[key]) {
+              buildLabels.push([key, record[key], 'Service'])
+            }
+          })
+        }
+        if (buildService?.Spec?.TaskTemplate?.ContainerSpec?.Labels) {
+          const record = buildService?.Spec?.TaskTemplate?.ContainerSpec?.Labels
+          Object.keys(record).forEach(key => {
+            if (record[key]) {
+              buildLabels.push([key, record[key], 'Container'])
+            }
+          })
+        }
+        setLabels(buildLabels)
       })
   }
     , [props.baseUrl])
@@ -58,73 +72,44 @@ function ServiceUi(props: ServiceProps) {
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 <Section id="service.overview" heading="Overview" level={2} >
-                  <TableContainer>
-                    <Table size="small" aria-label="simple table">
-                      <TableBody>
-                        <TableRow key='ID' sx={{ border: 0 }} >
-                          <TableCell component="th" scope="row">ID</TableCell>
-                          <TableCell>{service.ID}</TableCell>
-                        </TableRow>
-                        <TableRow key='CreatedAt' sx={{ border: 0 }} >
-                          <TableCell component="th" scope="row">Created</TableCell>
-                          <TableCell>{service.CreatedAt}</TableCell>
-                        </TableRow>
-                        <TableRow key='UpdatedAt' sx={{ border: 0 }} >
-                          <TableCell component="th" scope="row">Updated</TableCell>
-                          <TableCell>{service.UpdatedAt}</TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                  <DataTable rows={
+                    [
+                      ['ID', service.ID || '']
+                      , ['Created', service.CreatedAt || '']
+                      , ['Updated', service.UpdatedAt || '']
+                    ]
+                  }>
+                  </DataTable>
                 </Section>
                 <Section id="service.status" heading="Status" level={2} >
-                  <TableContainer>
-                    <Table size="small" aria-label="simple table">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell component="th" scope="row">Running Tasks</TableCell>
-                          <TableCell>Desired Tasks</TableCell>
-                          <TableCell component="th" scope="row">Completed Tasks</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell>{service.ServiceStatus?.RunningTasks}</TableCell>
-                          <TableCell>{service.ServiceStatus?.DesiredTasks}</TableCell>
-                          <TableCell>{service.ServiceStatus?.CompletedTasks}</TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                  <DataTable headers={
+                    [
+                      'Running Tasks'
+                      , 'Desired Tasks'
+                      , 'Completed Tasks'
+                    ]
+                  }
+                    rows={
+                      [
+                        [
+                          service.ServiceStatus?.RunningTasks || ''
+                          , service.ServiceStatus?.RunningTasks || ''
+                          , service.ServiceStatus?.RunningTasks || ''
+                        ]
+                      ]
+                    }>
+                  </DataTable>
                 </Section>
                 <Section id="service.labels" heading="Labels" level={2} >
-                  <TableContainer>
-                    <Table size="small" aria-label="simple table">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell component="th" scope="row">Label</TableCell>
-                          <TableCell>Value</TableCell>
-                          <TableCell component="th" scope="row">Source</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {service.Spec?.Labels && Object.keys(service.Spec.Labels).map(key => (
-                          <TableRow key={key}>
-                            <TableCell>{key}</TableCell>
-                            <TableCell>{service.Spec?.Labels && service.Spec?.Labels[key]}</TableCell>
-                            <TableCell>Service</TableCell>
-                          </TableRow>
-                        ))}
-                        {service.Spec?.TaskTemplate?.ContainerSpec?.Labels && Object.keys(service.Spec?.TaskTemplate?.ContainerSpec?.Labels).map(key => (
-                          <TableRow key={key}>
-                            <TableCell>{key}</TableCell>
-                            <TableCell>{service.Spec?.TaskTemplate?.ContainerSpec?.Labels && service.Spec?.TaskTemplate?.ContainerSpec?.Labels[key]}</TableCell>
-                            <TableCell>Container</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                  <DataTable headers={
+                    [
+                      'Label'
+                      , 'Value'
+                      , 'Source'
+                    ]
+                  } rows={labels}
+                  >
+                  </DataTable>
                 </Section>
               </Grid>
             </Box>

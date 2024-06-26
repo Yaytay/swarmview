@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import DataTable, { DataTablePropsEntry } from './DataTable';
+import { Service } from './docker-schema'
 
 interface ServicesProps {
   baseUrl: string
@@ -7,59 +8,42 @@ interface ServicesProps {
 }
 function Services(props: ServicesProps) {
 
-  const [services, setServices] = useState([] as any[])
+  const [data, setData] = useState<(string|DataTablePropsEntry)[][]>()
+  const [headers, _] = useState(['ID', 'NAME', 'MODE', 'REPLICAS', 'IMAGE', 'PORTS'])
 
-  props.setTitle('Systems')
+  props.setTitle('Services')
 
   useEffect(() => {
     fetch(props.baseUrl + 'services?status=true')
       .then(r => {
-        console.log('Services response: ', r)
         if (r.ok) {
           return r.json();
         }
       })
       .then(j => {
-        console.log('Services: ', j)
-        setServices(j)
+        var newData = [] as (string|DataTablePropsEntry)[][]
+        j.forEach((svc: Service) => {
+          newData.push(
+            [
+              svc.ID ? {link: '/service/' + svc.ID, value: svc.ID} : ''
+              , svc.Spec?.Name || ''
+              , Object.keys(svc.Spec?.Mode||[''])[0]
+              , svc.ServiceStatus?.RunningTasks + ' / ' + svc.ServiceStatus?.DesiredTasks
+              , svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '')||''
+              , svc.Endpoint?.Ports?.map((p: any) => {
+                  return p.TargetPort + ':' + p.PublishedPort
+                }).join(', ')||''
+            ]
+          )
+        });
+        setData(newData)
       })
   }
     , [props.baseUrl])
 
   return (<>
-    <h1>Services</h1>
-    <table className='primary'>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>NAME</th>
-          <th>MODE</th>
-          <th>REPLICAS</th>
-          <th>IMAGE</th>
-          <th>PORTS</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          services.map((n: any) => {
-            return (
-              <tr id={n.ID}>
-                <td><Link to={'/service/' + n.ID }>{n.ID}</Link></td>
-                <td>{n.Spec.Name}</td>
-                <td>{Object.keys(n.Spec.Mode)[0]}</td>
-                <td>{
-                  n.ServiceStatus.RunningTasks + ' / ' + n.ServiceStatus.DesiredTasks
-                }</td>
-                <td>{n.Spec.TaskTemplate.ContainerSpec.Image.replace(/@.*/, '')}</td>
-                <td>{n.Endpoint.Ports.map((p: any) => {
-                  return p.TargetPort + ':' + p.PublishedPort
-                }).join(', ')}</td>
-              </tr>
-            )
-          })
-        }
-      </tbody>
-    </table>
+    <DataTable headers={headers} rows={data}>
+    </DataTable>
   </>)
 
 
