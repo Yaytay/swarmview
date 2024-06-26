@@ -7,9 +7,19 @@ import { Service } from './docker-schema';
 import ServiceStatusUi from './ServiceStatus';
 import Section from './Section'
 import { Typography } from '@mui/material';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+
 
 interface ServiceProps {
   baseUrl: string
+  setTitle: (title: string) => void
 }
 function ServiceUi(props: ServiceProps) {
 
@@ -29,6 +39,7 @@ function ServiceUi(props: ServiceProps) {
       .then(j => {
         console.log('Service: ', j[0])
         setService(j[0])
+        props.setTitle('System: ' + j[0].Spec.Name)
       })
   }
     , [props.baseUrl])
@@ -38,93 +49,85 @@ function ServiceUi(props: ServiceProps) {
   } else {
     return (
       <div>
-        <h1>{service.Spec && service.Spec.Name}</h1>
         <div className='tabBar'>
           <div className={'tab' + (tab === 'details' ? ' active' : '')} onClick={() => setTab('details')}>Details</div>
           <div className={'tab' + (tab === 'raw' ? ' active' : '')} onClick={() => setTab('raw')}>Raw</div>
         </div>
         {tab === 'details' &&
           <div className='details' >
-            <Section id="service.overview" heading="Overview" level={2} >
-              <Box sx={{ display: 'grid', width: '100%', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', padding: '8px 16px 16px 16px' }}>
-                <Box sx={{ display:'flex' }}>
-                  <Typography sx={{width: '140px'}}>ID:</Typography>
-                  <Typography sx={{width: '290px'}}>{service.ID}</Typography>
-                </Box>
-                <Box sx={{ display:'flex' }}>
-                  <Typography sx={{width: '140px'}}>Date Created:</Typography>
-                  <Typography sx={{width: '290px'}}>{service.CreatedAt}</Typography>
-                </Box>
-                <Box sx={{ display:'flex' }}>
-                  <Typography sx={{width: '140px'}}>Date Updated:</Typography>
-                  <Typography sx={{width: '290px'}}>{service.UpdatedAt}</Typography>
-                </Box>
-              </Box>
-            </Section>
-            <Section id='service.spec' heading="Spec" level={2} >
-              <div className='item'>
-                <div className='label'>ID</div>
-                <div className='value'>{service.ID}</div>
-              </div>
-              <Section id='service.spec.task' heading="Task" level={3}>
-                <div/>
-              </Section>
-            </Section>
-            <div className='item'>
-              <div className='label'>Dates</div>
-              <div className='value'>
-                <table className='primary'>
-                  <thead>
-                    <tr>
-                      <th>Created</th>
-                      <th>Updated</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>{service.CreatedAt}</td>
-                      <td>{service.UpdatedAt}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className='item'>
-              <div className='label'>Service Labels</div>
-              <div className='value'>
-                <table className='primary'>
-                  <thead>
-                    <tr>
-                    <th>Label</th>
-                    <th>Value</th>
-                    <th>Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {service.Spec?.Labels && Object.keys(service.Spec.Labels).map(key => (
-                      <tr key={key}>
-                        <td>{key}</td>
-                        <td>{service.Spec?.Labels && service.Spec?.Labels[key]}</td>
-                        <td>Service</td>
-                      </tr>
-                    ))}
-                    {service.Spec?.TaskTemplate?.ContainerSpec?.Labels && Object.keys(service.Spec?.TaskTemplate?.ContainerSpec?.Labels).map(key => (
-                      <tr key={key}>
-                        <td>{key}</td>
-                        <td>{service.Spec?.TaskTemplate?.ContainerSpec?.Labels && service.Spec?.TaskTemplate?.ContainerSpec?.Labels[key]}</td>
-                        <td>Container</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className='item'>
-              <div className='label'>Service status</div>
-              <div className='value'>
-                { service.ServiceStatus && <ServiceStatusUi status={service.ServiceStatus} />}
-              </div>
-            </div>
+            <Box sx={{ flexGrow: 1 }}>
+              <Grid container spacing={2}>
+                <Section id="service.overview" heading="Overview" level={2} >
+                  <TableContainer>
+                    <Table size="small" aria-label="simple table">
+                      <TableBody>
+                        <TableRow key='ID' sx={{ border: 0 }} >
+                          <TableCell component="th" scope="row">ID</TableCell>
+                          <TableCell>{service.ID}</TableCell>
+                        </TableRow>
+                        <TableRow key='CreatedAt' sx={{ border: 0 }} >
+                          <TableCell component="th" scope="row">Created</TableCell>
+                          <TableCell>{service.CreatedAt}</TableCell>
+                        </TableRow>
+                        <TableRow key='UpdatedAt' sx={{ border: 0 }} >
+                          <TableCell component="th" scope="row">Updated</TableCell>
+                          <TableCell>{service.UpdatedAt}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Section>
+                <Section id="service.status" heading="Status" level={2} >
+                  <TableContainer>
+                    <Table size="small" aria-label="simple table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell component="th" scope="row">Running Tasks</TableCell>
+                          <TableCell>Desired Tasks</TableCell>
+                          <TableCell component="th" scope="row">Completed Tasks</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>{service.ServiceStatus?.RunningTasks}</TableCell>
+                          <TableCell>{service.ServiceStatus?.DesiredTasks}</TableCell>
+                          <TableCell>{service.ServiceStatus?.CompletedTasks}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Section>
+                <Section id="service.labels" heading="Labels" level={2} >
+                  <TableContainer>
+                    <Table size="small" aria-label="simple table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell component="th" scope="row">Label</TableCell>
+                          <TableCell>Value</TableCell>
+                          <TableCell component="th" scope="row">Source</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {service.Spec?.Labels && Object.keys(service.Spec.Labels).map(key => (
+                          <TableRow key={key}>
+                            <TableCell>{key}</TableCell>
+                            <TableCell>{service.Spec?.Labels && service.Spec?.Labels[key]}</TableCell>
+                            <TableCell>Service</TableCell>
+                          </TableRow>
+                        ))}
+                        {service.Spec?.TaskTemplate?.ContainerSpec?.Labels && Object.keys(service.Spec?.TaskTemplate?.ContainerSpec?.Labels).map(key => (
+                          <TableRow key={key}>
+                            <TableCell>{key}</TableCell>
+                            <TableCell>{service.Spec?.TaskTemplate?.ContainerSpec?.Labels && service.Spec?.TaskTemplate?.ContainerSpec?.Labels[key]}</TableCell>
+                            <TableCell>Container</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Section>
+              </Grid>
+            </Box>
           </div>
         }
         {tab === 'raw' &&

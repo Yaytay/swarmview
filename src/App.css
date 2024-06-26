@@ -1,3 +1,4 @@
+
 .sidebar {
   margin: 0;
   padding: 0;
@@ -8,18 +9,25 @@
   vertical-align: top;
 }
 
-.content {
-  margin: 0;
-  margin-left: 200px;
-  margin-right: 10px;
+.titleBar {
+  padding: 6px 0px 6px 4px
 }
 
-table.primary {
-  border-collapse: collapse;
-  width: 100%;
+.modeChange {
+  margin: 4px;
+  padding: 0;
+  position: absolute;
+  top: 0px;
+  right: 0px;
 }
-table.primary th,td {
-  border: 1px solid;
+
+.notSideBar {
+  margin: 0;
+  margin-left: 200px;
+}
+
+.content {
+  padding: 8px;
 }
 
 div.tabBar {

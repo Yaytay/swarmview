@@ -5,6 +5,8 @@ import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 
 interface SectionProps {
   id: string;
@@ -18,33 +20,32 @@ function Section(props: SectionProps) {
 
   const [expanded, setExpanded] = useState(() => {
     const storedValue = localStorage.getItem(props.id) 
-    console.log('Stored value ' + props.id + ': ', storedValue)
     return storedValue === null || storedValue === 'true'
   })
 
   const handleChange =
     () => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded);
-      console.log('Props', props)
       localStorage.setItem(props.id, isExpanded.toString());
     };
 
   return (
+    <Grid item xs>
       <Accordion expanded={expanded} onChange={handleChange()} className='section' sx={{width: '100%'}}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1-content"
           id="panel1-header"
-          sx={{margin: '0px'}}
         >
             <HeaderTag>
               {props.heading}
             </HeaderTag>
         </AccordionSummary>
-        <AccordionDetails sx={{width: '100%', padding: '0px'}}>
+        <AccordionDetails sx={{width: '100%' }}>
           {props.children}
         </AccordionDetails>
       </Accordion>
+    </Grid>
   )
 
 

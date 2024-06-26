@@ -3,10 +3,13 @@ import { useState, useEffect } from 'react';
 
 interface ServicesProps {
   baseUrl: string
+  setTitle: (title: string) => void
 }
 function Services(props: ServicesProps) {
 
   const [services, setServices] = useState([] as any[])
+
+  props.setTitle('Systems')
 
   useEffect(() => {
     fetch(props.baseUrl + 'services?status=true')
