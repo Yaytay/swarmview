@@ -71,18 +71,34 @@ function ServiceUi(props: ServiceProps) {
           <div className='details' >
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
-                <Section id="service.overview" heading="Overview" level={2} >
-                  <DataTable rows={
+              <Section id="service.overview" heading="Overview" level={2} >
+                  <DataTable id="service.overview.table" rows={
                     [
                       ['ID', service.ID || '']
+                      , ['Image', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ' ']
+                      , ['Hash', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/.*@/, '') || ' ']
                       , ['Created', service.CreatedAt || '']
                       , ['Updated', service.UpdatedAt || '']
                     ]
                   }>
                   </DataTable>
                 </Section>
+                <Section id="service.execution" heading="Execution" level={2} >
+                  <DataTable id="service.execution.table" rows={
+                    [
+                      ['Command', service?.Spec?.TaskTemplate?.ContainerSpec?.Command]
+                      , ['Arguments', service?.Spec?.TaskTemplate?.ContainerSpec?.Args]
+                      , ['Environment', service?.Spec?.TaskTemplate?.ContainerSpec?.Env]
+                      , ['Dir', service?.Spec?.TaskTemplate?.ContainerSpec?.Dir]
+                      , ['User', service?.Spec?.TaskTemplate?.ContainerSpec?.User]
+                      , ['Groups', service?.Spec?.TaskTemplate?.ContainerSpec?.Groups]
+                      , ['Hostname', service?.Spec?.TaskTemplate?.ContainerSpec?.Hostname]
+                    ]
+                  }>
+                  </DataTable>
+                </Section>
                 <Section id="service.status" heading="Status" level={2} >
-                  <DataTable headers={
+                  <DataTable id="service.status.table" headers={
                     [
                       'Running Tasks'
                       , 'Desired Tasks'
@@ -101,7 +117,7 @@ function ServiceUi(props: ServiceProps) {
                   </DataTable>
                 </Section>
                 <Section id="service.labels" heading="Labels" level={2} >
-                  <DataTable headers={
+                  <DataTable id="service.labels.table" headers={
                     [
                       'Label'
                       , 'Value'
