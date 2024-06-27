@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 
 export interface DataTablePropsEntry {
@@ -36,8 +37,8 @@ function DataTableValue(props: DataTableValueProps) {
     return (<></>)
   } else if (Array.isArray(props.value)) {
     return (<>{
-      props.value.map(member => {
-        return (<><DataTableValue value={member}/><br/></>)
+      props.value.map((member, index) => {
+        return (<Box key={String(index)}><DataTableValue value={member}/><br/></Box>)
       })
     }</>)
   } else if (typeof props.value === 'object') {
@@ -67,14 +68,14 @@ function DataTable(props: DataTableProps) {
 
   interface SortAndFilterConfig {
     sort: string | null
-    filterIndex: number | null
+    filter: number | null
     filterValue: string | null
   }
 
   const [sortAndFilterConfig, setSortAndFilterConfig] = useState<SortAndFilterConfig>(() => {
     const storedValue = localStorage.getItem(props.id) 
     const storedObject = storedValue ? JSON.parse(storedValue) : {}
-    return {sort: storedObject?.sort, filterIndex: storedObject?.filterIndex, filterValue: storedObject?.filterValue}
+    return {sort: storedObject?.sort, filter: storedObject?.filter, filterValue: storedObject?.filterValue}
   })
 
   const [values, setValues] = useState(props.rows)
@@ -127,11 +128,16 @@ function DataTable(props: DataTableProps) {
                   props.headers.map(h => {
                     return (
                       <TableCell key={h}>
-                        <Box onClick={() => {updateSort(h)}}>
+                        <Box sx={{ display: 'flex' }}>
+                        <Box sx={{ width: '100%' }} onClick={() => {updateSort(h)}}>
                           {h}
                           {sortAndFilterConfig.sort === h && <ArrowDropUpIcon fontSize='inherit'/>}
                           {sortAndFilterConfig.sort === '-' + h && <ArrowDropDownIcon fontSize='inherit'/>}
-                          </Box>
+                        </Box>
+                        <Box onClick={() => {updateSort(h)}}>
+                          <FilterListIcon fontSize='inherit'/>
+                        </Box>
+                        </Box>
                       </TableCell>
                     )
                   })

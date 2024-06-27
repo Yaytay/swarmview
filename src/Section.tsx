@@ -23,7 +23,7 @@ function Section(props: SectionProps) {
   })
 
   const handleChange =
-    () => (event: React.SyntheticEvent, isExpanded: boolean) => {
+    () => (_: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded);
       localStorage.setItem(props.id, isExpanded.toString());
     };
