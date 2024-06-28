@@ -26,6 +26,7 @@ export type DataTableValue = (null | undefined | string | number | string[] | Da
 
 interface DataTableProps {
   id: string
+  kvTable?: boolean
   headers?: string[]
   rows: (DataTableValue)[][] | undefined
 }
@@ -226,13 +227,17 @@ function DataTable(props: DataTableProps) {
           </TableHead>
         )}
         <TableBody>
-          {values && values.map((r, ir) => {
+          {values && 
+            values
+              .filter(row => !props.kvTable|| row[1])
+              .map((r, ir) => {
             return (
               <TableRow key={ir} sx={{ border: 0 }} >
                 {
-                  r.map((v, iv) => {
+                  r
+                    .map((v, iv) => {
                     return (
-                      <TableCell key={iv}>
+                      <TableCell key={iv} sx={{ verticalAlign: 'top' }}>
                         <Typography>
                           <DataTableValue value={v} />
                         </Typography>

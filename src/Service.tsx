@@ -22,8 +22,6 @@ function ServiceUi(props: ServiceProps) {
 
   const [labels, setLabels] = useState<(string | number | DataTablePropsEntry)[][]>([])
 
-
-
   useEffect(() => {
     fetch(props.baseUrl + 'services?status=true&filter={%22id%22:%22' + id + '%22}')
       .then(r => {
@@ -84,7 +82,7 @@ function ServiceUi(props: ServiceProps) {
                   </DataTable>
                 </Section>
                 <Section id="service.execution" heading="Execution" level={2} >
-                  <DataTable id="service.execution.table" rows={
+                  <DataTable id="service.execution.table" kvTable={true} rows={
                     [
                       ['Command', service?.Spec?.TaskTemplate?.ContainerSpec?.Command]
                       , ['Arguments', service?.Spec?.TaskTemplate?.ContainerSpec?.Args]
