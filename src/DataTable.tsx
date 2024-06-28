@@ -11,6 +11,11 @@ import Box from '@mui/material/Box';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import Menu from '@mui/material/Menu';
+import MenuList from '@mui/material/MenuList';
+import MenuItem from '@mui/material/MenuItem';
+import Divider from '@mui/material/Divider';
+import ListItemText from '@mui/material/ListItemText';
 
 
 export interface DataTablePropsEntry {
@@ -85,6 +90,12 @@ function DataTable(props: DataTableProps) {
 
     if (props.rows) {
       var src = [...props.rows]
+      if (sortAndFilterConfig.filter !== null && sortAndFilterConfig.filterValue) {
+        src = src.filter(row => 
+          sortAndFilterConfig.filter === null 
+            || row[sortAndFilterConfig.filter] === sortAndFilterConfig.filterValue
+        )
+      }
       if (sortAndFilterConfig.sort) {
         var field = sortAndFilterConfig.sort
         var factor = 1 
@@ -115,8 +126,64 @@ function DataTable(props: DataTableProps) {
     setSortAndFilterConfig(newConfig)
   }
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [filterIndex, setFilterIndex] = useState<number>(-1)
+  const [filterOptions, setFilterOptions] = useState<string[] | null>()
+  const filterMenuOpen = Boolean(anchorEl)
+  const handleFilterClick = (event: React.MouseEvent<HTMLElement>, index: number) => {
+    setFilterIndex(index)
+    setFilterOptions(
+      props.rows?.reduce<string[]>((result, row) => {
+        if (typeof row[index] === 'string' || typeof row[index] === 'number') {
+          const newValue = String(row[index])
+          if (result.indexOf(newValue) < 0) {
+            result.push(String(row[index]))
+          }
+        }
+        return result
+      }, []).sort()
+    )
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };  
+  function handleClearFilter() {
+    var newConfig = {...sortAndFilterConfig}
+    newConfig.filter = -1
+    newConfig.filterValue = null
+    setSortAndFilterConfig(newConfig)
+    setAnchorEl(null);
+  }
+  function handleSelection(value: string) {
+    var newConfig = {...sortAndFilterConfig}
+    newConfig.filter = filterIndex
+    newConfig.filterValue = value
+    setSortAndFilterConfig(newConfig)
+    setAnchorEl(null);
+  }
+
   return (
     <TableContainer>
+      <Menu open={filterMenuOpen} anchorEl={anchorEl} onClose={handleClose}>
+        { filterOptions && (
+          <MenuList dense  sx={{ paddingTop: 0, paddingBottom: 0 }} >
+            <MenuItem onClick={() => handleClearFilter()}>
+              <ListItemText>
+              Clear Filter
+              </ListItemText>
+            </MenuItem>
+            <Divider sx={{ marginTop: 0, marginBottom: 0 }} />
+            {filterOptions.map(fo => {
+              return (
+              <MenuItem onClick={() => handleSelection(fo)}>
+              <ListItemText>{fo}</ListItemText>
+              </MenuItem>
+              )
+            })}
+          </MenuList>
+        )}
+      </Menu>
       <Table size="small" aria-label="simple table">
         {props.headers && (
           <TableHead>
@@ -125,7 +192,7 @@ function DataTable(props: DataTableProps) {
               ?
               <TableRow>
                 {
-                  props.headers.map(h => {
+                  props.headers.map((h, i) => {
                     return (
                       <TableCell key={h}>
                         <Box sx={{ display: 'flex' }}>
@@ -134,7 +201,7 @@ function DataTable(props: DataTableProps) {
                           {sortAndFilterConfig.sort === h && <ArrowDropUpIcon fontSize='inherit'/>}
                           {sortAndFilterConfig.sort === '-' + h && <ArrowDropDownIcon fontSize='inherit'/>}
                         </Box>
-                        <Box onClick={() => {updateSort(h)}}>
+                        <Box onClick={(evt) => {handleFilterClick(evt, i)}}>
                           <FilterListIcon fontSize='inherit'/>
                         </Box>
                         </Box>
