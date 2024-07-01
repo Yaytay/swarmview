@@ -10,12 +10,10 @@ import Grid from '@mui/material/Grid';
 interface SectionProps {
   id: string;
   heading: string;
-  level: number;
+  xs?: number;
   children: ReactNode;
 }
 function Section(props: SectionProps) {
-
-  const HeaderTag = `h${props.level}` as keyof JSX.IntrinsicElements;
 
   const [expanded, setExpanded] = useState(() => {
     const storedValue = localStorage.getItem(props.id) 
@@ -29,16 +27,16 @@ function Section(props: SectionProps) {
     };
 
   return (
-    <Grid item xs>
+    <Grid item xs={props.xs}>
       <Accordion expanded={expanded} onChange={handleChange()} className='section' sx={{width: '100%'}}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1-content"
           id="panel1-header"
         >
-            <HeaderTag>
+            <h2>
               {props.heading}
-            </HeaderTag>
+            </h2>
         </AccordionSummary>
         <AccordionDetails sx={{width: '100%' }}>
           {props.children}

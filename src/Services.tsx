@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import DataTable, { DataTablePropsEntry } from './DataTable';
 import { Service } from './docker-schema'
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 
 interface ServicesProps {
   baseUrl: string
@@ -8,7 +11,7 @@ interface ServicesProps {
 }
 function Services(props: ServicesProps) {
 
-  const [data, setData] = useState<(string|DataTablePropsEntry)[][]>()
+  const [data, setData] = useState<(string | DataTablePropsEntry)[][]>()
   const [headers, _] = useState(['ID', 'NAME', 'MODE', 'REPLICAS', 'IMAGE', 'PORTS'])
 
   useEffect(() => {
@@ -23,18 +26,18 @@ function Services(props: ServicesProps) {
       })
       .then(j => {
         props.setTitle('Services')
-        var newData = [] as (string|DataTablePropsEntry)[][]
+        var newData = [] as (string | DataTablePropsEntry)[][]
         j.forEach((svc: Service) => {
           newData.push(
             [
-              svc.ID ? {link: '/service/' + svc.ID, value: svc.ID} : ''
+              svc.ID ? { link: '/service/' + svc.ID, value: svc.ID } : ''
               , svc.Spec?.Name || ''
-              , Object.keys(svc.Spec?.Mode||[''])[0]
+              , Object.keys(svc.Spec?.Mode || [''])[0]
               , svc.ServiceStatus?.RunningTasks + ' / ' + svc.ServiceStatus?.DesiredTasks
-              , svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '')||''
+              , svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
               , svc.Endpoint?.Ports?.map((p: any) => {
-                  return p.TargetPort + ':' + p.PublishedPort
-                }).join(', ')||''
+                return p.TargetPort + ':' + p.PublishedPort
+              }).join(', ') || ''
             ]
           )
         });
@@ -44,8 +47,14 @@ function Services(props: ServicesProps) {
     , [props.baseUrl])
 
   return (<>
-    <DataTable id="services" headers={headers} rows={data}>
-    </DataTable>
+    <Box sx={{ flexGrow: 1 }}>
+      <Grid container >
+        <Paper>
+          <DataTable id="services" headers={headers} rows={data}>
+          </DataTable>
+        </Paper>
+      </Grid>
+    </Box>
   </>)
 
 

@@ -23,7 +23,7 @@ export interface DataTablePropsEntry {
   link: string
   value: string
 }
-export type DataTableValue = (null | undefined | string | number | string[] | DataTablePropsEntry)
+export type DataTableValue = (null | undefined | string | number | string[] | DataTablePropsEntry | DataTablePropsEntry[])
 
 interface DataTableProps {
   id: string
