@@ -11,8 +11,6 @@ function Services(props: ServicesProps) {
   const [data, setData] = useState<(string|DataTablePropsEntry)[][]>()
   const [headers, _] = useState(['ID', 'NAME', 'MODE', 'REPLICAS', 'IMAGE', 'PORTS'])
 
-  props.setTitle('Services')
-
   useEffect(() => {
     fetch(props.baseUrl + 'services?status=true')
       .then(r => {
@@ -20,7 +18,11 @@ function Services(props: ServicesProps) {
           return r.json();
         }
       })
+      .catch(reason => {
+        console.log('Failed to get services:', reason)
+      })
       .then(j => {
+        props.setTitle('Services')
         var newData = [] as (string|DataTablePropsEntry)[][]
         j.forEach((svc: Service) => {
           newData.push(
@@ -42,7 +44,7 @@ function Services(props: ServicesProps) {
     , [props.baseUrl])
 
   return (<>
-    <DataTable headers={headers} rows={data}>
+    <DataTable id="services" headers={headers} rows={data}>
     </DataTable>
   </>)
 

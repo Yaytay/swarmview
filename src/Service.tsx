@@ -21,17 +21,22 @@ function ServiceUi(props: ServiceProps) {
   const { id } = useParams();
 
   const [labels, setLabels] = useState<(string | number | DataTablePropsEntry)[][]>([])
+  const [mounts, setMounts] = useState<(string | undefined)[][]>([])
+  const [networks, setNetworks] = useState<(string | string[] | undefined | DataTablePropsEntry)[][]>([])
 
   useEffect(() => {
     fetch(props.baseUrl + 'services?status=true&filter={%22id%22:%22' + id + '%22}')
       .then(r => {
-        console.log('Service response: ', r)
         if (r.ok) {
           return r.json();
         }
       })
-      .then(j => {
+      .catch(reason => {
+        console.log('Failed to get service:', reason)
+      })
+      .then(j => {        
         const buildService = j[0] as Service
+        console.log(buildService)
         setService(buildService)
         props.setTitle('Service: ' + j[0].Spec.Name)
         var buildLabels = [] as (string | number | DataTablePropsEntry)[][]
@@ -52,6 +57,31 @@ function ServiceUi(props: ServiceProps) {
           })
         }
         setLabels(buildLabels)
+
+        var buildMounts = [] as (string | undefined)[][]
+        if (buildService?.Spec?.TaskTemplate?.ContainerSpec?.Mounts) {
+          buildMounts = buildService.Spec.TaskTemplate.ContainerSpec.Mounts.map(mount => {
+            return [
+              mount.Type
+              , mount.Target
+              , mount.Source
+              , String(mount.ReadOnly)
+            ]
+          })
+          setMounts(buildMounts)
+        }
+
+        var buildNetworks = [] as (string | string[] | undefined)[][]
+        if (buildService?.Spec?.TaskTemplate?.Networks) {
+          buildNetworks = buildService.Spec.TaskTemplate.Networks.map(network => {
+            return [
+              network.Target
+              , network.Aliases
+            ]
+          })
+          setNetworks(buildNetworks)
+        }
+
       })
   }
     , [props.baseUrl])
@@ -69,8 +99,8 @@ function ServiceUi(props: ServiceProps) {
           <div className='details' >
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
-              <Section id="service.overview" heading="Overview" level={2} >
-                  <DataTable id="service.overview.table" rows={
+                <Section id="service.overview" heading="Overview" level={2} >
+                  <DataTable id="service.overview.table" kvTable={true} rows={
                     [
                       ['ID', service.ID || '']
                       , ['Image', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ' ']
@@ -114,6 +144,25 @@ function ServiceUi(props: ServiceProps) {
                     }>
                   </DataTable>
                 </Section>
+                <Section id="service.mounts" heading="Mounts" level={2} >
+                    <DataTable id="service.mounts.spec" kvTable={true} sx={{ width: '20em' }} rows={
+                      [
+                        ['Read Only', String(service?.Spec?.TaskTemplate?.ContainerSpec?.ReadOnly)]
+                      ]
+                    }>
+                    </DataTable>
+                    <DataTable id="service.mounts.list" headers={
+                      [
+                        'Type'
+                        , 'Target'
+                        , 'Source'
+                        , 'ReadOnly'
+                      ]
+                    } rows={mounts}
+                    >
+                    </DataTable>
+                </Section>
+
                 <Section id="service.labels" heading="Labels" level={2} >
                   <DataTable id="service.labels.table" headers={
                     [
@@ -122,6 +171,17 @@ function ServiceUi(props: ServiceProps) {
                       , 'Source'
                     ]
                   } rows={labels}
+                  >
+                  </DataTable>
+                </Section>
+
+                <Section id="service.networks" heading="Networks" level={2} >
+                  <DataTable id="service.networks.table" headers={
+                    [
+                      'ID'
+                      , 'Aliases'
+                    ]
+                  } rows={networks}
                   >
                   </DataTable>
                 </Section>

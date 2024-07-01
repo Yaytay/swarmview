@@ -8,6 +8,7 @@ import TableRow from '@mui/material/TableRow';
 import { Link } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { SxProps, Theme } from '@mui/material/styles';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -29,6 +30,7 @@ interface DataTableProps {
   kvTable?: boolean
   headers?: string[]
   rows: (DataTableValue)[][] | undefined
+  sx?: SxProps<Theme>;
 }
 export function entry(link: string, value: string): DataTablePropsEntry {
   return { link: link, value: value }
@@ -44,13 +46,13 @@ function DataTableValue(props: DataTableValueProps) {
   } else if (Array.isArray(props.value)) {
     return (<>{
       props.value.map((member, index) => {
-        return (<Box key={String(index)}><DataTableValue value={member}/><br/></Box>)
+        return (<DataTableValue key={String(index)} value={member}/>)
       })
     }</>)
   } else if (typeof props.value === 'object') {
-    return (<Link to={props.value.link}>{props.value.value}</Link>)
+    return (<Typography><Link to={props.value.link}>{props.value.value}</Link></Typography>)
   } else {
-    return (<>{props.value}</>)
+    return (<Typography>{props.value}</Typography>)
   }
 }
 
@@ -81,19 +83,20 @@ function DataTable(props: DataTableProps) {
   const [sortAndFilterConfig, setSortAndFilterConfig] = useState<SortAndFilterConfig>(() => {
     const storedValue = localStorage.getItem(props.id) 
     const storedObject = storedValue ? JSON.parse(storedValue) : {}
-    return {sort: storedObject?.sort, filter: storedObject?.filter, filterValue: storedObject?.filterValue}
+    return {sort: storedObject?.sort || null, filter: storedObject?.filter || null, filterValue: storedObject?.filterValue || null}
   })
 
   const [values, setValues] = useState(props.rows)
 
   useEffect(() => {
-    console.log("SAF (" + props.id + "):", sortAndFilterConfig)
+    // console.log("SAF (" + props.id + "):", sortAndFilterConfig)
+    // console.log("Rows: ", props.rows)
 
     if (props.rows) {
       var src = [...props.rows]
       if (sortAndFilterConfig.filter !== null && sortAndFilterConfig.filterValue) {
         src = src.filter(row => 
-          sortAndFilterConfig.filter === null 
+          ! sortAndFilterConfig.filter
             || row[sortAndFilterConfig.filter] === sortAndFilterConfig.filterValue
         )
       }
@@ -109,11 +112,21 @@ function DataTable(props: DataTableProps) {
           src.sort((a,b) => { return factor * compareDataTableValues(a[index], b[index]) })
         }
       } 
+      // console.log('Result', src)
+      if (src.length === 0) {
+        if (sortAndFilterConfig.filter && sortAndFilterConfig.filterValue) {
+          if (props.headers) {
+            console.log('All values filtered out by ' + props?.headers[sortAndFilterConfig.filter] + ' == ' + sortAndFilterConfig.filterValue)
+          } else {
+            console.log('All values filtered out by column ' +sortAndFilterConfig.filter + ' == ' + sortAndFilterConfig.filterValue)
+          }
+        }
+      }
       setValues(src)
     } else {
       setValues([])
     }
-  }, [sortAndFilterConfig])
+  }, [sortAndFilterConfig, props])
 
   function updateSort(newSort: string) {
     var newConfig = {...sortAndFilterConfig}
@@ -124,6 +137,7 @@ function DataTable(props: DataTableProps) {
     } else {
       newConfig.sort = newSort
     }
+    localStorage.setItem(props.id, JSON.stringify(newConfig))
     setSortAndFilterConfig(newConfig)
   }
 
@@ -153,6 +167,7 @@ function DataTable(props: DataTableProps) {
     var newConfig = {...sortAndFilterConfig}
     newConfig.filter = -1
     newConfig.filterValue = null
+    localStorage.setItem(props.id, JSON.stringify(newConfig))
     setSortAndFilterConfig(newConfig)
     setAnchorEl(null);
   }
@@ -160,6 +175,7 @@ function DataTable(props: DataTableProps) {
     var newConfig = {...sortAndFilterConfig}
     newConfig.filter = filterIndex
     newConfig.filterValue = value
+    localStorage.setItem(props.id, JSON.stringify(newConfig))
     setSortAndFilterConfig(newConfig)
     setAnchorEl(null);
   }
@@ -177,7 +193,7 @@ function DataTable(props: DataTableProps) {
             <Divider sx={{ marginTop: 0, marginBottom: 0 }} />
             {filterOptions.map(fo => {
               return (
-              <MenuItem onClick={() => handleSelection(fo)}>
+              <MenuItem key={fo} onClick={() => handleSelection(fo)}>
               <ListItemText>{fo}</ListItemText>
               </MenuItem>
               )
@@ -185,7 +201,7 @@ function DataTable(props: DataTableProps) {
           </MenuList>
         )}
       </Menu>
-      <Table size="small" aria-label="simple table">
+      <Table size="small" aria-label="simple table" sx={[ ...(Array.isArray(props.sx) ? props.sx : [props.sx]) ]}>
         {props.headers && (
           <TableHead>
             {
@@ -238,9 +254,7 @@ function DataTable(props: DataTableProps) {
                     .map((v, iv) => {
                     return (
                       <TableCell key={iv} sx={{ verticalAlign: 'top' }}>
-                        <Typography>
-                          <DataTableValue value={v} />
-                        </Typography>
+                        <DataTableValue value={v} />
                       </TableCell>
                     )
                   })
