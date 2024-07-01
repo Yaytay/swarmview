@@ -5,9 +5,16 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { PaletteMode, Typography } from '@mui/material';
 import { useState, useMemo } from 'react'
 
-import Stacks from './Stacks'
 import ServiceUi from './Service'
+import NetworkUi from './Network'
+
 import Services from './Services'
+import Stacks from './Stacks'
+import Tasks from './Tasks'
+import Nodes from './Nodes'
+import Networks from './Networks'
+import Secrets from './Secrets'
+import Configs from './Configs'
 import Box from '@mui/material/Box';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -65,13 +72,13 @@ function App() {
             <Typography variant='body2'>Version 0.0.0</Typography>
           </Box>
           <ul>
-            <li>Stacks</li>
+            <li><Link to="/stacks">Stacks</Link></li>
             <li><Link to="/services">Services</Link></li>
-            <li>Tasks</li>
-            <li>Nodes</li>
-            <li>Networks</li>
-            <li>Secrets</li>
-            <li>Configs</li>
+            <li><Link to="/tasks">Tasks</Link></li>
+            <li><Link to="/nodes">Nodes</Link></li>
+            <li><Link to="/networks">Networks</Link></li>
+            <li><Link to="/secrets">Secrets</Link></li>
+            <li><Link to="/configs">Configs</Link></li>
           </ul>
         </Box>
         <Box className='notSideBar'>
@@ -87,9 +94,16 @@ function App() {
           </Box>
           <Box className="content">
             <Routes>
-              <Route path='/stacks' element={<Stacks baseUrl={baseUrl} />}></Route>
+              <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route index path='/nodes' element={<Nodes baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route index path='/networks' element={<Networks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route index path='/secrets' element={<Secrets baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route index path='/configs' element={<Configs baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path="*" element={<Navigate to="/services" replace={true} />} />
             </Routes>
           </Box>

@@ -8,7 +8,7 @@ import Section from './Section'
 import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import DataTable, { DataTablePropsEntry } from './DataTable';
+import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 
 
 interface ServiceProps {
@@ -31,7 +31,7 @@ function ServiceUi(props: ServiceProps) {
   const [resources, setResources] = useState<(string | number | null)[][]>([])
   const [services, setServices] = useState<Service[]>([])
   const [networks, setNetworks] = useState<Network[]>([])
-  const [networksData, setNetworksData] = useState<(string | string[] | undefined | DataTablePropsEntry[])[][]>([])
+  const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
 
   useEffect(() => {
     fetch(props.baseUrl + 'networks')
@@ -102,27 +102,30 @@ function ServiceUi(props: ServiceProps) {
     , [props.baseUrl, id])
 
   useEffect(() => {
-    var buildNetworks = [] as (string | string[] | DataTablePropsEntry[] | undefined)[][]
+    var buildNetworks = [] as (DataTableValue)[][]
     if (service?.Spec?.TaskTemplate?.Networks) {
 
-      buildNetworks = service.Spec.TaskTemplate.Networks.map(svcNet => {
+      buildNetworks = service.Spec.TaskTemplate.Networks.reduce<(DataTableValue)[][]>((accumulator, svcNet) => {
         var net = networks?.find(n => n.Id === svcNet.Target)
-
-        return [
-          svcNet.Target
-          , net?.Name
-          , svcNet.Aliases
-          , JSON.stringify(net?.Options)
-          , services?.reduce<DataTablePropsEntry[]>((result, svc) => {
-            if (svc?.Spec?.TaskTemplate?.Networks?.find(n => { return n.Target === net?.Id })) {
-              if (svc?.Spec?.Name && (!result.find(s => {return (s.value === svc?.Spec?.Name)}))) {
-                result.push({ link: '/service/' + svc.ID, value: svc?.Spec?.Name })
+        if (net && svcNet.Target) {
+          const item = [
+            { link: '/network/' + svcNet.Target, value: svcNet.Target }
+            , net?.Name
+            , svcNet.Aliases
+            , JSON.stringify(net?.Options)
+            , services?.reduce<DataTablePropsEntry[]>((result, svc) => {
+              if (svc?.Spec?.TaskTemplate?.Networks?.find(n => { return n.Target === net?.Id })) {
+                if (svc?.Spec?.Name && (!result.find(s => {return (s.value === svc?.Spec?.Name)}))) {
+                  result.push({ link: '/service/' + svc.ID, value: svc?.Spec?.Name })
+                }
               }
-            }
-            return result
-          }, []).sort()
-        ]
-      })
+              return result
+            }, []).sort()
+          ]
+          accumulator.push(item)
+        }
+        return accumulator
+      }, [])
     }
     console.log(buildNetworks)
     setNetworksData(buildNetworks)
@@ -143,7 +146,7 @@ function ServiceUi(props: ServiceProps) {
 
   }, [service, networks])
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 
@@ -156,7 +159,6 @@ function ServiceUi(props: ServiceProps) {
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
             <Tab label="Details" />
             <Tab label="Raw" />
-            <Tab label="Logs" />
           </Tabs>
         </Box>
         {
@@ -216,10 +218,11 @@ function ServiceUi(props: ServiceProps) {
             <Section id="service.mounts" heading="Mounts" >
               <DataTable id="service.mounts.spec" kvTable={true} sx={{ width: '20em' }} rows={
                 [
-                  ['Read Only', String(service?.Spec?.TaskTemplate?.ContainerSpec?.ReadOnly)]
+                  ['Read Only Root FS', String(service?.Spec?.TaskTemplate?.ContainerSpec?.ReadOnly)]
                 ]
               }>
               </DataTable>
+              <br/>
               <DataTable id="service.mounts.list" headers={
                 [
                   'Type'
