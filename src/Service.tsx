@@ -20,11 +20,10 @@ type ServiceUiParams = {
 };
 function ServiceUi(props: ServiceProps) {
 
+  const { id } = useParams<ServiceUiParams>();
+
   const [service, setService] = useState<Service | null>(null)
   const [tab, setTab] = useState(0)
-
-  const { id } = useParams<ServiceUiParams>();
-  console.log(id)
 
   const [labels, setLabels] = useState<(string | number | DataTablePropsEntry)[][]>([])
   const [mounts, setMounts] = useState<(string | undefined)[][]>([])

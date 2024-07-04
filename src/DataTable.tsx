@@ -20,8 +20,9 @@ import ListItemText from '@mui/material/ListItemText';
 
 
 export interface DataTablePropsEntry {
-  link: string
+  link?: string
   value: string
+  sx?: SxProps<Theme>
 }
 export type DataTableValue = (null | undefined | string | number | string[] | DataTablePropsEntry | DataTablePropsEntry[])
 
@@ -50,7 +51,11 @@ function DataTableValue(props: DataTableValueProps) {
       })
     }</>)
   } else if (typeof props.value === 'object') {
-    return (<Typography><Link to={props.value.link}>{props.value.value}</Link></Typography>)
+    if (props.value.link) {
+      return (<Typography sx={[ ...(Array.isArray(props.value.sx) ? props.value.sx : [props.value.sx]) ]}><Link to={props.value.link}>{props.value.value}</Link></Typography>)
+    } else {
+      return (<Typography sx={[ ...(Array.isArray(props.value.sx) ? props.value.sx : [props.value.sx]) ]}>{props.value.value}</Typography>)
+    }
   } else {
     return (<Typography>{props.value}</Typography>)
   }
