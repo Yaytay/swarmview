@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Service, Network, Task } from './docker-schema';
+import { Service, Network, Task, Secret, Config } from './docker-schema';
 import Section from './Section'
 import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
@@ -30,13 +30,29 @@ function ServiceUi(props: ServiceProps) {
   const [resources, setResources] = useState<(string | number | null)[][]>([])
   const [services, setServices] = useState<Service[]>([])
   const [networks, setNetworks] = useState<Network[]>([])
+  const [secrets, setSecrets] = useState<Secret[]>([])
+  const [configs, setConfigs] = useState<Config[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
+  const [svcConfigs, setSvcConfigs] = useState<DataTableValue[][]>([])
+  const [svcSecrets, setSvcSecrets] = useState<DataTableValue[][]>([])
 
   const [svcTasks, setSvcTasks] = useState<DataTableValue[][]>([])
   const [svcTaskHeaders, setSvcTaskHeaders] = useState<string[]>([])
 
   useEffect(() => {
+    fetch(props.baseUrl + 'tasks')
+      .then(r => {
+        if (r.ok) {
+          return r.json();
+        }
+      })
+      .catch(reason => {
+        console.log('Failed to get tasks:', reason)
+      })
+      .then(j => {
+        setTasks(j)
+      })
     fetch(props.baseUrl + 'networks')
       .then(r => {
         if (r.ok) {
@@ -50,17 +66,29 @@ function ServiceUi(props: ServiceProps) {
         console.log('Networks: ', j)
         setNetworks(j as Network[])
       })
-    fetch(props.baseUrl + 'tasks')
+    fetch(props.baseUrl + 'secrets')
       .then(r => {
         if (r.ok) {
           return r.json();
         }
       })
       .catch(reason => {
-        console.log('Failed to get tasks:', reason)
+        console.log('Failed to get secrets:', reason)
       })
       .then(j => {
-        setTasks(j)
+        setSecrets(j)
+      })
+    fetch(props.baseUrl + 'configs')
+      .then(r => {
+        if (r.ok) {
+          return r.json();
+        }
+      })
+      .catch(reason => {
+        console.log('Failed to get configs:', reason)
+      })
+      .then(j => {
+        setConfigs(j)
       })
     fetch(props.baseUrl + 'services?status=true')
       .then(r => {
@@ -106,7 +134,7 @@ function ServiceUi(props: ServiceProps) {
                 mount.Type
                 , mount.Target
                 , mount.Source
-                , String(mount.ReadOnly)
+                , mount.ReadOnly ? 'true' : 'false'
               ]
             })
             setMounts(buildMounts)
@@ -130,7 +158,7 @@ function ServiceUi(props: ServiceProps) {
             , JSON.stringify(net?.Options)
             , services?.reduce<DataTablePropsEntry[]>((result, svc) => {
               if (svc?.Spec?.TaskTemplate?.Networks?.find(n => { return n.Target === net?.Id })) {
-                if (svc?.Spec?.Name && (!result.find(s => {return (s.value === svc?.Spec?.Name)}))) {
+                if (svc?.Spec?.Name && (!result.find(s => { return (s.value === svc?.Spec?.Name) }))) {
                   result.push({ link: '/service/' + svc.ID, value: svc?.Spec?.Name })
                 }
               }
@@ -142,7 +170,6 @@ function ServiceUi(props: ServiceProps) {
         return accumulator
       }, [])
     }
-    console.log(buildNetworks)
     setNetworksData(buildNetworks)
 
     var buildResources = [] as (string | number | null)[][]
@@ -163,19 +190,19 @@ function ServiceUi(props: ServiceProps) {
       setSvcTaskHeaders(['ID', 'NAME', 'NODE', 'CREATED', 'IMAGE', 'DESIRED STATE', 'CURRENT STATE', 'ERROR', 'PORTS'])
       const buildStackTasks: DataTableValue[][] = []
       const nodeTasks = tasks.filter(tsk => tsk.ServiceID === id)
-      nodeTasks.sort((l,r) => {
-        return (l.CreatedAt??'') > (r.CreatedAt??'') ? -1 : 1
+      nodeTasks.sort((l, r) => {
+        return (l.CreatedAt ?? '') > (r.CreatedAt ?? '') ? -1 : 1
       })
       nodeTasks.forEach((tsk) => {
         if (tsk.ID) {
           buildStackTasks.push(
             [
               { link: '/task/' + tsk.ID, value: tsk.ID }
-              , ((tsk.ServiceID && service.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID) 
+              , ((tsk.ServiceID && service.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID)
               , { link: '/node/' + tsk.NodeID, value: tsk.NodeID || '' }
               , tsk.CreatedAt
               , tsk?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '')
-              , tsk?.DesiredState          
+              , tsk?.DesiredState
               , tsk?.Status?.State
               , tsk?.Status?.Err
               , tsk?.Status?.PortStatus?.Ports?.map(portSpec => {
@@ -189,8 +216,44 @@ function ServiceUi(props: ServiceProps) {
       setSvcTasks(buildStackTasks)
     }
 
+    if (service && configs) {
+      const svcCons : DataTableValue[][] = []
+      configs.forEach(con => {
+        service.Spec?.TaskTemplate?.ContainerSpec?.Configs?.forEach(svcCon => {
+          if (svcCon.ConfigID === con.ID) {
+            svcCons.push(
+              [
+                { link: '/config/' + con.ID, value: con.Spec?.Name || con.ID || '' }
+                , svcCon.File?.Name
+                , svcCon.File?.UID + ':' + svcCon.File?.GID
+              ]
+            )
+          }
+        })
+      })
+      setSvcConfigs(svcCons)
+    }
 
-  }, [service, networks, tasks])
+    if (service && secrets) {
+      console.log(secrets)
+      const svcSecs : DataTableValue[][] = []
+      secrets.forEach(sec => {
+        service.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.forEach(svcSec => {
+          if (svcSec.SecretID === sec.ID) {
+            svcSecs.push(
+              [
+                { link: '/secret/' + sec.ID, value: sec.Spec?.Name || sec.ID || '' }
+                , svcSec.File?.Name
+                , svcSec.File?.UID + ':' + svcSec.File?.GID
+              ]
+            )
+          }
+        })
+      })
+      setSvcSecrets(svcSecs)
+    }
+
+  }, [service, networks, tasks, secrets, configs])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -200,7 +263,7 @@ function ServiceUi(props: ServiceProps) {
     return <></>
   } else {
     return (
-      <Box sx={{ width: '100%'}} >
+      <Box sx={{ width: '100%' }} >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
             <Tab label="Details" />
@@ -208,124 +271,146 @@ function ServiceUi(props: ServiceProps) {
           </Tabs>
         </Box>
         {
-      tab === 0 &&
-      <Box>
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2}>
-            <Section id="service.overview" heading="Overview" >
-              <DataTable id="service.overview.table" kvTable={true} rows={
-                [
-                  ['ID', service.ID || '']
-                  , ['Image', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ' ']
-                  , ['Hash', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/.*@/, '') || ' ']
-                  , ['Created', service.CreatedAt || '']
-                  , ['Updated', service.UpdatedAt || '']
-                  , ['Stack', service?.Spec?.Labels && service?.Spec?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + service?.Spec?.Labels['com.docker.stack.namespace'], value: service?.Spec?.Labels['com.docker.stack.namespace'] } : '' ]
-                ]
-              }>
-              </DataTable>
-            </Section>
-            <Section id="service.execution" heading="Execution" xs={6} >
-              <DataTable id="service.execution.table" kvTable={true} rows={
-                [
-                  ['Command', service?.Spec?.TaskTemplate?.ContainerSpec?.Command]
-                  , ['Arguments', service?.Spec?.TaskTemplate?.ContainerSpec?.Args]
-                  , ['Environment', service?.Spec?.TaskTemplate?.ContainerSpec?.Env]
-                  , ['Dir', service?.Spec?.TaskTemplate?.ContainerSpec?.Dir]
-                  , ['User', service?.Spec?.TaskTemplate?.ContainerSpec?.User]
-                  , ['Groups', service?.Spec?.TaskTemplate?.ContainerSpec?.Groups]
-                  , ['Hostname', service?.Spec?.TaskTemplate?.ContainerSpec?.Hostname]
-                ]
-              }>
-              </DataTable>
-            </Section>
-            <Section id="service.resources" heading="Resources" >
-              <DataTable id="service.resources.table" kvTable={true} rows={resources}>
-              </DataTable>
-            </Section>
-            <Section id="service.status" heading="Status" >
-              <DataTable id="service.status.table" headers={
-                [
-                  'Running Tasks'
-                  , 'Desired Tasks'
-                  , 'Completed Tasks'
-                ]
-              }
-                rows={
-                  [
+          tab === 0 &&
+          <Box>
+            <Box sx={{ flexGrow: 1 }}>
+              <Grid container spacing={2}>
+                <Section id="service.overview" heading="Overview" >
+                  <DataTable id="service.overview.table" kvTable={true} rows={
                     [
-                      service.ServiceStatus?.RunningTasks || ''
-                      , service.ServiceStatus?.RunningTasks || ''
-                      , service.ServiceStatus?.RunningTasks || ''
+                      ['ID', service.ID || '']
+                      , ['Image', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ' ']
+                      , ['Hash', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/.*@/, '') || ' ']
+                      , ['Created', service.CreatedAt || '']
+                      , ['Updated', service.UpdatedAt || '']
+                      , ['Stack', service?.Spec?.Labels && service?.Spec?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + service?.Spec?.Labels['com.docker.stack.namespace'], value: service?.Spec?.Labels['com.docker.stack.namespace'] } : '']
                     ]
-                  ]
-                }>
-              </DataTable>
-            </Section>
-            <Section id="service.mounts" heading="Mounts" >
-              <DataTable id="service.mounts.spec" kvTable={true} sx={{ width: '20em' }} rows={
-                [
-                  ['Read Only Root FS', String(service?.Spec?.TaskTemplate?.ContainerSpec?.ReadOnly)]
-                ]
-              }>
-              </DataTable>
-              <br/>
-              <DataTable id="service.mounts.list" headers={
-                [
-                  'Type'
-                  , 'Target'
-                  , 'Source'
-                  , 'ReadOnly'
-                ]
-              } rows={mounts}
-              >
-              </DataTable>
-            </Section>
+                  }>
+                  </DataTable>
+                </Section>
+                <Section id="service.execution" heading="Execution" xs={6} >
+                  <DataTable id="service.execution.table" kvTable={true} rows={
+                    [
+                      ['Command', service?.Spec?.TaskTemplate?.ContainerSpec?.Command]
+                      , ['Arguments', service?.Spec?.TaskTemplate?.ContainerSpec?.Args]
+                      , ['Environment', service?.Spec?.TaskTemplate?.ContainerSpec?.Env]
+                      , ['Dir', service?.Spec?.TaskTemplate?.ContainerSpec?.Dir]
+                      , ['User', service?.Spec?.TaskTemplate?.ContainerSpec?.User]
+                      , ['Groups', service?.Spec?.TaskTemplate?.ContainerSpec?.Groups]
+                      , ['Hostname', service?.Spec?.TaskTemplate?.ContainerSpec?.Hostname]
+                    ]
+                  }>
+                  </DataTable>
+                </Section>
+                <Section id="service.resources" heading="Resources" >
+                  <DataTable id="service.resources.table" kvTable={true} rows={resources}>
+                  </DataTable>
+                </Section>
+                <Section id="service.status" heading="Status" >
+                  <DataTable id="service.status.table" headers={
+                    [
+                      'Running Tasks'
+                      , 'Desired Tasks'
+                      , 'Completed Tasks'
+                    ]
+                  }
+                    rows={
+                      [
+                        [
+                          service.ServiceStatus?.RunningTasks || ''
+                          , service.ServiceStatus?.RunningTasks || ''
+                          , service.ServiceStatus?.RunningTasks || ''
+                        ]
+                      ]
+                    }>
+                  </DataTable>
+                </Section>
+                <Section id="service.mounts" heading="Mounts" >
+                  <DataTable id="service.mounts.spec" kvTable={true} sx={{ width: '20em' }} rows={
+                    [
+                      ['Read Only Root FS', String(service?.Spec?.TaskTemplate?.ContainerSpec?.ReadOnly)]
+                    ]
+                  }>
+                  </DataTable>
+                  <br />
+                  <DataTable id="service.mounts.list" headers={
+                    [
+                      'Type'
+                      , 'Target'
+                      , 'Source'
+                      , 'ReadOnly'
+                    ]
+                  } rows={mounts}
+                  >
+                  </DataTable>
+                </Section>
 
-            <Section id="service.labels" heading="Labels" >
-              <DataTable id="service.labels.table" headers={
-                [
-                  'Label'
-                  , 'Value'
-                  , 'Source'
-                ]
-              } rows={labels}
-              >
-              </DataTable>
-            </Section>
+                <Section id="service.labels" heading="Labels" >
+                  <DataTable id="service.labels.table" headers={
+                    [
+                      'Label'
+                      , 'Value'
+                      , 'Source'
+                    ]
+                  } rows={labels}
+                  >
+                  </DataTable>
+                </Section>
 
-            <Section id="service.networks" heading="Networks" xs={12} >
-              <DataTable id="service.networks.table" headers={
-                [
-                  'ID'
-                  , 'Name'
-                  , 'Aliases'
-                  , 'Options'
-                  , 'Services'
-                ]
-              } rows={networksData}
-              >
-              </DataTable>
-            </Section>
+                <Section id="service.networks" heading="Networks" xs={12} >
+                  <DataTable id="service.networks.table" headers={
+                    [
+                      'ID'
+                      , 'Name'
+                      , 'Aliases'
+                      , 'Options'
+                      , 'Services'
+                    ]
+                  } rows={networksData}
+                  >
+                  </DataTable>
+                </Section>
 
-            {
-            svcTasks &&
-            <Section id="service.tasks" heading="Tasks" xs={12}>
-              <DataTable id="service.tasks.table" headers={svcTaskHeaders} rows={svcTasks}>
-              </DataTable>
-            </Section>
-            }
+                {
+                  svcConfigs &&
+                  <Section id="service.configs" heading="Configs" xs={12}>
+                    <DataTable
+                      id="service.configs.table"
+                      headers={['CONFIG', 'MOUNTPOINT', 'UID:GID']}
+                      rows={svcConfigs}
+                    />
+                  </Section>
+                }
 
-          </Grid>
-        </Box>
-      </Box>
-    }
-    {
-      tab === 1 &&
-      <Box>
-        <JSONPretty data={service} />
-      </Box>
-    }
+                {
+                  svcSecrets &&
+                  <Section id="service.secrets" heading="Secrets" xs={12}>
+                    <DataTable
+                      id="service.secrets.table"
+                      headers={['SECRET', 'MOUNTPOINT', 'UID:GID']}
+                      rows={svcSecrets}
+                    />
+                  </Section>
+                }
+
+                {
+                  svcTasks &&
+                  <Section id="service.tasks" heading="Tasks" xs={12}>
+                    <DataTable id="service.tasks.table" headers={svcTaskHeaders} rows={svcTasks}>
+                    </DataTable>
+                  </Section>
+                }
+
+              </Grid>
+            </Box>
+          </Box>
+        }
+        {
+          tab === 1 &&
+          <Box>
+            <JSONPretty data={service} />
+          </Box>
+        }
       </Box >
     )
   }

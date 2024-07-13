@@ -2,7 +2,7 @@ import './App.css'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter, Link, Routes, Route, Navigate } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
-import { PaletteMode, Typography } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import { useState, useMemo } from 'react'
 
 import ServiceUi from './Service'
@@ -18,9 +18,20 @@ import Configs from './Configs'
 import Box from '@mui/material/Box';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import LayersIcon from '@mui/icons-material/Layers';
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import HubIcon from '@mui/icons-material/Hub';
+import WifiIcon from '@mui/icons-material/Wifi';
+import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
+import KeyIcon from '@mui/icons-material/Key';
 import StackUi from './Stack';
 import NodeUi from './Node';
 import TaskUi from './Task';
+import SecretUi from './Secret';
+import ConfigUi from './Config';
+import Stack from '@mui/system/Stack';
+import { PaletteMode } from '@mui/material';
 
 function App() {
 
@@ -43,7 +54,7 @@ function App() {
             , paper: '#f8f8f8'
           }
         }
-  
+
       })
       :
       createTheme({
@@ -55,7 +66,6 @@ function App() {
         }
       })
     )
-    console.log("Theme:", thm)
     return thm
   }
     , [mode]);
@@ -74,15 +84,19 @@ function App() {
             <Typography variant='h6'>Swarm View</Typography>
             <Typography variant='body2'>Version 0.0.0</Typography>
           </Box>
-          <ul>
-            <li><Link to="/stacks">Stacks</Link></li>
-            <li><Link to="/services">Services</Link></li>
-            <li><Link to="/tasks">Tasks</Link></li>
-            <li><Link to="/nodes">Nodes</Link></li>
-            <li><Link to="/networks">Networks</Link></li>
-            <li><Link to="/secrets">Secrets</Link></li>
-            <li><Link to="/configs">Configs</Link></li>
-          </ul>
+
+          <hr />
+          <Box>
+            <Link className='navlink' to="/stacks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1}><LayersIcon fontSize='small' /><Typography>Stacks</Typography></Stack></Link>
+            <Link className='navlink' to="/services"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><MiscellaneousServicesIcon fontSize='small' /><Typography>Servcices</Typography></Stack></Link>
+            <Link className='navlink' to="/tasks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><AssignmentIcon fontSize='small' /><Typography>Tasks</Typography></Stack></Link>
+            <hr />
+            <Link className='navlink' to="/nodes"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><HubIcon fontSize='small' /><Typography>Nodes</Typography></Stack></Link>
+            <Link className='navlink' to="/networks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><WifiIcon fontSize='small' /><Typography>Networks</Typography></Stack></Link>
+            <hr />
+            <Link className='navlink' to="/configs"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><DisplaySettingsIcon fontSize='small' /><Typography>Configs</Typography></Stack></Link>
+            <Link className='navlink' to="/secrets"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><KeyIcon fontSize='small' /><Typography>Secrets</Typography></Stack></Link>
+          </Box>
         </Box>
         <Box className='notSideBar'>
           <Box className='titleBar' bgcolor='primary.main' width='100%' sx={{ boxShadow: 3 }} >
@@ -103,6 +117,8 @@ function App() {
               <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/node/:id' element={<NodeUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/task/:id' element={<TaskUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route path='/secret/:id' element={<SecretUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route path='/config/:id' element={<ConfigUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
