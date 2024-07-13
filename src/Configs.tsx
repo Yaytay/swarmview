@@ -14,7 +14,6 @@ function Configs(props: ConfigsProps) {
   const [configs, setConfigs] = useState<Config[]>([])
   const [services, setServices] = useState<Map<string, Service[]>>(new Map())
   const [data, setData] = useState<(string | DataTablePropsEntry | DataTablePropsEntry[])[][]>()
-  const [headers, _] = useState(['ID', 'NAME', 'CREATED', 'SERVICES'])
 
   useEffect(() => {
     fetch(props.baseUrl + 'configs')
@@ -44,7 +43,7 @@ function Configs(props: ConfigsProps) {
         j.forEach((svc: Service) => {
           svc.Spec?.TaskTemplate?.ContainerSpec?.Configs?.forEach(svcCnf => {
             if (svcCnf.ConfigID) {
-              var svcConfigs = buildServices.get(svcCnf.ConfigID)
+              let svcConfigs = buildServices.get(svcCnf.ConfigID)
               if (!svcConfigs) {
                 svcConfigs = []
                 buildServices.set(svcCnf.ConfigID, svcConfigs)
@@ -55,10 +54,10 @@ function Configs(props: ConfigsProps) {
         });
         setServices(buildServices)
       })
-  }, [props.baseUrl])
+  }, [props])
 
   useEffect(() => {
-    var newData = [] as (string | DataTablePropsEntry | DataTablePropsEntry[])[][]
+    const newData = [] as (string | DataTablePropsEntry | DataTablePropsEntry[])[][]
     configs.forEach((cnf: Config) => {
       if (cnf.ID) {
         const cnfSvcs = services?.get(cnf.ID)?.map(svc => {
@@ -82,7 +81,9 @@ return (<>
   <Box sx={{ flexGrow: 1 }}>
     <Grid container >
       <Paper>
-        <DataTable id="configs" headers={headers} rows={data}>
+        <DataTable id="configs" headers={
+          ['ID', 'NAME', 'CREATED', 'SERVICES']
+        } rows={data}>
         </DataTable>
       </Paper>
     </Grid>

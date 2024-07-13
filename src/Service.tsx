@@ -108,7 +108,7 @@ function ServiceUi(props: ServiceProps) {
         } else {
           setService(buildService)
           props.setTitle('Service: ' + buildService.Spec?.Name)
-          var buildLabels = [] as (string | number | DataTablePropsEntry)[][]
+          const buildLabels = [] as (string | number | DataTablePropsEntry)[][]
           if (buildService?.Spec?.Labels) {
             const record = buildService?.Spec?.Labels
             Object.keys(record).forEach(key => {
@@ -127,7 +127,7 @@ function ServiceUi(props: ServiceProps) {
           }
           setLabels(buildLabels)
 
-          var buildMounts = [] as (string | undefined)[][]
+          let buildMounts = [] as (string | undefined)[][]
           if (buildService?.Spec?.TaskTemplate?.ContainerSpec?.Mounts) {
             buildMounts = buildService.Spec.TaskTemplate.ContainerSpec.Mounts.map(mount => {
               return [
@@ -142,14 +142,14 @@ function ServiceUi(props: ServiceProps) {
         }
       })
   }
-    , [props.baseUrl, id])
+    , [props, id])
 
   useEffect(() => {
-    var buildNetworks = [] as (DataTableValue)[][]
+    let buildNetworks = [] as (DataTableValue)[][]
     if (service?.Spec?.TaskTemplate?.Networks) {
 
       buildNetworks = service.Spec.TaskTemplate.Networks.reduce<(DataTableValue)[][]>((accumulator, svcNet) => {
-        var net = networks?.find(n => n.Id === svcNet.Target)
+        const net = networks?.find(n => n.Id === svcNet.Target)
         if (net && svcNet.Target) {
           const item = [
             { link: '/network/' + svcNet.Target, value: svcNet.Target }
@@ -172,7 +172,7 @@ function ServiceUi(props: ServiceProps) {
     }
     setNetworksData(buildNetworks)
 
-    var buildResources = [] as (string | number | null)[][]
+    const buildResources = [] as (string | number | null)[][]
     if (service?.Spec?.TaskTemplate?.Resources) {
       const res = service.Spec.TaskTemplate.Resources
       buildResources.push(['Limit Memory', (res.Limits?.MemoryBytes ? String(res.Limits?.MemoryBytes / 1048576) + 'MB' : null)])
@@ -253,7 +253,7 @@ function ServiceUi(props: ServiceProps) {
       setSvcSecrets(svcSecs)
     }
 
-  }, [service, networks, tasks, secrets, configs])
+  }, [service, networks, tasks, secrets, configs, id, services])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);

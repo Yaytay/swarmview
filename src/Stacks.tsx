@@ -15,8 +15,6 @@ function Stacks(props: StacksProps) {
   const [services, setServices] = useState<Map<string, Service[]>>(new Map())
   const [networks, setNetworks] = useState<Map<string, Network[]>>(new Map())
 
-  const [headers, _] = useState(['NAME', 'SERVICES', 'NETWORKS'])
-
   useEffect(() => {
     fetch(props.baseUrl + 'services')
       .then(r => {
@@ -76,10 +74,10 @@ function Stacks(props: StacksProps) {
         setNetworks(buildNetworks)
       })
   }
-    , [props.baseUrl])
+    , [props.baseUrl, props])
 
   useEffect(() => {
-    var buildStacks = [] as (string | number | DataTablePropsEntry)[][]
+    const buildStacks = [] as (string | number | DataTablePropsEntry)[][]
     services.forEach((svcs, key) => {
       buildStacks.push([
         { link: '/stack/' + key, value: key }
@@ -94,7 +92,7 @@ function Stacks(props: StacksProps) {
     <Box sx={{ flexGrow: 1 }}>
       <Grid container >
         <Paper>
-          <DataTable id="stacks" headers={headers} rows={stacks}>
+          <DataTable id="stacks" headers={['NAME', 'SERVICES', 'NETWORKS']} rows={stacks}>
           </DataTable>
         </Paper>
       </Grid>

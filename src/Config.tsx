@@ -82,7 +82,7 @@ function ConfigUi(props: ConfigProps) {
       setConfigServices(conSvcs)
     }
 
-  }, [config, services])
+  }, [config, services, props, id])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);

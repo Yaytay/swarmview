@@ -12,7 +12,6 @@ interface ServicesProps {
 function Services(props: ServicesProps) {
 
   const [data, setData] = useState<(string | DataTablePropsEntry)[][]>()
-  const [headers, _] = useState(['ID', 'NAME', 'MODE', 'REPLICAS', 'IMAGE', 'PORTS'])
 
   useEffect(() => {
     fetch(props.baseUrl + 'services?status=true')
@@ -26,7 +25,7 @@ function Services(props: ServicesProps) {
       })
       .then(j => {
         props.setTitle('Services')
-        var newData = [] as (string | DataTablePropsEntry)[][]
+        const newData = [] as (string | DataTablePropsEntry)[][]
         j.forEach((svc: Service) => {
           newData.push(
             [
@@ -35,7 +34,7 @@ function Services(props: ServicesProps) {
               , Object.keys(svc.Spec?.Mode || [''])[0]
               , svc.ServiceStatus?.RunningTasks + ' / ' + svc.ServiceStatus?.DesiredTasks
               , svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
-              , svc.Endpoint?.Ports?.map((p: any) => {
+              , svc.Endpoint?.Ports?.map((p) => {
                 return p.TargetPort + ':' + p.PublishedPort
               }).join(', ') || ''
             ]
@@ -44,13 +43,15 @@ function Services(props: ServicesProps) {
         setData(newData)
       })
   }
-    , [props.baseUrl])
+    , [props])
 
   return (<>
     <Box sx={{ flexGrow: 1 }}>
       <Grid container >
         <Paper>
-          <DataTable id="services" headers={headers} rows={data}>
+          <DataTable id="services" headers={
+            ['ID', 'NAME', 'MODE', 'REPLICAS', 'IMAGE', 'PORTS']
+          } rows={data}>
           </DataTable>
         </Paper>
       </Grid>

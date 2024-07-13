@@ -12,7 +12,6 @@ interface NetworksProps {
 function Networks(props: NetworksProps) {
 
   const [data, setData] = useState<(string | undefined | DataTablePropsEntry)[][]>()
-  const [headers, _] = useState(['ID', 'NAME', 'DRIVER', 'SCOPE', 'ENCRYPTED'])
 
   useEffect(() => {
     fetch(props.baseUrl + 'networks?status=true')
@@ -26,7 +25,7 @@ function Networks(props: NetworksProps) {
       })
       .then(j => {
         props.setTitle('Networks')
-        var newData = [] as (string | undefined | DataTablePropsEntry)[][]
+        const newData = [] as (string | undefined | DataTablePropsEntry)[][]
         j.forEach((net: Network) => {
           newData.push(
             [
@@ -41,13 +40,15 @@ function Networks(props: NetworksProps) {
         setData(newData)
       })
   }
-    , [props.baseUrl])
+    , [props])
 
   return (<>
     <Box sx={{ flexGrow: 1 }}>
       <Grid container >
         <Paper>
-          <DataTable id="networks" headers={headers} rows={data}>
+          <DataTable id="networks" headers={
+            ['ID', 'NAME', 'DRIVER', 'SCOPE', 'ENCRYPTED']
+          } rows={data}>
           </DataTable>
         </Paper>
       </Grid>

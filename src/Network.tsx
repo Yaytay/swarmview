@@ -66,7 +66,7 @@ function NetworkUi(props: NetworkProps) {
   useEffect(() => {
     props.setTitle('Network: ' + network?.Name)
 
-    var buildLabels = [] as (string | number | DataTablePropsEntry)[][]
+    const buildLabels = [] as (string | number | DataTablePropsEntry)[][]
     if (network?.Labels) {
       const record = network.Labels
       Object.keys(record).forEach(key => {
@@ -95,7 +95,7 @@ function NetworkUi(props: NetworkProps) {
     })
     setNetworkServices(buildNetworkServices)
 
-  }, [network, services])
+  }, [network, services, props, id])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);

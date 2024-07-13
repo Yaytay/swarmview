@@ -16,7 +16,6 @@ function Tasks(props: TasksProps) {
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map<string, Node>())
 
   const [data, setData] = useState<(string | string[] | DataTablePropsEntry)[][]>()
-  const [headers, _] = useState(['ID', 'NAME', 'NODE', 'CREATED', 'IMAGE', 'DESIRED STATE', 'CURRENT STATE', 'ERROR', 'PORTS'])
 
   useEffect(() => {
     fetch(props.baseUrl + 'tasks')
@@ -42,8 +41,8 @@ function Tasks(props: TasksProps) {
       console.log('Failed to get services:', reason)
     })
     .then(j => {
-      var buildServices = new Map<string, Service>()
-      for (var svc in j) {
+      const buildServices = new Map<string, Service>()
+      for (const svc in j) {
         buildServices.set(j[svc].ID, j[svc])
       }
       setServices(buildServices)
@@ -59,8 +58,8 @@ function Tasks(props: TasksProps) {
       console.log('Failed to get nodes:', reason)
     })
     .then(j => {
-      var buildNodes = new Map<string, Node>()
-      for (var nod in j) {
+      const buildNodes = new Map<string, Node>()
+      for (const nod in j) {
         buildNodes.set(j[nod].ID, j[nod])
       }
       setNodes(buildNodes)
@@ -70,7 +69,7 @@ function Tasks(props: TasksProps) {
   useEffect(() => {
     if (tasks && services) {
       props.setTitle('Tasks')
-      var newData = [] as (string | string[] | DataTablePropsEntry)[][]
+      const newData = [] as (string | string[] | DataTablePropsEntry)[][]
       tasks.forEach((tsk: Task) => {
         if (tsk.ID) {
           newData.push(
@@ -93,13 +92,13 @@ function Tasks(props: TasksProps) {
       });      
       setData(newData)
     }
-}, [tasks, services])
+}, [tasks, services, nodes, props])
 
   return (<>
     <Box sx={{ flexGrow: 1 }}>
       <Grid container >
         <Paper>
-          <DataTable id="tasks" headers={headers} rows={data}>
+          <DataTable id="tasks" headers={['ID', 'NAME', 'NODE', 'CREATED', 'IMAGE', 'DESIRED STATE', 'CURRENT STATE', 'ERROR', 'PORTS']} rows={data}>
           </DataTable>
         </Paper>
       </Grid>

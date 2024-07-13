@@ -73,14 +73,14 @@ function NodeUi(props: NodeProps) {
         console.log('Failed to get services:', reason)
       })
       .then(j => {
-        var buildServices = new Map<string, Service>()
-        for (var svc in j) {
+        const buildServices = new Map<string, Service>()
+        for (const svc in j) {
           buildServices.set(j[svc].ID, j[svc])
         }
         setServices(buildServices)
       })
   }
-    , [props.baseUrl, id])
+    , [props, id])
 
   useEffect(() => {
     props.setTitle('Node: ' + node?.Description?.Hostname || node?.ID || '')
@@ -118,7 +118,7 @@ function NodeUi(props: NodeProps) {
       setNodeTasks(buildStackTasks)
     }
 
-  }, [node, tasks, services])
+  }, [node, tasks, services, id, props])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);

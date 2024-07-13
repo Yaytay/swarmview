@@ -33,9 +33,6 @@ interface DataTableProps {
   rows: (DataTableValue)[][] | undefined
   sx?: SxProps<Theme>;
 }
-export function entry(link: string, value: string): DataTablePropsEntry {
-  return { link: link, value: value }
-}
 
 interface DataTableValueProps {
   value: DataTableValue
@@ -99,7 +96,7 @@ function DataTable(props: DataTableProps) {
     // console.log("Rows: ", props.rows)
 
     if (props.rows) {
-      var src = [...props.rows]
+      let src = [...props.rows]
       if (sortAndFilterConfig.filter !== null && sortAndFilterConfig.filterValue) {
         src = src.filter(row => {
           if (sortAndFilterConfig.filter) {
@@ -116,8 +113,8 @@ function DataTable(props: DataTableProps) {
         })
       }
       if (sortAndFilterConfig.sort) {
-        var field = sortAndFilterConfig.sort
-        var factor = 1
+        let field = sortAndFilterConfig.sort
+        let factor = 1
         if (field[0] === '-') {
           field = field.substring(1)
           factor = -1
@@ -130,7 +127,7 @@ function DataTable(props: DataTableProps) {
       // console.log('Result', src)
       if (src.length === 0) {
         if (sortAndFilterConfig.filter && sortAndFilterConfig.filterValue) {
-          var msg;
+          let msg;
           if (props.headers) {
             msg = 'All values filtered out by ' + props?.headers[sortAndFilterConfig.filter] + ' == ' + sortAndFilterConfig.filterValue
           } else {
@@ -146,10 +143,10 @@ function DataTable(props: DataTableProps) {
     } else {
       setValues([])
     }
-  }, [sortAndFilterConfig, props])
+  }, [sortAndFilterConfig, allFiltered, props])
 
   function updateSort(newSort: string) {
-    var newConfig = { ...sortAndFilterConfig }
+    const newConfig = { ...sortAndFilterConfig }
     if (newConfig.sort === newSort) {
       newConfig.sort = '-' + newSort;
     } else if (newConfig.sort === '-' + newSort) {
@@ -191,7 +188,7 @@ function DataTable(props: DataTableProps) {
     setAnchorEl(null);
   };
   function handleClearFilter() {
-    var newConfig = { ...sortAndFilterConfig }
+    const newConfig = { ...sortAndFilterConfig }
     newConfig.filter = -1
     newConfig.filterValue = null
     localStorage.setItem(props.id, JSON.stringify(newConfig))
@@ -199,7 +196,7 @@ function DataTable(props: DataTableProps) {
     setAnchorEl(null);
   }
   function handleSelection(value: string) {
-    var newConfig = { ...sortAndFilterConfig }
+    const newConfig = { ...sortAndFilterConfig }
     newConfig.filter = filterIndex
     newConfig.filterValue = value
     localStorage.setItem(props.id, JSON.stringify(newConfig))

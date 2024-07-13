@@ -12,7 +12,6 @@ interface NodesProps {
 function Nodes(props: NodesProps) {
 
   const [data, setData] = useState<(string | DataTablePropsEntry)[][]>()
-  const [headers, _] = useState(['ID', 'HOSTNAME', 'STATUS', 'AVAILABILITY', 'MANAGER STATUS', 'ENGINE VERSION'])
 
   useEffect(() => {
     fetch(props.baseUrl + 'nodes')
@@ -26,7 +25,7 @@ function Nodes(props: NodesProps) {
       })
       .then(j => {
         props.setTitle('Nodes')
-        var newData = [] as (string | DataTablePropsEntry)[][]
+        const newData = [] as (string | DataTablePropsEntry)[][]
         j.forEach((nod: Node) => {
           if (nod.ID) {
             newData.push(
@@ -44,13 +43,15 @@ function Nodes(props: NodesProps) {
         setData(newData)
       })
   }
-    , [props.baseUrl])
+    , [props])
 
   return (<>
     <Box sx={{ flexGrow: 1 }}>
       <Grid container >
         <Paper>
-          <DataTable id="nodes" headers={headers} rows={data}>
+          <DataTable id="nodes" headers={
+            ['ID', 'HOSTNAME', 'STATUS', 'AVAILABILITY', 'MANAGER STATUS', 'ENGINE VERSION']
+          } rows={data}>
           </DataTable>
         </Paper>
       </Grid>

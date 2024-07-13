@@ -1,4 +1,4 @@
-import { renderToPipeableStream, renderToString } from 'react-dom/server';
+import { renderToPipeableStream } from 'react-dom/server';
  
 import App from './App';
  

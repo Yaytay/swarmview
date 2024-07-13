@@ -107,7 +107,7 @@ function StackUi(props: StackUiProps) {
           if (labels) {
             const namespace = labels['com.docker.stack.namespace']
             if (namespace) {
-              var currentTaskServices = buildTasks.get(namespace)
+              let currentTaskServices = buildTasks.get(namespace)
               if (!currentTaskServices) {
                 currentTaskServices = new Map<string, Task[]>()
                 buildTasks.set(namespace, currentTaskServices)
@@ -117,7 +117,7 @@ function StackUi(props: StackUiProps) {
               const nodeId = tsk.NodeID
               const jobId = serviceId + '.' + (slotId ? slotId : nodeId)
               if (serviceId) {
-                var currentTaskJobs = currentTaskServices.get(jobId)
+                let currentTaskJobs = currentTaskServices.get(jobId)
                 if (!currentTaskJobs) {
                   currentTaskJobs = []
                   currentTaskServices.set(jobId, currentTaskJobs)
@@ -131,7 +131,7 @@ function StackUi(props: StackUiProps) {
         setTasks(buildTasks)
       })
   }
-    , [props.baseUrl])
+    , [props.baseUrl, id, props])
 
   useEffect(() => {
     if (tasks && networks && nodes && services) {
@@ -139,7 +139,7 @@ function StackUi(props: StackUiProps) {
         setStackTaskHeaders(['ID', 'NAME', 'IMAGE', 'NODE', 'DESIRED STATE', 'CURRENT STATE', 'ERROR', 'PORTS'])
         const buildStackTasks: DataTableValue[][] = []
         const currentTaskServices = tasks.get(id)
-        currentTaskServices?.forEach((svcTasks, _) => {
+        currentTaskServices?.forEach((svcTasks) => {
           svcTasks.sort((l, r) => {
             return (l.CreatedAt ?? '') > (r.CreatedAt ?? '') ? -1 : 1
           })

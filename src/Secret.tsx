@@ -81,7 +81,7 @@ function SecretUi(props: SecretProps) {
       setSecretServices(secSvcs)
     }
 
-  }, [secret, services])
+  }, [secret, services, id, props])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);

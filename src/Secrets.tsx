@@ -14,7 +14,6 @@ function Secrets(props: SecretsProps) {
   const [secrets, setSecrets] = useState<Secret[]>([])
   const [services, setServices] = useState<Map<string, Service[]>>(new Map())
   const [data, setData] = useState<(string | DataTablePropsEntry | DataTablePropsEntry[])[][]>()
-  const [headers, _] = useState(['ID', 'NAME', 'CREATED', 'SERVICES'])
 
   useEffect(() => {
     fetch(props.baseUrl + 'secrets')
@@ -44,7 +43,7 @@ function Secrets(props: SecretsProps) {
         j.forEach((svc: Service) => {
           svc.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.forEach(svcSec => {
             if (svcSec.SecretID) {
-              var svcSecrets = buildServices.get(svcSec.SecretID)
+              let svcSecrets = buildServices.get(svcSec.SecretID)
               if (!svcSecrets) {
                 svcSecrets = []
                 buildServices.set(svcSec.SecretID, svcSecrets)
@@ -55,10 +54,10 @@ function Secrets(props: SecretsProps) {
         });
         setServices(buildServices)
       })
-  }, [props.baseUrl])
+  }, [props])
 
   useEffect(() => {
-    var newData = [] as (string | DataTablePropsEntry | DataTablePropsEntry[])[][]
+    const newData = [] as (string | DataTablePropsEntry | DataTablePropsEntry[])[][]
     secrets.forEach((sec: Secret) => {
       if (sec.ID) {
         const secSvcs = services?.get(sec.ID)?.map(svc => {
@@ -82,7 +81,9 @@ function Secrets(props: SecretsProps) {
     <Box sx={{ flexGrow: 1 }}>
       <Grid container >
         <Paper>
-          <DataTable id="secrets" headers={headers} rows={data}>
+          <DataTable id="secrets" headers={
+            ['ID', 'NAME', 'CREATED', 'SERVICES']
+          } rows={data}>
           </DataTable>
         </Paper>
       </Grid>

@@ -52,7 +52,7 @@ function TaskUi(props: TaskUiProps) {
           if (svc?.Spec?.TaskTemplate?.Networks) {
             svc?.Spec?.TaskTemplate?.Networks.forEach(net => {
               if (net.Target) {
-                var netList = buildServicesByNet.get(net.Target)
+                let netList = buildServicesByNet.get(net.Target)
                 if (!netList) {
                   netList = []
                   buildServicesByNet.set(net.Target, netList)
@@ -120,13 +120,13 @@ function TaskUi(props: TaskUiProps) {
         setTask(j)
       })
   }
-    , [props.baseUrl])
+    , [props.baseUrl, id])
 
   useEffect(() => {
     if (task) {
       props.setTitle('Task: ' + ((task.ServiceID && services.get(task.ServiceID)?.Spec?.Name) ?? task.ServiceID) + '.' + (task.Slot ? task.Slot : task.NodeID) )
 
-      var buildLabels = [] as (string | number | DataTablePropsEntry)[][]
+      const buildLabels = [] as (string | number | DataTablePropsEntry)[][]
       if (task?.Spec?.ContainerSpec?.Labels) {
         const record = task?.Spec?.ContainerSpec?.Labels
         Object.keys(record).forEach(key => {
@@ -137,7 +137,7 @@ function TaskUi(props: TaskUiProps) {
       }
       setLabels(buildLabels)
 
-      var buildMounts = [] as (string | undefined)[][]
+      let buildMounts = [] as (string | undefined)[][]
       if (task?.Spec?.ContainerSpec?.Mounts) {
         buildMounts = task.Spec.ContainerSpec.Mounts.map(mount => {
           return [
@@ -150,15 +150,15 @@ function TaskUi(props: TaskUiProps) {
         setMounts(buildMounts)
       }
 
-      var buildNetworks = [] as (DataTableValue)[][]
+      let buildNetworks = [] as (DataTableValue)[][]
       if (task?.Spec?.Networks) {
   
         buildNetworks = task.Spec.Networks.reduce<(DataTableValue)[][]>((accumulator, svcNet) => {
           if (svcNet.Target) {
-            var net = networks.get(svcNet.Target)
+            const net = networks.get(svcNet.Target)
             
-            var netServices : DataTablePropsEntry[] = []
-            var svcsOnNet = servicesByNetwork.get(svcNet.Target)
+            const netServices : DataTablePropsEntry[] = []
+            const svcsOnNet = servicesByNetwork.get(svcNet.Target)
             svcsOnNet?.sort().forEach(svcOnNet => {
               if (svcOnNet.ID) {
                 netServices.push({link: '/service/' + svcOnNet.ID, value: svcOnNet.Spec?.Name || svcOnNet.ID})
@@ -181,7 +181,7 @@ function TaskUi(props: TaskUiProps) {
       }
       setNetworksData(buildNetworks)
   
-      var buildResources = [] as (string | number | null)[][]
+      const buildResources = [] as (string | number | null)[][]
       if (task?.Spec?.Resources) {
         const res = task.Spec.Resources
         buildResources.push(['Limit Memory', (res.Limits?.MemoryBytes ? String(res.Limits?.MemoryBytes / 1048576) + 'MB' : null)])
@@ -197,7 +197,7 @@ function TaskUi(props: TaskUiProps) {
   
 
     }
-  }, [id, task, networks, nodes, services])
+  }, [id, task, networks, nodes, services, props, servicesByNetwork])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
