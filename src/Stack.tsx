@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import { Network, Service, Task, Node, TaskState } from './docker-schema';
+import { Network, Service, Task, Node } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
 
@@ -20,8 +20,6 @@ function StackUi(props: StackUiProps) {
   const [networks, setNetworks] = useState<Map<string, Network>>(new Map())
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map())
   const [tasks, setTasks] = useState<Map<string, Map<string, Task[]>>>(new Map())
-
-  const [headers, _] = useState(['NAME', 'SERVICES', 'NETWORKS'])
 
   const [stackTasks, setStackTasks] = useState<DataTableValue[][]>([])
   const [stackTaskHeaders, setStackTaskHeaders] = useState<string[]>([])
@@ -141,29 +139,30 @@ function StackUi(props: StackUiProps) {
         setStackTaskHeaders(['ID', 'NAME', 'IMAGE', 'NODE', 'DESIRED STATE', 'CURRENT STATE', 'ERROR', 'PORTS'])
         const buildStackTasks: DataTableValue[][] = []
         const currentTaskServices = tasks.get(id)
-        currentTaskServices?.forEach((svcTasks, svcName) => {
-          svcTasks.sort((l,r) => {
-            return (l.CreatedAt??'') > (r.CreatedAt??'') ? -1 : 1
+        currentTaskServices?.forEach((svcTasks, _) => {
+          svcTasks.sort((l, r) => {
+            return (l.CreatedAt ?? '') > (r.CreatedAt ?? '') ? -1 : 1
           })
           svcTasks.forEach((tsk, idx) => {
-            buildStackTasks.push(
-              [
-                tsk.ID
-                , { value: ((tsk.ServiceID && services.get(tsk.ServiceID)?.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID), sx: { paddingLeft: (idx > 0 ? '1em': 'inherited')} }
-                , tsk?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '')
-                , (tsk?.NodeID && nodes.get(tsk?.NodeID)?.Description?.Hostname) ?? tsk?.NodeID
-                , tsk?.DesiredState
-                , tsk?.Status?.State
-                , tsk?.Status?.Err
-                , tsk?.Status?.PortStatus?.Ports?.map(portSpec => {
-                  return portSpec.PublishedPort + ':' + portSpec.TargetPort
-                })
-              ]
-            )
+            if (tsk.ID) {
+              buildStackTasks.push(
+                [
+                  { link: '/task/' + tsk.ID, value: tsk.ID }
+                  , { link: '/service/' + tsk.ServiceID, value: ((tsk.ServiceID && services.get(tsk.ServiceID)?.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID), sx: { paddingLeft: (idx > 0 ? '1em' : 'inherited') } }
+                  , tsk?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '')
+                  , { link: '/node/' + tsk.NodeID, value: ((tsk?.NodeID && nodes.get(tsk?.NodeID)?.Description?.Hostname) ?? tsk?.NodeID) || ''}
+                  , tsk?.DesiredState
+                  , tsk?.Status?.State
+                  , tsk?.Status?.Err
+                  , tsk?.Status?.PortStatus?.Ports?.map(portSpec => {
+                    return portSpec.PublishedPort + ':' + portSpec.TargetPort
+                  })
+                ]
+              )
+            }
           })
         })
         setStackTasks(buildStackTasks)
-
 
         setStackNetworkHeaders(['ID', 'NAME', 'OPTIONS', 'SERVICES'])
         const buildStackNetworks: DataTableValue[][] = []
@@ -174,10 +173,10 @@ function StackUi(props: StackUiProps) {
             const namespace = labels['com.docker.stack.namespace']
             if (namespace == id) {
               const svcs: DataTablePropsEntry[] = []
-              
+
               services.forEach(svc => {
                 if (svc?.Spec?.TaskTemplate?.Networks?.find(n => { return n.Target === net?.Id })) {
-                  if (svc?.Spec?.Name && (!svcs.find(s => {return (s.value === svc?.Spec?.Name)}))) {
+                  if (svc?.Spec?.Name && (!svcs.find(s => { return (s.value === svc?.Spec?.Name) }))) {
                     svcs.push({ link: '/service/' + svc.ID, value: svc?.Spec?.Name })
                   }
                 }
@@ -187,7 +186,7 @@ function StackUi(props: StackUiProps) {
 
               buildStackNetworks.push(
                 [
-                  net.Id
+                  net.Id && { link: '/network/' + net.Id, value: net.Id }
                   , net.Name
                   , JSON.stringify(net?.Options)
                   , svcs

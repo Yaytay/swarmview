@@ -8,7 +8,7 @@ import Section from './Section'
 import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import DataTable, { DataTablePropsEntry } from './DataTable';
+import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 
 
 interface NetworkProps {
@@ -24,14 +24,10 @@ function NetworkUi(props: NetworkProps) {
   const [tab, setTab] = useState(0)
 
   const { id } = useParams<NetworkUiParams>();
-  console.log(id)
 
-  const [networks, setNetworks] = useState<Network[]>([])
   const [services, setServices] = useState<Service[]>([])
   const [labels, setLabels] = useState<(string | number | DataTablePropsEntry)[][]>([])
-  const [mounts, setMounts] = useState<(string | undefined)[][]>([])
-  const [resources, setResources] = useState<(string | number | null)[][]>([])
-  const [networksData, setNetworksData] = useState<(string | string[] | undefined | DataTablePropsEntry[])[][]>([])
+  const [networkServices, setNetworkServices] = useState<DataTableValue[][]>([])
 
   useEffect(() => {
     fetch(props.baseUrl + 'networks')
@@ -46,7 +42,6 @@ function NetworkUi(props: NetworkProps) {
       .then(j => {
         console.log('Networks: ', j)
         const nets = j as Network[]
-        setNetworks(nets)
         const net = nets.find(net => { return net.Id === id })
         if (net) {
           setNetwork(net)
@@ -82,6 +77,24 @@ function NetworkUi(props: NetworkProps) {
     }
     setLabels(buildLabels)
 
+    const buildNetworkServices: DataTableValue[][] = []
+    services.forEach(svc => {
+      svc.Spec?.TaskTemplate?.Networks?.forEach(svcNet => {
+        console.log(svcNet)
+        if (svcNet?.Target == id && svc.ID) {
+          buildNetworkServices.push(
+            [
+              { link: '/service/' + svc.ID, value: svc.ID }
+              , svc.Spec?.Name
+              , svcNet.Aliases
+              , JSON.stringify(svcNet.DriverOpts)
+            ]
+          )
+        }
+      })
+    })
+    setNetworkServices(buildNetworkServices)
+
   }, [network, services])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -115,6 +128,7 @@ function NetworkUi(props: NetworkProps) {
                   , ['Internal', String(network?.Internal)]
                   , ['Attachable', String(network?.Attachable)]
                   , ['Ingress', String(network?.Ingress)]
+                  , ['Stack', network?.Labels && network?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + network?.Labels['com.docker.stack.namespace'], value: network?.Labels['com.docker.stack.namespace'] } : '' ]
                 ]
               }>
               </DataTable>
@@ -159,10 +173,8 @@ function NetworkUi(props: NetworkProps) {
                   'ID'
                   , 'Name'
                   , 'Aliases'
-                  , 'Options'
-                  , 'Networks'
                 ]
-              } rows={networksData}
+              } rows={networkServices}
               >
               </DataTable>
             </Section>

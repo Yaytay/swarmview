@@ -12,10 +12,10 @@ interface NodesProps {
 function Nodes(props: NodesProps) {
 
   const [data, setData] = useState<(string | DataTablePropsEntry)[][]>()
-  const [headers, _] = useState(['ID', 'NAME', 'MODE', 'REPLICAS', 'IMAGE', 'PORTS'])
+  const [headers, _] = useState(['ID', 'HOSTNAME', 'STATUS', 'AVAILABILITY', 'MANAGER STATUS', 'ENGINE VERSION'])
 
   useEffect(() => {
-    fetch(props.baseUrl + 'nodes?status=true')
+    fetch(props.baseUrl + 'nodes')
       .then(r => {
         if (r.ok) {
           return r.json();
@@ -27,11 +27,19 @@ function Nodes(props: NodesProps) {
       .then(j => {
         props.setTitle('Nodes')
         var newData = [] as (string | DataTablePropsEntry)[][]
-        j.forEach((svc: Node) => {
-          newData.push(
-            [
-            ]
-          )
+        j.forEach((nod: Node) => {
+          if (nod.ID) {
+            newData.push(
+              [
+                { link: '/node/' + nod.ID, value: nod.ID }
+                , nod.Description?.Hostname || ''
+                , nod.Status?.State || ''
+                , nod.Spec?.Availability || ''
+                , nod.ManagerStatus?.Leader ? 'leader' : nod.ManagerStatus?.Reachability || ''
+                , nod.Description?.Engine?.EngineVersion || ''
+              ]
+            )
+          }
         });
         setData(newData)
       })

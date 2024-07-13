@@ -1,7 +1,11 @@
-import { renderToString } from 'react-dom/server';
+import { renderToPipeableStream, renderToString } from 'react-dom/server';
  
 import App from './App';
  
 export const render = () => {
-  return renderToString(<App />);
+  return renderToPipeableStream(<App />, {
+    onError: (e) => {
+      console.error("wheee")
+    }
+  })
 };

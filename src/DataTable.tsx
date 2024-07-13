@@ -47,24 +47,24 @@ function DataTableValue(props: DataTableValueProps) {
   } else if (Array.isArray(props.value)) {
     return (<>{
       props.value.map((member, index) => {
-        return (<DataTableValue key={String(index)} value={member}/>)
+        return (<DataTableValue key={String(index)} value={member} />)
       })
     }</>)
   } else if (typeof props.value === 'object') {
     if (props.value.link) {
-      return (<Typography sx={[ ...(Array.isArray(props.value.sx) ? props.value.sx : [props.value.sx]) ]}><Link to={props.value.link}>{props.value.value}</Link></Typography>)
+      return (<Typography sx={[...(Array.isArray(props.value.sx) ? props.value.sx : [props.value.sx])]}><Link to={props.value.link}>{props.value.value}</Link></Typography>)
     } else {
-      return (<Typography sx={[ ...(Array.isArray(props.value.sx) ? props.value.sx : [props.value.sx]) ]}>{props.value.value}</Typography>)
+      return (<Typography sx={[...(Array.isArray(props.value.sx) ? props.value.sx : [props.value.sx])]}>{props.value.value}</Typography>)
     }
   } else {
     return (<Typography>{props.value}</Typography>)
   }
 }
 
-function compareDataTableValues(v1: DataTableValue, v2: DataTableValue) : number {
+function compareDataTableValues(v1: DataTableValue, v2: DataTableValue): number {
   if (!v1) {
     return v2 ? -1 : 0
-  } else if(!v2) {
+  } else if (!v2) {
     return 1;
   } else if (Array.isArray(v1)) {
     return String(v1).localeCompare(String(v2))
@@ -86,12 +86,13 @@ function DataTable(props: DataTableProps) {
   }
 
   const [sortAndFilterConfig, setSortAndFilterConfig] = useState<SortAndFilterConfig>(() => {
-    const storedValue = localStorage.getItem(props.id) 
+    const storedValue = localStorage.getItem(props.id)
     const storedObject = storedValue ? JSON.parse(storedValue) : {}
-    return {sort: storedObject?.sort || null, filter: storedObject?.filter || null, filterValue: storedObject?.filterValue || null}
+    return { sort: storedObject?.sort || null, filter: storedObject?.filter || null, filterValue: storedObject?.filterValue || null }
   })
 
   const [values, setValues] = useState(props.rows)
+  const [allFiltered, setAllFiltered] = useState('')
 
   useEffect(() => {
     // console.log("SAF (" + props.id + "):", sortAndFilterConfig)
@@ -100,32 +101,46 @@ function DataTable(props: DataTableProps) {
     if (props.rows) {
       var src = [...props.rows]
       if (sortAndFilterConfig.filter !== null && sortAndFilterConfig.filterValue) {
-        src = src.filter(row => 
-          ! sortAndFilterConfig.filter
-            || row[sortAndFilterConfig.filter] === sortAndFilterConfig.filterValue
-        )
+        src = src.filter(row => {
+          if (sortAndFilterConfig.filter) {
+            if (row[sortAndFilterConfig.filter] === sortAndFilterConfig.filterValue) {
+              return true;
+            } else if (typeof row[sortAndFilterConfig.filter] === 'object') {
+              const item = row[sortAndFilterConfig.filter] as DataTablePropsEntry
+              return sortAndFilterConfig.filterValue === item.value
+            }
+            return false;
+          } else {
+            return true
+          }
+        })
       }
       if (sortAndFilterConfig.sort) {
         var field = sortAndFilterConfig.sort
-        var factor = 1 
+        var factor = 1
         if (field[0] === '-') {
           field = field.substring(1)
           factor = -1
         }
-        const index = props.headers?.findIndex((k) => {return k === field})
-        if (index) {
-          src.sort((a,b) => { return factor * compareDataTableValues(a[index], b[index]) })
+        const index = props.headers?.findIndex((k) => { return k === field })
+        if (index !== undefined && index >= 0) {
+          src.sort((a, b) => { return factor * compareDataTableValues(a[index], b[index]) })
         }
-      } 
+      }
       // console.log('Result', src)
       if (src.length === 0) {
         if (sortAndFilterConfig.filter && sortAndFilterConfig.filterValue) {
+          var msg;
           if (props.headers) {
-            console.log('All values filtered out by ' + props?.headers[sortAndFilterConfig.filter] + ' == ' + sortAndFilterConfig.filterValue)
+            msg = 'All values filtered out by ' + props?.headers[sortAndFilterConfig.filter] + ' == ' + sortAndFilterConfig.filterValue
           } else {
-            console.log('All values filtered out by column ' +sortAndFilterConfig.filter + ' == ' + sortAndFilterConfig.filterValue)
+            msg = 'All values filtered out by column ' + sortAndFilterConfig.filter + ' == ' + sortAndFilterConfig.filterValue
           }
+          console.log(msg)
+          setAllFiltered(msg)
         }
+      } else if (allFiltered) {
+        setAllFiltered('')
       }
       setValues(src)
     } else {
@@ -134,7 +149,7 @@ function DataTable(props: DataTableProps) {
   }, [sortAndFilterConfig, props])
 
   function updateSort(newSort: string) {
-    var newConfig = {...sortAndFilterConfig}
+    var newConfig = { ...sortAndFilterConfig }
     if (newConfig.sort === newSort) {
       newConfig.sort = '-' + newSort;
     } else if (newConfig.sort === '-' + newSort) {
@@ -159,6 +174,13 @@ function DataTable(props: DataTableProps) {
           if (result.indexOf(newValue) < 0) {
             result.push(String(row[index]))
           }
+        } else if (typeof row[index] === 'object') {
+          const item = row[index] as DataTablePropsEntry
+          if (item) {
+            if (result.indexOf(item.value) < 0) {
+              result.push(item.value)
+            }
+          }
         }
         return result
       }, []).sort()
@@ -167,9 +189,9 @@ function DataTable(props: DataTableProps) {
   };
   const handleClose = () => {
     setAnchorEl(null);
-  };  
+  };
   function handleClearFilter() {
-    var newConfig = {...sortAndFilterConfig}
+    var newConfig = { ...sortAndFilterConfig }
     newConfig.filter = -1
     newConfig.filterValue = null
     localStorage.setItem(props.id, JSON.stringify(newConfig))
@@ -177,7 +199,7 @@ function DataTable(props: DataTableProps) {
     setAnchorEl(null);
   }
   function handleSelection(value: string) {
-    var newConfig = {...sortAndFilterConfig}
+    var newConfig = { ...sortAndFilterConfig }
     newConfig.filter = filterIndex
     newConfig.filterValue = value
     localStorage.setItem(props.id, JSON.stringify(newConfig))
@@ -188,85 +210,92 @@ function DataTable(props: DataTableProps) {
   return (
     <TableContainer>
       <Menu open={filterMenuOpen} anchorEl={anchorEl} onClose={handleClose}>
-        { filterOptions && (
-          <MenuList dense  sx={{ paddingTop: 0, paddingBottom: 0 }} >
+        {filterOptions && (
+          <MenuList dense sx={{ paddingTop: 0, paddingBottom: 0 }} >
             <MenuItem onClick={() => handleClearFilter()}>
               <ListItemText>
-              Clear Filter
+                Clear Filter
               </ListItemText>
             </MenuItem>
             <Divider sx={{ marginTop: 0, marginBottom: 0 }} />
             {filterOptions.map(fo => {
               return (
-              <MenuItem key={fo} onClick={() => handleSelection(fo)}>
-              <ListItemText>{fo}</ListItemText>
-              </MenuItem>
+                <MenuItem key={fo} onClick={() => handleSelection(fo)}>
+                  <ListItemText>{fo}</ListItemText>
+                </MenuItem>
               )
             })}
           </MenuList>
         )}
       </Menu>
-      <Table size="small" aria-label="simple table" sx={[ ...(Array.isArray(props.sx) ? props.sx : [props.sx]) ]}>
+      <Table size="small" aria-label="simple table" sx={[...(Array.isArray(props.sx) ? props.sx : [props.sx])]}>
         {props.headers && (
           <TableHead>
             {
               (props.headers && props.rows && (props.rows.length > 1))
-              ?
-              <TableRow>
-                {
-                  props.headers.map((h, i) => {
-                    return (
-                      <TableCell key={h}>
-                        <Box sx={{ display: 'flex' }}>
-                        <Box sx={{ width: '100%' }} onClick={() => {updateSort(h)}}>
-                          {h}
-                          {sortAndFilterConfig.sort === h && <ArrowDropUpIcon fontSize='inherit'/>}
-                          {sortAndFilterConfig.sort === '-' + h && <ArrowDropDownIcon fontSize='inherit'/>}
-                        </Box>
-                        <Box onClick={(evt) => {handleFilterClick(evt, i)}}>
-                          <FilterListIcon fontSize='inherit'/>
-                        </Box>
-                        </Box>
-                      </TableCell>
-                    )
-                  })
-                }
-              </TableRow>
-              : 
+                ?
                 <TableRow>
-                {
-                  props.headers.map(h => {
-                    return (
-                      <TableCell key={h}>
-                        {h}
-                      </TableCell>
-                    )
-                  })
-                }
-              </TableRow>
+                  {
+                    props.headers.map((h, i) => {
+                      return (
+                        <TableCell key={h}>
+                          <Box sx={{ display: 'flex' }}>
+                            <Box sx={{ width: '100%' }} onClick={() => { updateSort(h) }}>
+                              {h}
+                              {sortAndFilterConfig.sort === h && <ArrowDropUpIcon fontSize='inherit' />}
+                              {sortAndFilterConfig.sort === '-' + h && <ArrowDropDownIcon fontSize='inherit' />}
+                            </Box>
+                            <Box onClick={(evt) => { handleFilterClick(evt, i) }}>
+                              <FilterListIcon fontSize='inherit' />
+                            </Box>
+                          </Box>
+                        </TableCell>
+                      )
+                    })
+                  }
+                </TableRow>
+                :
+                <TableRow>
+                  {
+                    props.headers.map(h => {
+                      return (
+                        <TableCell key={h}>
+                          {h}
+                        </TableCell>
+                      )
+                    })
+                  }
+                </TableRow>
             }
           </TableHead>
         )}
         <TableBody>
-          {values && 
+          {values &&
             values
-              .filter(row => !props.kvTable|| row[1])
+              .filter(row => !props.kvTable || row[1])
               .map((r, ir) => {
-            return (
-              <TableRow key={ir} sx={{ border: 0 }} >
-                {
-                  r
-                    .map((v, iv) => {
-                    return (
-                      <TableCell key={iv} sx={{ verticalAlign: 'top' }}>
-                        <DataTableValue value={v} />
-                      </TableCell>
-                    )
-                  })
-                }
-              </TableRow>
-            )
-          })}
+                return (
+                  <TableRow key={ir} sx={{ border: 0 }} >
+                    {
+                      r
+                        .map((v, iv) => {
+                          return (
+                            <TableCell key={iv} sx={{ verticalAlign: 'top' }}>
+                              <DataTableValue value={v} />
+                            </TableCell>
+                          )
+                        })
+                    }
+                  </TableRow>
+                )
+              })}
+          {allFiltered &&
+            <TableRow>
+              <TableCell colSpan={props.headers?.length} sx={{ color: 'red', fontStyle: 'italic' }}>
+                {allFiltered}
+              </TableCell>
+            </TableRow>
+          }
         </TableBody>
       </Table>
     </TableContainer>

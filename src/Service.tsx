@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Service, Network } from './docker-schema';
+import { Service, Network, Task } from './docker-schema';
 import Section from './Section'
 import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
@@ -30,7 +30,11 @@ function ServiceUi(props: ServiceProps) {
   const [resources, setResources] = useState<(string | number | null)[][]>([])
   const [services, setServices] = useState<Service[]>([])
   const [networks, setNetworks] = useState<Network[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
   const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
+
+  const [svcTasks, setSvcTasks] = useState<DataTableValue[][]>([])
+  const [svcTaskHeaders, setSvcTaskHeaders] = useState<string[]>([])
 
   useEffect(() => {
     fetch(props.baseUrl + 'networks')
@@ -45,6 +49,18 @@ function ServiceUi(props: ServiceProps) {
       .then(j => {
         console.log('Networks: ', j)
         setNetworks(j as Network[])
+      })
+    fetch(props.baseUrl + 'tasks')
+      .then(r => {
+        if (r.ok) {
+          return r.json();
+        }
+      })
+      .catch(reason => {
+        console.log('Failed to get tasks:', reason)
+      })
+      .then(j => {
+        setTasks(j)
       })
     fetch(props.baseUrl + 'services?status=true')
       .then(r => {
@@ -143,7 +159,38 @@ function ServiceUi(props: ServiceProps) {
     })
     setResources(buildResources)
 
-  }, [service, networks])
+    if (service && tasks) {
+      setSvcTaskHeaders(['ID', 'NAME', 'NODE', 'CREATED', 'IMAGE', 'DESIRED STATE', 'CURRENT STATE', 'ERROR', 'PORTS'])
+      const buildStackTasks: DataTableValue[][] = []
+      const nodeTasks = tasks.filter(tsk => tsk.ServiceID === id)
+      nodeTasks.sort((l,r) => {
+        return (l.CreatedAt??'') > (r.CreatedAt??'') ? -1 : 1
+      })
+      nodeTasks.forEach((tsk) => {
+        if (tsk.ID) {
+          buildStackTasks.push(
+            [
+              { link: '/task/' + tsk.ID, value: tsk.ID }
+              , ((tsk.ServiceID && service.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID) 
+              , { link: '/node/' + tsk.NodeID, value: tsk.NodeID || '' }
+              , tsk.CreatedAt
+              , tsk?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '')
+              , tsk?.DesiredState          
+              , tsk?.Status?.State
+              , tsk?.Status?.Err
+              , tsk?.Status?.PortStatus?.Ports?.map(portSpec => {
+                return portSpec.PublishedPort + ':' + portSpec.TargetPort
+              })
+              ,
+            ]
+          )
+        }
+      })
+      setSvcTasks(buildStackTasks)
+    }
+
+
+  }, [service, networks, tasks])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -173,6 +220,7 @@ function ServiceUi(props: ServiceProps) {
                   , ['Hash', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/.*@/, '') || ' ']
                   , ['Created', service.CreatedAt || '']
                   , ['Updated', service.UpdatedAt || '']
+                  , ['Stack', service?.Spec?.Labels && service?.Spec?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + service?.Spec?.Labels['com.docker.stack.namespace'], value: service?.Spec?.Labels['com.docker.stack.namespace'] } : '' ]
                 ]
               }>
               </DataTable>
@@ -259,6 +307,15 @@ function ServiceUi(props: ServiceProps) {
               >
               </DataTable>
             </Section>
+
+            {
+            svcTasks &&
+            <Section id="service.tasks" heading="Tasks" xs={12}>
+              <DataTable id="service.tasks.table" headers={svcTaskHeaders} rows={svcTasks}>
+              </DataTable>
+            </Section>
+            }
+
           </Grid>
         </Box>
       </Box>

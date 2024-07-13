@@ -19,6 +19,8 @@ import Box from '@mui/material/Box';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import StackUi from './Stack';
+import NodeUi from './Node';
+import TaskUi from './Task';
 
 function App() {
 
@@ -99,6 +101,8 @@ function App() {
               <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route path='/node/:id' element={<NodeUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route path='/task/:id' element={<TaskUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
