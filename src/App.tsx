@@ -30,12 +30,12 @@ import NodeUi from './Node';
 import TaskUi from './Task';
 import SecretUi from './Secret';
 import ConfigUi from './Config';
-import Stack from '@mui/system/Stack';
+import Stack from '@mui/material/Stack';
 import { PaletteMode } from '@mui/material';
 
 function App() {
 
-  const baseUrl = 'http://localhost:4173/api/v1.45/'
+  const baseUrl = '/api/v1.45/'
 
   const [title, setTitle] = useState('Swarm View')
 

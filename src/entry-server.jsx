@@ -5,7 +5,7 @@ import App from './App';
 export const render = () => {
   return renderToPipeableStream(<App />, {
     onError: (e) => {
-      console.error("wheee")
+      console.error("Failed: ", e)
     }
   })
 };

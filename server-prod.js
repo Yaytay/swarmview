@@ -13,10 +13,7 @@ app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url))
 app.use('*', async (_, res) => {
   try {
     const template = fs.readFileSync('./dist/client/index.html', 'utf-8');
-    const { render } = await import('./dist/server/entry-server.js');
- 
-    const html = template.replace(`<!--outlet-->`, render);
-    res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+    res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
   } catch (error) {
     res.status(500).end(error);
   }
