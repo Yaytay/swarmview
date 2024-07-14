@@ -1,9 +1,12 @@
 import express from "express";
 import proxy from "express-http-proxy"
+import 'dotenv/config'
 
 const router = express.Router();
 
-router.use('/api', proxy('uat-swarm-01-node2.groupgti.net:2375', {
+const endpoint = process.env.DOCKER_PROXY_ENDPOINT
+
+router.use('/api', proxy(endpoint, {
   filter: (req, res) => { 
     console.log('Request to ' + req.url)
     return req.method === 'GET'
