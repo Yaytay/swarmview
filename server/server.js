@@ -8,7 +8,7 @@ import apiRouter from './apiRouter.js';
 const app = express();
  
 app.use(apiRouter)
-app.get('/health', (req, req) => {
+app.get('/health', (_, res) => {
   res.send('up')
 })
 app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist'), { index: false }));
