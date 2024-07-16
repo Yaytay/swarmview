@@ -99,7 +99,7 @@ function DataTable(props: DataTableProps) {
       let src = [...props.rows]
       if (sortAndFilterConfig.filter !== null && sortAndFilterConfig.filterValue) {
         src = src.filter(row => {
-          if (sortAndFilterConfig.filter) {
+          if (sortAndFilterConfig.filter !== null) {
             if (row[sortAndFilterConfig.filter] === sortAndFilterConfig.filterValue) {
               return true;
             } else if (typeof row[sortAndFilterConfig.filter] === 'object') {

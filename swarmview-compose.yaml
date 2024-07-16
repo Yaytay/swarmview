@@ -52,18 +52,18 @@ services:
         limits: 
           cpus: '1'
           memory: 64M
+      labels:
+        - traefik.http.routers.swarmview.entrypoints=internal
+        - traefik.http.routers.swarmview.rule=Host(`swarmview`)
+        - traefik.http.services.swarmview.loadbalancer.server.port=5173
+        - traefik.docker.network=monitoring-ingress
+        - traefik.enable=true
     healthcheck:
       test: [ 'CMD', '/health' ]
       interval: 10s
       timeout: 10s
       retries: 3
       start_period: 20s
-    labels:
-      - traefik.http.routers.swarmview.entrypoints=internal
-      - traefik.http.routers.swarmview.rule=Host(`swarmview`)
-      - traefik.http.services.swarmview.loadbalancer.server.port=5173
-      - traefik.docker.network=monitoring-ingress
-      - traefik.enable=true
     environment:
       - DOCKER_PROXY_ENDPOINT=dockerproxy:2375
     networks:
