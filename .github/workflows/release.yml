@@ -1,0 +1,97 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Build and Test
+
+on:
+  push:
+    tags: [ "*" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Build UI
+      run: |
+        sed -i 's#<meta name="version" content="" />#<meta name="version" content="'$GITHUB_REF'@'$GITHUB_SHA'" />#' index.html
+        sed -i 's#<span>0.0.0</span>#<span>$GITHUB_REF</span>#' src/Version.tsx
+        grep version index.html
+        npm ci
+        npx tsc --noEmit
+        npm run build --if-present
+        tar -czf build.tar.gz dist
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build
+        path: |
+          build.tar.gz
+
+    - name: Build server
+      run: |
+        cd server
+        npm ci
+        npx tsc --noEmit
+
+    - name: Build image
+      run: |
+        docker build .
+
+        - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+            
+    - name: Deploy container image
+      run: |
+        IFS=' ' read -ra PARTS <<< `docker image ls | grep query-engine | grep -v design-mode | grep -v ghcr` && \
+        docker tag ${PARTS[2]} ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} && \
+        docker push ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]}
+        IFS=' ' read -ra PARTS <<< `docker image ls | grep query-engine-design-mode | grep -v ghcr` && \
+        docker tag ${PARTS[2]} ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} && \
+        docker push ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]}
+        
+    - name: Upload site reports on success
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: reports
+        path: |
+          query-engine/target/site
+          query-engine-design-mode/target/site
+
+    - name: Create release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "query-engine*/target/xlsx-writer*.jar*"
+        token: ${{ github.token }} 
+
+    - name: asciidoctor-ghpages
+      uses: manoelcampos/asciidoctor-ghpages-action@v2
+      with:
+        pdf_build: false
+        # asciidoctor_params: --attribute=nofooter
+        # adoc_file_ext: .ascii # default is .adoc
+        source_dir: query-engine/docs/
+        # slides_build: true
+        # pre_build:
+        # post_build:        
