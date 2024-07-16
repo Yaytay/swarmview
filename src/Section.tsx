@@ -44,8 +44,6 @@ function Section(props: SectionProps) {
       </Accordion>
     </Grid>
   )
-
-
 }
 
 export default Section;

@@ -30,6 +30,7 @@ import NodeUi from './Node';
 import TaskUi from './Task';
 import SecretUi from './Secret';
 import ConfigUi from './Config';
+import Version from './Version';
 import Stack from '@mui/material/Stack';
 import { PaletteMode } from '@mui/material';
 
@@ -82,7 +83,7 @@ function App() {
         <Box id="navbar" className="sidebar" borderRight='2px solid' borderColor="gray" >
           <Box sx={{ padding: '2px' }}>
             <Typography variant='h6'>Swarm View</Typography>
-            <Typography variant='body2'>Version 0.0.0</Typography>
+            <Typography variant='body2'>Version <Version/></Typography>
           </Box>
 
           <hr />
