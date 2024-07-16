@@ -69,13 +69,13 @@ jobs:
         docker tag ${PARTS[2]} ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} && \
         docker push ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]}
         
-    - name: asciidoctor-ghpages
-      uses: manoelcampos/asciidoctor-ghpages-action@v2
-      with:
-        pdf_build: false
-        # asciidoctor_params: --attribute=nofooter
-        # adoc_file_ext: .ascii # default is .adoc
-        source_dir: docs/
-        # slides_build: true
-        # pre_build:
-        # post_build:        
+    #- name: asciidoctor-ghpages
+    #  uses: manoelcampos/asciidoctor-ghpages-action@v2
+    #  with:
+    #    pdf_build: false
+    #    # asciidoctor_params: --attribute=nofooter
+    #    # adoc_file_ext: .ascii # default is .adoc
+    #    source_dir: docs/
+    #    # slides_build: true
+    #    # pre_build:
+    #    # post_build:        
