@@ -62,36 +62,18 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
             
     - name: Deploy container image
-      run: |
-        IFS=' ' read -ra PARTS <<< `docker image ls | grep query-engine | grep -v design-mode | grep -v ghcr` && \
-        docker tag ${PARTS[2]} ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} && \
-        docker push ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]}
-        IFS=' ' read -ra PARTS <<< `docker image ls | grep query-engine-design-mode | grep -v ghcr` && \
+      run: |        
+        IFS=' ' read -ra PARTS <<< `docker image ls | grep ${GITHUB_REPOSITORY} | grep -v ghcr` && \
         docker tag ${PARTS[2]} ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} && \
         docker push ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]}
         
-    - name: Upload site reports on success
-      uses: actions/upload-artifact@v4
-      if: success()
-      with:
-        name: reports
-        path: |
-          query-engine/target/site
-          query-engine-design-mode/target/site
-
-    - name: Create release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: "query-engine*/target/xlsx-writer*.jar*"
-        token: ${{ github.token }} 
-
     - name: asciidoctor-ghpages
       uses: manoelcampos/asciidoctor-ghpages-action@v2
       with:
         pdf_build: false
         # asciidoctor_params: --attribute=nofooter
         # adoc_file_ext: .ascii # default is .adoc
-        source_dir: query-engine/docs/
+        source_dir: docs/
         # slides_build: true
         # pre_build:
         # post_build:        
