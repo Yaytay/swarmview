@@ -1,10 +1,21 @@
 version: '3.8'
 
+networks:
+
+  internal:
+    driver: overlay
+    driver_opts:
+      encrypted: 'true'
+  monitoring-ingress:
+    name: monitoring-ingress
+    external: true
+
 services:
   dockerproxy:
     image: wollomatic/socket-proxy:1.3.1 # see https://github.com/wollomatic/socket-proxy for reference
     deploy:
-      replicas: 1
+      mode:
+        global
       resources:
         limits: 
           cpus: '1'
@@ -15,8 +26,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 20s
-    ports:
-      - 2375:2375
+    networks:
+      - internal
     command:
       # with this configuration socket-proxy acts similar to the tecnativa proxy. For additional hardening
       # please refer to the documentation of the wollomatic/socket-proxy image
@@ -32,3 +43,30 @@ services:
     read_only: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  swarmview:
+    image: ghcr.io/yaytay/swarmview:0.0.5
+    deploy:
+      replicas: 2
+      resources:
+        limits: 
+          cpus: '1'
+          memory: 64M
+    healthcheck:
+      test: [ 'CMD', '/health' ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    labels:
+      - traefik.http.routers.swarmview.entrypoints=internal
+      - traefik.http.routers.swarmview.rule=Host(`swarmview`)
+      - traefik.http.services.swarmview.loadbalancer.server.port=5173
+      - traefik.docker.network=monitoring-ingress
+      - traefik.enable=true
+    environment:
+      - DOCKER_PROXY_ENDPOINT=dockerproxy:2375
+    networks:
+      - internal
+      - monitoring-ingress
+    read_only: true

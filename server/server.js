@@ -8,9 +8,12 @@ import apiRouter from './apiRouter.js';
 const app = express();
  
 app.use(apiRouter)
+app.get('/health', (req, req) => {
+  res.send('up')
+})
 app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist'), { index: false }));
  
-app.use('*', async (_, res) => {
+app.get('*', async (_, res) => {
   try {
     const template = fs.readFileSync('dist/index.html', 'utf-8');
     res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
@@ -20,5 +23,5 @@ app.use('*', async (_, res) => {
 });
  
 app.listen(5173, () => {
-  console.log('http://localhost:5173.');
+  console.log('http://localhost:5173/');
 });

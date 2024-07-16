@@ -23,4 +23,6 @@ FROM chainguard/node:latest
 COPY --from=0 /app/server /app
 COPY --from=0 /app/dist /app/dist
 
+EXPOSE 5173
+
 CMD [ "server.js" ]
