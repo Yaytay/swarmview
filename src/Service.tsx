@@ -14,6 +14,7 @@ import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 interface ServiceProps {
   baseUrl: string
   setTitle: (title: string) => void
+  exposedPorts: Record<string, string[]>
 }
 type ServiceUiParams = {
   id: string;
@@ -34,6 +35,7 @@ function ServiceUi(props: ServiceProps) {
   const [configs, setConfigs] = useState<Config[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
+  const [ports, setPorts] = useState<(DataTableValue)[][]>([])
   const [svcConfigs, setSvcConfigs] = useState<DataTableValue[][]>([])
   const [svcSecrets, setSvcSecrets] = useState<DataTableValue[][]>([])
 
@@ -172,6 +174,30 @@ function ServiceUi(props: ServiceProps) {
     }
     setNetworksData(buildNetworks)
 
+    const buildPorts = [] as (DataTableValue)[][]
+    service?.Endpoint?.Ports?.forEach(p => {
+      buildPorts.push([
+        p.Protocol
+        , p.TargetPort
+        , p.PublishedPort
+        , p.PublishMode
+      ])
+
+    })
+    if (props.exposedPorts && service?.Spec?.TaskTemplate?.ContainerSpec?.Image) {
+      props.exposedPorts[service.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.forEach(p => {
+        buildPorts.push([
+          p.replace(/^[^/]*\//, '')
+          , p.replace(/\/.*$/, '')
+          , ''
+          , ''
+        ])
+      })
+
+    }
+
+    setPorts(buildPorts)
+
     const buildResources = [] as (string | number | null)[][]
     if (service?.Spec?.TaskTemplate?.Resources) {
       const res = service.Spec.TaskTemplate.Resources
@@ -253,7 +279,7 @@ function ServiceUi(props: ServiceProps) {
       setSvcSecrets(svcSecs)
     }
 
-  }, [service, networks, tasks, secrets, configs, id, services])
+  }, [service, networks, tasks, secrets, configs, id, services, props.exposedPorts])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -341,6 +367,18 @@ function ServiceUi(props: ServiceProps) {
                       , 'ReadOnly'
                     ]
                   } rows={mounts}
+                  >
+                  </DataTable>
+                </Section>
+                <Section id="service.ports" heading="Ports" >
+                <DataTable id="service.ports.list" headers={
+                    [
+                      'Type'
+                      , 'Target'
+                      , 'Published'
+                      , 'Mode'
+                    ]
+                  } rows={ports}
                   >
                   </DataTable>
                 </Section>

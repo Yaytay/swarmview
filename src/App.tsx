@@ -3,7 +3,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter, Link, Routes, Route, Navigate } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 
 import ServiceUi from './Service'
 import NetworkUi from './Network'
@@ -36,14 +36,23 @@ import { PaletteMode } from '@mui/material';
 
 function App() {
 
-  const baseUrl = '/api/v1.45/'
+  const baseUrl = '/docker/v1.45/'
 
   const [title, setTitle] = useState('Swarm View')
+  const [exposedPorts, setExposedPorts] = useState<Record<string, string[]>>({})
 
   const [mode, setMode] = useState<PaletteMode>(() => {
     const storedValue = localStorage.getItem('theme')
     return storedValue === 'dark' ? 'dark' : 'light'
   })
+
+
+  useEffect(() => {
+    fetch('/api/exposed')
+      .then(r => r.json())
+      .then(j => setExposedPorts(j))
+      .catch(ex => console.log('Failed to get exposed ports: ', ex))
+  }, [baseUrl])
 
   const theme = useMemo(() => {
     const thm = (mode === 'light' ?
@@ -89,7 +98,7 @@ function App() {
           <hr />
           <Box>
             <Link className='navlink' to="/stacks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1}><LayersIcon fontSize='small' /><Typography>Stacks</Typography></Stack></Link>
-            <Link className='navlink' to="/services"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><MiscellaneousServicesIcon fontSize='small' /><Typography>Servcices</Typography></Stack></Link>
+            <Link className='navlink' to="/services"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><MiscellaneousServicesIcon fontSize='small' /><Typography>Services</Typography></Stack></Link>
             <Link className='navlink' to="/tasks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><AssignmentIcon fontSize='small' /><Typography>Tasks</Typography></Stack></Link>
             <hr />
             <Link className='navlink' to="/nodes"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><HubIcon fontSize='small' /><Typography>Nodes</Typography></Stack></Link>
@@ -114,13 +123,13 @@ function App() {
             <Routes>
               <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} />}></Route>
               <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/node/:id' element={<NodeUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/task/:id' element={<TaskUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/secret/:id' element={<SecretUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/config/:id' element={<ConfigUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} />}></Route>
               <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route index path='/nodes' element={<Nodes baseUrl={baseUrl} setTitle={setTitle} />}></Route>

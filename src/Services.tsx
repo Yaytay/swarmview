@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 interface ServicesProps {
   baseUrl: string
   setTitle: (title: string) => void
+  exposedPorts: Record<string, string[]>
 }
 function Services(props: ServicesProps) {
 
@@ -34,9 +35,18 @@ function Services(props: ServicesProps) {
               , Object.keys(svc.Spec?.Mode || [''])[0]
               , svc.ServiceStatus?.RunningTasks + ' / ' + svc.ServiceStatus?.DesiredTasks
               , svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
-              , svc.Endpoint?.Ports?.map((p) => {
-                return p.TargetPort + ':' + p.PublishedPort
-              }).join(', ') || ''
+              ,
+              (
+                svc.Endpoint?.Ports?.map((p) => {
+                  return p.PublishedPort + ':' + p.TargetPort
+                }).join(', ') || ''
+              )
+              + (svc.Endpoint?.Ports ? ', ' : '')
+              + (
+                props.exposedPorts
+                && svc.Spec?.TaskTemplate?.ContainerSpec?.Image
+                && props.exposedPorts[svc.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.join(', ') || ''
+              )
             ]
           )
         });
