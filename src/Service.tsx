@@ -9,7 +9,8 @@ import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
-
+import VisNetwork from './VisNetwork';
+import { Node, Data, Edge } from 'vis-network';
 
 interface ServiceProps {
   baseUrl: string
@@ -35,6 +36,7 @@ function ServiceUi(props: ServiceProps) {
   const [configs, setConfigs] = useState<Config[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
+  const [reachGraph, setReachGraph] = useState<Data>({})
   const [ports, setPorts] = useState<(DataTableValue)[][]>([])
   const [svcConfigs, setSvcConfigs] = useState<DataTableValue[][]>([])
   const [svcSecrets, setSvcSecrets] = useState<DataTableValue[][]>([])
@@ -65,7 +67,6 @@ function ServiceUi(props: ServiceProps) {
         console.log('Failed to get networks:', reason)
       })
       .then(j => {
-        console.log('Networks: ', j)
         setNetworks(j as Network[])
       })
     fetch(props.baseUrl + 'secrets')
@@ -147,10 +148,9 @@ function ServiceUi(props: ServiceProps) {
     , [props, id])
 
   useEffect(() => {
-    let buildNetworks = [] as (DataTableValue)[][]
     if (service?.Spec?.TaskTemplate?.Networks) {
 
-      buildNetworks = service.Spec.TaskTemplate.Networks.reduce<(DataTableValue)[][]>((accumulator, svcNet) => {
+      const buildNetworks = service.Spec.TaskTemplate.Networks.reduce<(DataTableValue)[][]>((accumulator, svcNet) => {
         const net = networks?.find(n => n.Id === svcNet.Target)
         if (net && svcNet.Target) {
           const item = [
@@ -158,21 +158,65 @@ function ServiceUi(props: ServiceProps) {
             , net?.Name
             , svcNet.Aliases
             , JSON.stringify(net?.Options)
-            , services?.reduce<DataTablePropsEntry[]>((result, svc) => {
-              if (svc?.Spec?.TaskTemplate?.Networks?.find(n => { return n.Target === net?.Id })) {
-                if (svc?.Spec?.Name && (!result.find(s => { return (s.value === svc?.Spec?.Name) }))) {
-                  result.push({ link: '/service/' + svc.ID, value: svc?.Spec?.Name })
-                }
+            , service.Endpoint?.VirtualIPs?.reduce((acc, val) => {
+              if (val.NetworkID == net.Id && val.Addr) {
+                acc.push(val.Addr)
               }
-              return result
-            }, []).sort()
+              return acc
+            }, [] as string[]).join(', ')
           ]
           accumulator.push(item)
         }
         return accumulator
       }, [])
+
+      setNetworksData(buildNetworks)
+
+      if (services && networks) {
+        const nodes : Node[] = []
+        const edges : Edge[] = []
+
+        nodes.push({
+          id: service.ID
+          , label: service.Spec?.Name || service.ID
+          , group: 'base'
+        })
+        service?.Spec?.TaskTemplate?.Networks.forEach(net => {
+          const netName = networks.find(n => n.Id == net.Target)?.Name || net?.Target
+          nodes.push({
+            id: net.Target
+            , label: netName
+            , shape: 'box'
+            , group: netName
+          })
+          edges.push({
+            from: service.ID
+            , to: net.Target
+            , 
+          })
+          services.forEach(svc => {
+            if (svc.ID !== service.ID) {
+              const svcnet = svc.Spec?.TaskTemplate?.Networks?.find(n => n.Target == net.Target)
+              if (svcnet) {
+                nodes.push({
+                  id: svc?.ID +'@' + net.Target
+                  , label: svc?.Spec?.Name || svc?.ID
+                  , group: netName
+                })
+                edges.push({
+                  from: net.Target
+                  , to: svc?.ID +'@' + net.Target
+                })
+              }
+            }
+          })
+        })
+
+        setReachGraph({nodes: nodes, edges: edges})
+      }
     }
-    setNetworksData(buildNetworks)
+
+
 
     const buildPorts = [] as (DataTableValue)[][]
     service?.Endpoint?.Ports?.forEach(p => {
@@ -243,7 +287,7 @@ function ServiceUi(props: ServiceProps) {
     }
 
     if (service && configs) {
-      const svcCons : DataTableValue[][] = []
+      const svcCons: DataTableValue[][] = []
       configs.forEach(con => {
         service.Spec?.TaskTemplate?.ContainerSpec?.Configs?.forEach(svcCon => {
           if (svcCon.ConfigID === con.ID) {
@@ -261,8 +305,7 @@ function ServiceUi(props: ServiceProps) {
     }
 
     if (service && secrets) {
-      console.log(secrets)
-      const svcSecs : DataTableValue[][] = []
+      const svcSecs: DataTableValue[][] = []
       secrets.forEach(sec => {
         service.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.forEach(svcSec => {
           if (svcSec.SecretID === sec.ID) {
@@ -284,6 +327,25 @@ function ServiceUi(props: ServiceProps) {
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
+
+  const reachOptions = {
+    height: (500 * Math.log10(reachGraph.nodes?.length || 1)) + "px"
+  };
+
+  const reachEvents = {
+    doubleClick: (params : any) => {
+      console.log(params)
+      if (params.nodes.length == 1) {
+        if (params.nodes[0].includes('@')) {
+          console.log('Service: ' + params.nodes[0].replace(/@.*/, ''))
+          window.open('/service/' + params.nodes[0].replace(/@.*/, ''))
+        } else {
+          console.log('Network: ' + params.nodes[0])
+          window.open('/network/' + params.nodes[0])
+        }
+      }
+    }
+  };  
 
   if (!service) {
     return <></>
@@ -371,7 +433,7 @@ function ServiceUi(props: ServiceProps) {
                   </DataTable>
                 </Section>
                 <Section id="service.ports" heading="Ports" >
-                <DataTable id="service.ports.list" headers={
+                  <DataTable id="service.ports.list" headers={
                     [
                       'Type'
                       , 'Target'
@@ -402,11 +464,19 @@ function ServiceUi(props: ServiceProps) {
                       , 'Name'
                       , 'Aliases'
                       , 'Options'
-                      , 'Services'
+                      , 'Address'
                     ]
                   } rows={networksData}
                   >
                   </DataTable>
+                </Section>
+
+                <Section id="service.reach" heading="Reach" xs={12} >
+                  <VisNetwork
+                    data={reachGraph}
+                    options={reachOptions}
+                    events={reachEvents}
+                  />
                 </Section>
 
                 {
