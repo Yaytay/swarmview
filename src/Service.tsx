@@ -9,8 +9,7 @@ import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
-import VisNetwork, { GraphData } from './VisNetwork';
-import { Node, Edge } from './VisNetwork';
+import VisNetwork, { GraphData, Node, Edge } from './VisNetwork';
 
 interface ServiceProps {
   baseUrl: string
