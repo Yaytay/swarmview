@@ -8,6 +8,7 @@ import Section from './Section';
 import { Tabs, Tab } from '@mui/material';
 import JSONPretty from 'react-json-pretty';
 import VisNetwork, { GraphData, Node as NetworkNode, Edge } from './VisNetwork';
+import LogsView from './LogsView';
 
 interface TaskUiProps {
   baseUrl: string
@@ -279,8 +280,9 @@ function TaskUi(props: TaskUiProps) {
       <Box sx={{ width: '100%'}} >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
-            <Tab label="Details" />
-            <Tab label="Raw" />
+          <Tab label="Details" />
+          <Tab label="Logs" />
+          <Tab label="Raw" />
           </Tabs>
         </Box>
         {
@@ -395,6 +397,14 @@ function TaskUi(props: TaskUiProps) {
     }
     {
       tab === 1 &&
+      <Box>
+        <Section id="logs" heading='Logs'>
+          <LogsView url={props.baseUrl + 'tasks/' + id + '/logs'} />
+        </Section>
+      </Box>
+    }
+    {
+      tab === 2 &&
       <Box>
         <JSONPretty data={task} />
       </Box>
