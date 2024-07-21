@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import Section from './Section';
 import { Tabs, Tab } from '@mui/material';
 import JSONPretty from 'react-json-pretty';
+import VisNetwork, { GraphData, Node as NetworkNode, Edge } from './VisNetwork';
 
 interface TaskUiProps {
   baseUrl: string
@@ -30,6 +31,7 @@ function TaskUi(props: TaskUiProps) {
   const [mounts, setMounts] = useState<(string | undefined)[][]>([])
   const [resources, setResources] = useState<(string | number | null)[][]>([])
   const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
+  const [reachGraph, setReachGraph] = useState<GraphData>({})
 
   useEffect(() => {
     fetch(props.baseUrl + 'services')
@@ -150,10 +152,8 @@ function TaskUi(props: TaskUiProps) {
         setMounts(buildMounts)
       }
 
-      let buildNetworks = [] as (DataTableValue)[][]
       if (task?.Spec?.Networks) {
-  
-        buildNetworks = task.Spec.Networks.reduce<(DataTableValue)[][]>((accumulator, svcNet) => {
+        const buildNetworks = task.Spec.Networks.reduce<(DataTableValue)[][]>((accumulator, svcNet) => {
           if (svcNet.Target) {
             const net = networks.get(svcNet.Target)
             
@@ -178,8 +178,58 @@ function TaskUi(props: TaskUiProps) {
           }
           return accumulator
         }, [])
+        setNetworksData(buildNetworks)
+
+        if (services && networks) {
+          const nodes : NetworkNode[] = []
+          const edges : Edge[] = []
+  
+          const service = services.get(task.ServiceID || '')
+
+          nodes.push({
+            id: service?.ID || task.ID
+            , label: service?.Spec?.Name || service?.ID || task.ID
+            , group: 'base'
+          })
+          service?.Spec?.TaskTemplate?.Networks?.forEach(net => {
+            const netName = networks.get(net.Target || '')?.Name || net.Target
+            nodes.push({
+              id: net.Target
+              , label: netName
+              , shape: 'box'
+              , group: netName
+            })
+            edges.push({
+              from: service?.ID || task.ID
+              , to: net.Target
+              , 
+            })
+            services.forEach(svc => {
+              if (svc.ID !== service.ID) {
+                const svcnet = svc.Spec?.TaskTemplate?.Networks?.find(n => n.Target == net.Target)
+                if (svcnet) {
+                  nodes.push({
+                    id: svc?.ID +'@' + net.Target
+                    , label: svc?.Spec?.Name || svc?.ID
+                    , group: netName
+                  })
+                  edges.push({
+                    from: net.Target
+                    , to: svc?.ID +'@' + net.Target
+                  })
+                }
+              }
+            })
+          })
+  
+          setReachGraph({nodes: nodes, edges: edges})
+        }
+  
+
+      } else {
+        setNetworksData([])
+        setReachGraph({})
       }
-      setNetworksData(buildNetworks)
   
       const buildResources = [] as (string | number | null)[][]
       if (task?.Spec?.Resources) {
@@ -198,6 +248,25 @@ function TaskUi(props: TaskUiProps) {
 
     }
   }, [id, task, networks, nodes, services, props, servicesByNetwork])
+
+  const reachOptions = {
+    height: (500 * Math.log10(reachGraph.nodes?.length || 1)) + "px"
+  };
+
+  const reachEvents = {
+    doubleClick: (params : any) => {
+      console.log(params)
+      if (params.nodes.length == 1) {
+        if (params.nodes[0].includes('@')) {
+          console.log('Service: ' + params.nodes[0].replace(/@.*/, ''))
+          window.open('/service/' + params.nodes[0].replace(/@.*/, ''))
+        } else {
+          console.log('Network: ' + params.nodes[0])
+          window.open('/network/' + params.nodes[0])
+        }
+      }
+    }
+  };  
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -311,6 +380,14 @@ function TaskUi(props: TaskUiProps) {
               >
               </DataTable>
             </Section>
+            
+            <Section id="service.reach" heading="Reach" xs={12} >
+                  <VisNetwork
+                    data={reachGraph}
+                    options={reachOptions}
+                    events={reachEvents}
+                  />
+                </Section>
 
           </Grid>
         </Box>

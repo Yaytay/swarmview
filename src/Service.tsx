@@ -9,8 +9,8 @@ import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
-import VisNetwork from './VisNetwork';
-import { Node, Data, Edge } from 'vis-network';
+import VisNetwork, { GraphData } from './VisNetwork';
+import { Node, Edge } from './VisNetwork';
 
 interface ServiceProps {
   baseUrl: string
@@ -36,7 +36,7 @@ function ServiceUi(props: ServiceProps) {
   const [configs, setConfigs] = useState<Config[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
-  const [reachGraph, setReachGraph] = useState<Data>({})
+  const [reachGraph, setReachGraph] = useState<GraphData>({})
   const [ports, setPorts] = useState<(DataTableValue)[][]>([])
   const [svcConfigs, setSvcConfigs] = useState<DataTableValue[][]>([])
   const [svcSecrets, setSvcSecrets] = useState<DataTableValue[][]>([])
