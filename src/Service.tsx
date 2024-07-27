@@ -10,6 +10,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import VisNetwork, { GraphData, Node, Edge } from './VisNetwork';
+import LogsView from './LogsView';
 
 interface ServiceProps {
   baseUrl: string
@@ -353,8 +354,9 @@ function ServiceUi(props: ServiceProps) {
       <Box sx={{ width: '100%', height: '100%'}} >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="Task tabs: Details, Logs, Raw">
-            <Tab label="Details" />
-            <Tab label="Raw" />
+          <Tab label="Details" />
+          <Tab label="Logs" />
+          <Tab label="Raw" />
           </Tabs>
         </Box>
         {
@@ -514,6 +516,13 @@ function ServiceUi(props: ServiceProps) {
         }
         {
           tab === 1 &&
+          <LogsView
+            logsUrl={props.baseUrl + 'services/' + id + '/logs'}
+            id='tasks.logs' 
+            />
+        }
+        {
+          tab === 2 &&
           <Box>
             <JSONPretty data={service} />
           </Box>

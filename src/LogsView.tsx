@@ -1,169 +1,78 @@
-import { useEffect, useState } from 'react';
-import { Virtuoso } from 'react-virtuoso'
+import Checkbox from "@mui/material/Checkbox"
+import Grid from "@mui/material/Grid"
+import InputLabel from "@mui/material/InputLabel"
+import MenuItem from "@mui/material/MenuItem"
+import Paper from "@mui/material/Paper"
+import Select from "@mui/material/Select"
+import TextField from "@mui/material/TextField"
+import Box from "@mui/system/Box"
+import LogsContent from "./LogsContent"
+import { useState } from "react"
 
 interface LogsViewProps {
-  url: string
+  id: string
+  logsUrl: string
+}
+
+interface Config {
   tail?: number
   follow?: boolean
   filter?: string
 }
 
-interface LogRow {
-  index: number
-  stream: string
-  message: string
-}
-
-interface LogData {
-  rows: LogRow[]
-}
-
-const logData: LogData = { rows: [] }
-let currentIndex = 0
-let mounted = false
-
-let prevProps : LogsViewProps = {url: '', tail: 0, follow: false, filter: '.*'}
-
-console.log('Running')
-
-function onlyDifferByFollow(a : LogsViewProps, b : LogsViewProps) {
-  return (a.url === b.url && a.tail === b.tail && a.filter === b.filter)
-}
-
 function LogsView(props: LogsViewProps) {
-  
-  useEffect(() => {
-    console.log('Rendering starting with ' + logData.rows.length + ' messages')
-    if (!mounted) {
-      console.log('Mounting')
 
-      if (reader) {
-        reader.cancel()
-        reader = undefined
-      }
-      if (onlyDifferByFollow(prevProps, props) && !props.follow) {
-        prevProps = { ...props }
-      } else {
-        prevProps = { ...props }
-        setLogCount(0)
-        logData.rows.length = 0
-        mounted = true
-        startProcessing()
-      }
-    }
-    return () => {
-      console.log('Unmounted with ', logData.rows.length)
-      mounted = false
-    }
-  }, [props])
+  const lastConfig : Config = JSON.parse(localStorage.getItem(props.id + '.config') || '{}')
 
-  const [logCount, setLogCount] = useState<number>(0)
+  const [logsTail, setLogsTail] = useState<number>(lastConfig.tail || 50)
+  const [logsFollow, setLogsFollow] = useState<boolean>(lastConfig.follow || false)
+  const [logsFilterEdit, setLogsFilterEdit] = useState<string>(lastConfig.filter || '')
+  const [logsFilter, setLogsFilter] = useState<string>(lastConfig.filter || '')
 
-  function parseRegex(arg : string) : RegExp | null {
-    try {
-      return new RegExp(arg)
-    } catch(ex) {
-      console.log('The string "' + arg + '" could not be parsed as a regex: ', ex)
-      return null
+  function storeConfig(tail : number | undefined, follow : boolean | undefined, filter: string | undefined) {
+    const config : Config = {
+      tail: tail
+      , follow: follow
+      , filter: filter
     }
+    localStorage.setItem(props.id + '.config', JSON.stringify(config))
   }
 
-  const filterRegex = props.filter && parseRegex(props.filter)
-
-  const textDecoder = new TextDecoder()
-
-  let reader : ReadableStreamDefaultReader<Uint8Array> | undefined = undefined
-
-  function startProcessing() {
-    let prevData: Uint8Array | null = null
-
-    function processChunk(chunk: Uint8Array) {
-      if (prevData) {
-        chunk = Uint8Array.from([...prevData, ...chunk])
-        prevData = null
-      }
-  
-      while (chunk.length > 0) {
-        if (chunk.length < 8) {
-          prevData = chunk
-          chunk = Uint8Array.from([])
-        } else {
-          const dataview = new DataView(chunk.buffer)
-          const stream = chunk[0] == 0 ? 'stdin' : (chunk[0] == 1 ? 'stdout' : (chunk[0] == 2 ? 'stderr' : 'err: ' + chunk[0]))
-          const size = dataview.getUint32(4, false)
-          if (chunk.length < 8 + size) {
-            prevData = chunk
-            chunk = Uint8Array.from([])
-          } else {
-            const message = textDecoder.decode(chunk.slice(8, 8 + size))
-            chunk = chunk.slice(8 + size)
-            if (!filterRegex || (filterRegex && message.match(filterRegex))) {
-              logData.rows.push({ index: ++currentIndex, stream: stream, message: message })
-            }
-          }
-        }
-      }
-    }
-
-    const url = props.url + '?stdout=true&stderr=true&tail=' + (props.tail || 1000) + '&follow=' + (props.follow || 'false')
-    console.log('Starting log fetch of', url)
-    if (!reader) {
-      fetch(url)
-        .then(r => {
-
-          if (r.status != 200) {
-            return r.text().then(body => {
-              throw 'Failed to get logs (status code was ' + r.status + '): ' + body
-            })
-          }
-
-          if (!reader) {
-            reader = r.body?.getReader()
-            if (!reader) {
-              throw 'No reader returned (status code was ' + r.status + ')'
-            } else {
-              function pump(arg: ReadableStreamReadResult<Uint8Array>): Promise<void> | undefined {
-                if (mounted) {
-                  if (arg.value) {
-                    processChunk(arg.value)
-                    setLogCount(currentIndex)
-                    // console.log(currentIndex, logData.rows[logData.rows.length - 1])
-                  }
-                } else {                  
-                  reader?.cancel()
-                  reader = undefined
-                }
-                if (arg.done) {
-                  console.log('Log read done')
-                  reader = undefined
-                } else {
-                  return reader?.read().then(pump);
-                }
-              }
-              if (reader) {
-                reader.read().then(pump)
-              }
-            }
-          }
-        })
-        .catch(ex => {
-          console.log('Failed to read logs from ' + props.url, ex)
-        })
-    }
+  function setTail(tail: number) {
+    setLogsTail(tail)
+    storeConfig(tail, logsFollow, logsFilter)
   }
 
-  return (
-    <Virtuoso
-      context={ logCount }
-      style={{ height: '100%' }}
-      totalCount={logData.rows.length}
-      itemContent={index => {
-        if (logData.rows.length > index) {
-          return <div className='logRow'>{logData.rows[index].message}</div>}
-        }
-      }
-    />
-  )
+  function setFollow(follow: boolean) {
+    setLogsFollow(follow)
+    storeConfig(logsTail, follow, logsFilter)
+  }
+
+  function setFilter(filter: string) {
+    setLogsFilter(filter)
+    storeConfig(logsTail, logsFollow, filter)
+  }
+
+  return <Grid sx={{ height: '90%', flex: '1 1 auto', display: 'flex' }}>
+    <Paper sx={{ flexGrow: 1, display: 'flex', flexFlow: 'column' }}>
+      <Box sx={{ display: 'flex', flexFlow: 'row' }}>
+        <InputLabel htmlFor="logsTailInput" sx={{ padding: '8px' }} >Tail: </InputLabel>
+        <Select id="logsTailInput" value={logsTail} onChange={e => setTail(Number(e.target.value))} size="small" sx={{ paddingTop: '0px', paddingBottom: '0px' }}>
+          <MenuItem value={10}>10</MenuItem>
+          <MenuItem value={50}>50</MenuItem>
+          <MenuItem value={100}>100</MenuItem>
+          <MenuItem value={500}>500</MenuItem>
+          <MenuItem value={1000}>1000</MenuItem>
+          <MenuItem value={5000}>5000</MenuItem>
+        </Select>
+        <InputLabel htmlFor="logsFollowInput" sx={{ padding: '8px' }} >Follow: </InputLabel>
+        <Checkbox id="logsFollowInput" checked={logsFollow} onChange={e => { setFollow(!logsFollow) }} />
+        <InputLabel htmlFor="logsFilterInput" sx={{ padding: '8px' }} >Filter: </InputLabel>
+        <TextField id="logsFilterInput" variant="outlined" value={logsFilterEdit} sx={{ paddingTop: '0px', paddingBottom: '0px' }} size="small" onChange={e => setLogsFilterEdit(e.target.value)} onBlur={e => setFilter(e.target.value)} />
+      </Box>
+      <LogsContent url={props.logsUrl} tail={logsTail} follow={logsFollow} filter={logsFilter} />
+    </Paper>
+  </Grid>
 
 }
 

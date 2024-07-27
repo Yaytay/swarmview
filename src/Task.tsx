@@ -8,6 +8,7 @@ import Section from './Section';
 import { Tabs, Tab, Paper, InputLabel, Select, MenuItem, Checkbox, TextField } from '@mui/material';
 import JSONPretty from 'react-json-pretty';
 import VisNetwork, { GraphData, Node as NetworkNode, Edge } from './VisNetwork';
+import LogsContent from './LogsContent';
 import LogsView from './LogsView';
 
 interface TaskUiProps {
@@ -33,13 +34,6 @@ function TaskUi(props: TaskUiProps) {
   const [resources, setResources] = useState<(string | number | null)[][]>([])
   const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
   const [reachGraph, setReachGraph] = useState<GraphData>({})
-
-
-  const [logsTail, setLogsTail] = useState<number>(50)
-  const [logsFollow, setLogsFollow] = useState<boolean>(false)
-  const [logsFilterEdit, setLogsFilterEdit] = useState<string>('.*')
-  const [logsFilter, setLogsFilter] = useState<string>('.*')
-
 
   useEffect(() => {
     fetch(props.baseUrl + 'services')
@@ -390,7 +384,7 @@ function TaskUi(props: TaskUiProps) {
                   </DataTable>
                 </Section>
 
-                <Section id="service.reach" heading="Reach" xs={12} >
+                <Section id="tasks.reach" heading="Reach" xs={12} >
                   <VisNetwork
                     data={reachGraph}
                     options={reachOptions}
@@ -404,29 +398,10 @@ function TaskUi(props: TaskUiProps) {
         }
         {
           tab === 1 &&
-          <Grid sx={{ height: '90%', flex: '1 1 auto', display: 'flex' }}>
-            <Paper sx={{ flexGrow: 1 }}>
-              <Box sx={{display: 'flex', flexFlow: 'row'}}>
-                <InputLabel htmlFor="logsTailInput" sx={{padding: '8px'}} >Tail: </InputLabel>
-                <Select id="logsTailInput" value={logsTail} onChange={e => setLogsTail(Number(e.target.value))} size="small" sx={{ paddingTop: '0px', paddingBottom: '0px'}}>
-                  <MenuItem value={10}>10</MenuItem>
-                  <MenuItem value={50}>50</MenuItem>
-                  <MenuItem value={100}>100</MenuItem>
-                  <MenuItem value={500}>500</MenuItem>
-                  <MenuItem value={1000}>1000</MenuItem>
-                  <MenuItem value={5000}>5000</MenuItem>
-                  <MenuItem value={10000}>10000</MenuItem>
-                </Select>
-                <InputLabel htmlFor="logsFollowInput" sx={{padding: '8px'}} >Follow: </InputLabel>
-                <Checkbox id="logsFollowInput" checked={logsFollow} onChange={e => {setLogsFollow(!logsFollow)}}/>
-                <InputLabel htmlFor="logsFilterInput" sx={{padding: '8px'}} >Filter: </InputLabel>
-                <TextField id="logsFilterInput" variant="outlined" value={logsFilterEdit}  sx={{ paddingTop: '0px', paddingBottom: '0px'}} size="small" onChange={e => setLogsFilterEdit(e.target.value)} onBlur={e => {
-                  setLogsFilter(e.target.value)
-                }} />
-              </Box>
-              <LogsView url={props.baseUrl + 'tasks/' + id + '/logs'} tail={logsTail} follow={logsFollow} filter={logsFilter} />
-            </Paper>
-          </Grid>
+          <LogsView
+            logsUrl={props.baseUrl + 'tasks/' + id + '/logs'}
+            id='tasks.logs' 
+            />
         }
         {
           tab === 2 &&
