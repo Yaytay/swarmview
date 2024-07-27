@@ -13,11 +13,11 @@
     "express-http-proxy": "^2.0.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.16.1",
-    "@typescript-eslint/parser": "^7.16.1",
+    "@typescript-eslint/eslint-plugin": "^7.17.0",
+    "@typescript-eslint/parser": "^7.17.0",
     "eslint": "^8.5.0",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.8",
-    "typescript": "^5.5.3"
+    "eslint-plugin-react-refresh": "^0.4.9",
+    "typescript": "^5.5.4"
   }
 }
