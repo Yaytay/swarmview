@@ -350,16 +350,16 @@ function ServiceUi(props: ServiceProps) {
     return <></>
   } else {
     return (
-      <Box sx={{ width: '100%' }} >
+      <Box sx={{ width: '100%', height: '100%'}} >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
+          <Tabs value={tab} onChange={handleTabChange} aria-label="Task tabs: Details, Logs, Raw">
             <Tab label="Details" />
             <Tab label="Raw" />
           </Tabs>
         </Box>
         {
           tab === 0 &&
-          <Box>
+          <Box sx={{height: '100%'}}>
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 <Section id="service.overview" heading="Overview" >

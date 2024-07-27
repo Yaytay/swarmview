@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid';
 import { Network, Service, Task, Node } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
-import { Tabs, Tab } from '@mui/material';
+import { Tabs, Tab, Paper, InputLabel, Select, MenuItem, Checkbox, TextField } from '@mui/material';
 import JSONPretty from 'react-json-pretty';
 import VisNetwork, { GraphData, Node as NetworkNode, Edge } from './VisNetwork';
 import LogsView from './LogsView';
@@ -33,6 +33,13 @@ function TaskUi(props: TaskUiProps) {
   const [resources, setResources] = useState<(string | number | null)[][]>([])
   const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
   const [reachGraph, setReachGraph] = useState<GraphData>({})
+
+
+  const [logsTail, setLogsTail] = useState<number>(50)
+  const [logsFollow, setLogsFollow] = useState<boolean>(false)
+  const [logsFilterEdit, setLogsFilterEdit] = useState<string>('.*')
+  const [logsFilter, setLogsFilter] = useState<string>('.*')
+
 
   useEffect(() => {
     fetch(props.baseUrl + 'services')
@@ -127,7 +134,7 @@ function TaskUi(props: TaskUiProps) {
 
   useEffect(() => {
     if (task) {
-      props.setTitle('Task: ' + ((task.ServiceID && services.get(task.ServiceID)?.Spec?.Name) ?? task.ServiceID) + '.' + (task.Slot ? task.Slot : task.NodeID) )
+      props.setTitle('Task: ' + ((task.ServiceID && services.get(task.ServiceID)?.Spec?.Name) ?? task.ServiceID) + '.' + (task.Slot ? task.Slot : task.NodeID))
 
       const buildLabels = [] as (string | number | DataTablePropsEntry)[][]
       if (task?.Spec?.ContainerSpec?.Labels) {
@@ -157,12 +164,12 @@ function TaskUi(props: TaskUiProps) {
         const buildNetworks = task.Spec.Networks.reduce<(DataTableValue)[][]>((accumulator, svcNet) => {
           if (svcNet.Target) {
             const net = networks.get(svcNet.Target)
-            
-            const netServices : DataTablePropsEntry[] = []
+
+            const netServices: DataTablePropsEntry[] = []
             const svcsOnNet = servicesByNetwork.get(svcNet.Target)
             svcsOnNet?.sort().forEach(svcOnNet => {
               if (svcOnNet.ID) {
-                netServices.push({link: '/service/' + svcOnNet.ID, value: svcOnNet.Spec?.Name || svcOnNet.ID})
+                netServices.push({ link: '/service/' + svcOnNet.ID, value: svcOnNet.Spec?.Name || svcOnNet.ID })
               }
             })
 
@@ -182,9 +189,9 @@ function TaskUi(props: TaskUiProps) {
         setNetworksData(buildNetworks)
 
         if (services && networks) {
-          const nodes : NetworkNode[] = []
-          const edges : Edge[] = []
-  
+          const nodes: NetworkNode[] = []
+          const edges: Edge[] = []
+
           const service = services.get(task.ServiceID || '')
 
           nodes.push({
@@ -203,35 +210,35 @@ function TaskUi(props: TaskUiProps) {
             edges.push({
               from: service?.ID || task.ID
               , to: net.Target
-              , 
+              ,
             })
             services.forEach(svc => {
               if (svc.ID !== service.ID) {
                 const svcnet = svc.Spec?.TaskTemplate?.Networks?.find(n => n.Target == net.Target)
                 if (svcnet) {
                   nodes.push({
-                    id: svc?.ID +'@' + net.Target
+                    id: svc?.ID + '@' + net.Target
                     , label: svc?.Spec?.Name || svc?.ID
                     , group: netName
                   })
                   edges.push({
                     from: net.Target
-                    , to: svc?.ID +'@' + net.Target
+                    , to: svc?.ID + '@' + net.Target
                   })
                 }
               }
             })
           })
-  
-          setReachGraph({nodes: nodes, edges: edges})
+
+          setReachGraph({ nodes: nodes, edges: edges })
         }
-  
+
 
       } else {
         setNetworksData([])
         setReachGraph({})
       }
-  
+
       const buildResources = [] as (string | number | null)[][]
       if (task?.Spec?.Resources) {
         const res = task.Spec.Resources
@@ -245,7 +252,7 @@ function TaskUi(props: TaskUiProps) {
         buildResources.push(['ULimit: ' + ulimit.Name, ulimit.Soft + ' : ' + ulimit.Hard])
       })
       setResources(buildResources)
-  
+
 
     }
   }, [id, task, networks, nodes, services, props, servicesByNetwork])
@@ -255,7 +262,7 @@ function TaskUi(props: TaskUiProps) {
   };
 
   const reachEvents = {
-    doubleClick: (params : any) => {
+    doubleClick: (params: any) => {
       console.log(params)
       if (params.nodes.length == 1) {
         if (params.nodes[0].includes('@')) {
@@ -267,7 +274,7 @@ function TaskUi(props: TaskUiProps) {
         }
       }
     }
-  };  
+  };
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -277,113 +284,113 @@ function TaskUi(props: TaskUiProps) {
     return <></>
   } else {
     return (
-      <Box sx={{ width: '100%'}} >
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ width: '100%', height: '99%', display: 'flex', flexFlow: 'column' }}  >
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', flex: '0 1 auto' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
-          <Tab label="Details" />
-          <Tab label="Logs" />
-          <Tab label="Raw" />
+            <Tab label="Details" />
+            <Tab label="Logs" />
+            <Tab label="Raw" />
           </Tabs>
         </Box>
         {
-      tab === 0 &&
-      <Box>
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2}>
-            <Section id="task.overview" heading="Overview" >
-              <DataTable id="task.overview.table" kvTable={true} rows={
-                [
-                  ['ID', task.ID || '']
-                  , ['Image', task?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ' ']
-                  , ['Hash', task.Spec?.ContainerSpec?.Image?.replace(/.*@/, '') || ' ']
-                  , ['Created', task.CreatedAt || '']
-                  , ['Updated', task.UpdatedAt || '']
-                  , ['Stack', task?.Spec?.ContainerSpec?.Labels && task?.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + task?.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'], value: task?.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'] } : '' ]
-                  , ['Node', { link: '/node/' + task.NodeID, value: (nodes && task.NodeID && nodes.get(task.NodeID)?.Description?.Hostname || task.NodeID || '') } ]
-                ]
-              }>
-              </DataTable>
-            </Section>
-            <Section id="task.execution" heading="Execution" xs={6} >
-              <DataTable id="task.execution.table" kvTable={true} rows={
-                [
-                  ['Command', task?.Spec?.ContainerSpec?.Command]
-                  , ['Arguments', task?.Spec?.ContainerSpec?.Args]
-                  , ['Environment', task?.Spec?.ContainerSpec?.Env]
-                  , ['Dir', task?.Spec?.ContainerSpec?.Dir]
-                  , ['User', task?.Spec?.ContainerSpec?.User]
-                  , ['Groups', task?.Spec?.ContainerSpec?.Groups]
-                  , ['Hostname', task?.Spec?.ContainerSpec?.Hostname]
-                ]
-              }>
-              </DataTable>
-            </Section>
-            <Section id="task.resources" heading="Resources" >
-              <DataTable id="task.resources.table" kvTable={true} rows={resources}>
-              </DataTable>
-            </Section>
-            <Section id="task.status" heading="Status" >
-              <DataTable id="task.status.table" kvTable={true} rows={
-                [
-                  ['Timestamp', task.Status?.Timestamp || '']
-                    , ['State', task.Status?.State || '']
-                    , ['Desired State', task.DesiredState || '']
-                    , ['Message', task.Status?.Message || '']
-                    , ['Container ID', task.Status?.ContainerStatus?.ContainerID || '']
-                    , ['PID', task.Status?.ContainerStatus?.PID || '']
-                    , ['ExitCode', task.Status?.ContainerStatus?.ExitCode || '']
-                    , ['Port Status', task.Status?.PortStatus ? JSON.stringify(task.Status?.PortStatus) : '']
-                ]
-              }>
-              </DataTable>
-            </Section>
-            <Section id="task.mounts" heading="Mounts" >
-              <DataTable id="task.mounts.spec" kvTable={true} sx={{ width: '20em' }} rows={
-                [
-                  ['Read Only Root FS', String(task?.Spec?.ContainerSpec?.ReadOnly)]
-                ]
-              }>
-              </DataTable>
-              <br/>
-              <DataTable id="task.mounts.list" headers={
-                [
-                  'Type'
-                  , 'Target'
-                  , 'Source'
-                  , 'ReadOnly'
-                ]
-              } rows={mounts}
-              >
-              </DataTable>
-            </Section>
+          tab === 0 &&
+          <Box sx={{ flex: '1 1 auto' }}>
+            <Box sx={{ flexGrow: 1 }}>
+              <Grid container spacing={2} >
+                <Section id="task.overview" heading="Overview" >
+                  <DataTable id="task.overview.table" kvTable={true} rows={
+                    [
+                      ['ID', task.ID || '']
+                      , ['Image', task?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ' ']
+                      , ['Hash', task.Spec?.ContainerSpec?.Image?.replace(/.*@/, '') || ' ']
+                      , ['Created', task.CreatedAt || '']
+                      , ['Updated', task.UpdatedAt || '']
+                      , ['Stack', task?.Spec?.ContainerSpec?.Labels && task?.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + task?.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'], value: task?.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'] } : '']
+                      , ['Node', { link: '/node/' + task.NodeID, value: (nodes && task.NodeID && nodes.get(task.NodeID)?.Description?.Hostname || task.NodeID || '') }]
+                    ]
+                  }>
+                  </DataTable>
+                </Section>
+                <Section id="task.execution" heading="Execution" xs={6} >
+                  <DataTable id="task.execution.table" kvTable={true} rows={
+                    [
+                      ['Command', task?.Spec?.ContainerSpec?.Command]
+                      , ['Arguments', task?.Spec?.ContainerSpec?.Args]
+                      , ['Environment', task?.Spec?.ContainerSpec?.Env]
+                      , ['Dir', task?.Spec?.ContainerSpec?.Dir]
+                      , ['User', task?.Spec?.ContainerSpec?.User]
+                      , ['Groups', task?.Spec?.ContainerSpec?.Groups]
+                      , ['Hostname', task?.Spec?.ContainerSpec?.Hostname]
+                    ]
+                  }>
+                  </DataTable>
+                </Section>
+                <Section id="task.resources" heading="Resources" >
+                  <DataTable id="task.resources.table" kvTable={true} rows={resources}>
+                  </DataTable>
+                </Section>
+                <Section id="task.status" heading="Status" >
+                  <DataTable id="task.status.table" kvTable={true} rows={
+                    [
+                      ['Timestamp', task.Status?.Timestamp || '']
+                      , ['State', task.Status?.State || '']
+                      , ['Desired State', task.DesiredState || '']
+                      , ['Message', task.Status?.Message || '']
+                      , ['Container ID', task.Status?.ContainerStatus?.ContainerID || '']
+                      , ['PID', task.Status?.ContainerStatus?.PID || '']
+                      , ['ExitCode', task.Status?.ContainerStatus?.ExitCode || '']
+                      , ['Port Status', task.Status?.PortStatus ? JSON.stringify(task.Status?.PortStatus) : '']
+                    ]
+                  }>
+                  </DataTable>
+                </Section>
+                <Section id="task.mounts" heading="Mounts" >
+                  <DataTable id="task.mounts.spec" kvTable={true} sx={{ width: '20em' }} rows={
+                    [
+                      ['Read Only Root FS', String(task?.Spec?.ContainerSpec?.ReadOnly)]
+                    ]
+                  }>
+                  </DataTable>
+                  <br />
+                  <DataTable id="task.mounts.list" headers={
+                    [
+                      'Type'
+                      , 'Target'
+                      , 'Source'
+                      , 'ReadOnly'
+                    ]
+                  } rows={mounts}
+                  >
+                  </DataTable>
+                </Section>
 
-            <Section id="task.labels" heading="Labels" >
-              <DataTable id="task.labels.table" headers={
-                [
-                  'Label'
-                  , 'Value'
-                  , 'Source'
-                ]
-              } rows={labels}
-              >
-              </DataTable>
-            </Section>
+                <Section id="task.labels" heading="Labels" >
+                  <DataTable id="task.labels.table" headers={
+                    [
+                      'Label'
+                      , 'Value'
+                      , 'Source'
+                    ]
+                  } rows={labels}
+                  >
+                  </DataTable>
+                </Section>
 
-            <Section id="task.networks" heading="Networks" xs={12} >
-              <DataTable id="task.networks.table" headers={
-                [
-                  'ID'
-                  , 'Name'
-                  , 'Aliases'
-                  , 'Options'
-                  , 'Services'
-                ]
-              } rows={networksData}
-              >
-              </DataTable>
-            </Section>
-            
-            <Section id="service.reach" heading="Reach" xs={12} >
+                <Section id="task.networks" heading="Networks" xs={12} >
+                  <DataTable id="task.networks.table" headers={
+                    [
+                      'ID'
+                      , 'Name'
+                      , 'Aliases'
+                      , 'Options'
+                      , 'Services'
+                    ]
+                  } rows={networksData}
+                  >
+                  </DataTable>
+                </Section>
+
+                <Section id="service.reach" heading="Reach" xs={12} >
                   <VisNetwork
                     data={reachGraph}
                     options={reachOptions}
@@ -391,24 +398,42 @@ function TaskUi(props: TaskUiProps) {
                   />
                 </Section>
 
+              </Grid>
+            </Box>
+          </Box>
+        }
+        {
+          tab === 1 &&
+          <Grid sx={{ height: '90%', flex: '1 1 auto', display: 'flex' }}>
+            <Paper sx={{ flexGrow: 1 }}>
+              <Box sx={{display: 'flex', flexFlow: 'row'}}>
+                <InputLabel htmlFor="logsTailInput" sx={{padding: '8px'}} >Tail: </InputLabel>
+                <Select id="logsTailInput" value={logsTail} onChange={e => setLogsTail(Number(e.target.value))} size="small" sx={{ paddingTop: '0px', paddingBottom: '0px'}}>
+                  <MenuItem value={10}>10</MenuItem>
+                  <MenuItem value={50}>50</MenuItem>
+                  <MenuItem value={100}>100</MenuItem>
+                  <MenuItem value={500}>500</MenuItem>
+                  <MenuItem value={1000}>1000</MenuItem>
+                  <MenuItem value={5000}>5000</MenuItem>
+                  <MenuItem value={10000}>10000</MenuItem>
+                </Select>
+                <InputLabel htmlFor="logsFollowInput" sx={{padding: '8px'}} >Follow: </InputLabel>
+                <Checkbox id="logsFollowInput" checked={logsFollow} onChange={e => {setLogsFollow(!logsFollow)}}/>
+                <InputLabel htmlFor="logsFilterInput" sx={{padding: '8px'}} >Filter: </InputLabel>
+                <TextField id="logsFilterInput" variant="outlined" value={logsFilterEdit}  sx={{ paddingTop: '0px', paddingBottom: '0px'}} size="small" onChange={e => setLogsFilterEdit(e.target.value)} onBlur={e => {
+                  setLogsFilter(e.target.value)
+                }} />
+              </Box>
+              <LogsView url={props.baseUrl + 'tasks/' + id + '/logs'} tail={logsTail} follow={logsFollow} filter={logsFilter} />
+            </Paper>
           </Grid>
-        </Box>
-      </Box>
-    }
-    {
-      tab === 1 &&
-      <Box>
-        <Section id="logs" heading='Logs'>
-          <LogsView url={props.baseUrl + 'tasks/' + id + '/logs'} />
-        </Section>
-      </Box>
-    }
-    {
-      tab === 2 &&
-      <Box>
-        <JSONPretty data={task} />
-      </Box>
-    }
+        }
+        {
+          tab === 2 &&
+          <Box>
+            <JSONPretty data={task} />
+          </Box>
+        }
       </Box >
     )
   }

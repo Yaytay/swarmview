@@ -94,7 +94,6 @@ function App() {
             <Typography variant='h6'>Swarm View</Typography>
             <Typography variant='body2'>Version <Version/></Typography>
           </Box>
-
           <hr />
           <Box>
             <Link className='navlink' to="/stacks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1}><LayersIcon fontSize='small' /><Typography>Stacks</Typography></Stack></Link>
@@ -119,7 +118,7 @@ function App() {
               )}
             </Box>
           </Box>
-          <Box className="content">
+          <Box className="content" sx={{height: '100%'}}>
             <Routes>
               <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>

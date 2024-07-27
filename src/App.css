@@ -10,7 +10,8 @@
 }
 
 .titleBar {
-  padding: 6px 0px 6px 4px
+  padding: 6px 0px 6px 4px;
+  flex: 0 1 auto;
 }
 
 .modeChange {
@@ -24,10 +25,14 @@
 .notSideBar {
   margin: 0;
   margin-left: 200px;
+  display: flex;
+  height: 100%;
+  flex-flow: column;
 }
 
 .content {
   padding: 8px;
+  flex: 1 1 auto;
 }
 
 div.tabBar {
@@ -66,4 +71,8 @@ a.navlink :hover {
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
 
+}
+
+.logRow {
+  white-space: nowrap;
 }
