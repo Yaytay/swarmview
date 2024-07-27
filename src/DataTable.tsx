@@ -67,6 +67,8 @@ function compareDataTableValues(v1: DataTableValue, v2: DataTableValue): number 
     return String(v1).localeCompare(String(v2))
   } else if (Array.isArray(v2)) {
     return String(v1).localeCompare(String(v2))
+  } else if (typeof(v1) === 'number' && typeof(v2) === 'number') {
+    return v2 - v1
   } else {
     const v1Str = (typeof v1 === 'object') ? v1.value : String(v1)
     const v2Str = (typeof v2 === 'object') ? v2.value : String(v2)

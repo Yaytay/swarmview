@@ -90,7 +90,7 @@ function NodeUi(props: NodeProps) {
     }
 
     if (node && tasks) {
-      setNodeTaskHeaders(['ID', 'NAME', 'CREATED', 'IMAGE', 'DESIRED STATE', 'CURRENT STATE', 'ERROR', 'PORTS'])
+      setNodeTaskHeaders(['ID', 'NAME', 'CREATED', 'IMAGE', 'DESIRED', 'CURRENT', 'MEMORY', 'ERROR', 'PORTS'])
       const buildStackTasks: DataTableValue[][] = []
       const nodeTasks = tasks.filter(tsk => tsk.NodeID === id)
       nodeTasks.sort((l,r) => {
@@ -106,6 +106,7 @@ function NodeUi(props: NodeProps) {
               , tsk?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '')
               , tsk?.DesiredState          
               , tsk?.Status?.State
+              , tsk?.Status?.State === 'running' && tsk?.Spec?.Resources?.Limits?.MemoryBytes ? tsk?.Spec?.Resources?.Limits?.MemoryBytes / 1048576 : null
               , tsk?.Status?.Err
               , tsk?.Status?.PortStatus?.Ports?.map(portSpec => {
                 return portSpec.PublishedPort + ':' + portSpec.TargetPort
@@ -132,6 +133,7 @@ function NodeUi(props: NodeProps) {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
             <Tab label="Details" />
+            <Tab label="Checks" />
             <Tab label="Raw" />
           </Tabs>
         </Box>
@@ -157,7 +159,7 @@ function NodeUi(props: NodeProps) {
                   ['Engine', node?.Description?.Engine?.EngineVersion || ' ']
                   , ['Architecture', node?.Description?.Platform?.Architecture || ' ']
                   , ['OS', node?.Description?.Platform?.OS || ' ']
-                  , ['Memory', (node?.Description?.Resources?.MemoryBytes ? String(node?.Description.Resources?.MemoryBytes / 1048576) + 'MB' : null)]
+                  , ['Memory', node?.Description?.Resources?.MemoryBytes ? String(node?.Description.Resources?.MemoryBytes / 1048576) + ' MB' : null]
                   , ['CPUs', (node?.Description?.Resources?.NanoCPUs ? node?.Description?.Resources?.NanoCPUs / 1000000000 : null)]
                 ]
               }>
@@ -198,6 +200,12 @@ function NodeUi(props: NodeProps) {
     }
     {
       tab === 1 &&
+      <Box>
+        
+      </Box>
+    }
+    {
+      tab === 2 &&
       <Box>
         <JSONPretty data={node} />
       </Box>
