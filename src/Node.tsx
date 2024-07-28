@@ -9,6 +9,7 @@ import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
+import NodeChecks from './NodeChecks';
 
 
 interface NodeProps {
@@ -201,7 +202,7 @@ function NodeUi(props: NodeProps) {
     {
       tab === 1 &&
       <Box>
-        
+        <NodeChecks node={node} tasks={tasks} />
       </Box>
     }
     {
