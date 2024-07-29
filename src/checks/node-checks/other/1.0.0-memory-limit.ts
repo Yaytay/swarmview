@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, state } from "../../checks"
+import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
 export const memorylimits : Check = {
   category: "Other",
@@ -19,14 +19,14 @@ export const memorylimits : Check = {
         }
       }, 0)
       return {
-        state: (args.node.Description?.Resources?.MemoryBytes || 0) > totalRequirement ? state.pass : state.fail
+        state: (args.node.Description?.Resources?.MemoryBytes || 0) > totalRequirement ? State.pass : State.fail
         , threshold: (args.node.Description?.Resources?.MemoryBytes || 0) / 1048576
         , value: totalRequirement / 1048576
       }
 
     } else {
       return {
-        state: state.error
+        state: State.error
 
       }
     }

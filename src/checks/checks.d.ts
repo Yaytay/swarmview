@@ -12,7 +12,7 @@ export interface CheckArguments {
   , tasks?: Task[]
 }
 
-export enum state {
+export enum State {
   pass = 'pass'
   , fail = 'fail'
   , warning = 'warning'
