@@ -15,7 +15,7 @@ function Tasks(props: TasksProps) {
   const [services, setServices] = useState<Map<string, Service>>(new Map<string, Service>())
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map<string, Node>())
 
-  const [data, setData] = useState<(string | string[] | DataTablePropsEntry)[][]>()
+  const [data, setData] = useState<(string | string[] | number | DataTablePropsEntry)[][]>()
 
   useEffect(() => {
     fetch(props.baseUrl + 'tasks')
@@ -69,7 +69,7 @@ function Tasks(props: TasksProps) {
   useEffect(() => {
     if (tasks && services) {
       props.setTitle('Tasks')
-      const newData = [] as (string | string[] | DataTablePropsEntry)[][]
+      const newData = [] as (string | string[] | number | DataTablePropsEntry)[][]
       tasks.forEach((tsk: Task) => {
         if (tsk.ID) {
           newData.push(
@@ -81,6 +81,7 @@ function Tasks(props: TasksProps) {
               , tsk.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ''              
               , tsk.DesiredState || ''
               , tsk.Status?.State || ''
+              , tsk?.Status?.State === 'running' && tsk?.Spec?.Resources?.Limits?.MemoryBytes ? tsk?.Spec?.Resources?.Limits?.MemoryBytes / 1048576 : ''
               , tsk.Status?.Err || ''
               , tsk.Status?.PortStatus?.Ports?.map(portSpec => {
                 return portSpec.PublishedPort + ':' + portSpec.TargetPort
@@ -98,7 +99,7 @@ function Tasks(props: TasksProps) {
     <Box sx={{ flexGrow: 1 }}>
       <Grid container >
         <Paper>
-          <DataTable id="tasks" headers={['ID', 'NAME', 'NODE', 'CREATED', 'IMAGE', 'DESIRED STATE', 'CURRENT STATE', 'ERROR', 'PORTS']} rows={data}>
+          <DataTable id="tasks" headers={['ID', 'NAME', 'NODE', 'CREATED', 'IMAGE', 'DESIRED STATE', 'CURRENT STATE', 'MEMORY', 'ERROR', 'PORTS']} rows={data}>
           </DataTable>
         </Paper>
       </Grid>
