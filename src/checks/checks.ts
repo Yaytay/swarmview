@@ -1,13 +1,13 @@
-import { Node, Service, Stack, Task } from '../docker-schema'
+import { Node, Service, Task } from '../docker-schema'
 
 export interface CheckArguments {
   node?: Node
-  , stack?: Stack
+  , stack?: string
   , service?: Service
   , task?: Task
 
   , nodes?: Node[]
-  , stacks?: Stack[]
+  , stacks?: string[]
   , services?: Service[]
   , tasks?: Task[]
 }
@@ -20,7 +20,7 @@ export enum State {
 }
 
 export interface CheckResult {
-  state: state
+  state: State
   , value?: number
   , threshold?: number
   , error?: string

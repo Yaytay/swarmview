@@ -1,6 +1,6 @@
 import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
-export const memorylimits : Check = {
+export const nodeMemorylimit : Check = {
   category: "Other",
   id: "1.0.0",
   title: 'Node memory limit',

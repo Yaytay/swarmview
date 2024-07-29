@@ -26,6 +26,7 @@ function NodeUi(props: NodeProps) {
 
   const { id } = useParams<NodeUiParams>();
 
+  const [nodes, setNodes] = useState<Node[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [services, setServices] = useState<Map<string, Service>>(new Map<string, Service>())
   const [labels, setLabels] = useState<(string | number | DataTablePropsEntry)[][]>([])
@@ -44,8 +45,9 @@ function NodeUi(props: NodeProps) {
       })
       .then(j => {
         console.log('Nodes: ', j)
-        const nodes = j as Node[]
-        const node = nodes.find(node => { return node.ID === id })
+        const returnedNodes = j as Node[]
+        setNodes(returnedNodes)
+        const node = returnedNodes.find(node => { return node.ID === id })
         if (node) {
           setNode(node)
         } 
@@ -202,7 +204,7 @@ function NodeUi(props: NodeProps) {
     {
       tab === 1 &&
       <Box>
-        <NodeChecks node={node} tasks={tasks} />
+        <NodeChecks node={node} tasks={tasks} nodes={nodes}/>
       </Box>
     }
     {

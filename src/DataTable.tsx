@@ -31,7 +31,8 @@ interface DataTableProps {
   kvTable?: boolean
   headers?: string[]
   rows: (DataTableValue)[][] | undefined
-  sx?: SxProps<Theme>;
+  sx?: SxProps<Theme>
+  rowStyle?: (row: DataTableValue[]) => SxProps<Theme> | undefined
 }
 
 interface DataTableValueProps {
@@ -273,13 +274,14 @@ function DataTable(props: DataTableProps) {
             values
               .filter(row => !props.kvTable || row[1])
               .map((r, ir) => {
+                const style : SxProps<Theme> = props.rowStyle && props.rowStyle(r) || { border: 0 }
                 return (
-                  <TableRow key={ir} sx={{ border: 0 }} >
+                  <TableRow key={ir} sx={[...(Array.isArray(style) ? style : [style])]} >
                     {
                       r
                         .map((v, iv) => {
                           return (
-                            <TableCell key={iv} sx={{ verticalAlign: 'top' }}>
+                            <TableCell key={iv} sx={{ verticalAlign: 'top'}}>
                               <DataTableValue value={v} />
                             </TableCell>
                           )

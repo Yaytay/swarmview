@@ -1,26 +1,29 @@
-import { memorylimits } from "./checks/node-checks/other/1.0.0-memory-limit";
+import { nodeMemorylimit } from "./checks/node-checks/other/1.0.0-memory-limit";
 import DataTable, { DataTableValue } from "./DataTable";
-import Check from "./checks/checks";
+import { Check } from "./checks/checks";
 import { Node, Task } from "./docker-schema";
+import { swarmMemorylimit } from "./checks/node-checks/other/1.0.1-total-memory-limit";
 
 interface NodeChecksProps {
   node: Node
+  , nodes: Node[]
   , tasks: Task[]
 }
 function NodeChecks(props: NodeChecksProps) {
 
-  const checks: Check.Check[] = [
-    memorylimits
+  const checks: Check[] = [
+    nodeMemorylimit
+    , swarmMemorylimit
   ]
 
   const headers = ['ID', 'CHECK', 'RESULT', 'THRESHOLD', 'VALUE', 'ERROR']
 
-  const args = {node: props.node, tasks: props.tasks}
+  const args = {node: props.node, nodes: props.nodes, tasks: props.tasks}
 
   const data = checks.reduce((acc, check) => {
     try {
       const result = check.evaluate(args)
-      acc.push([check.id, check.title, result.state, result.threshold, result.value, null])
+      acc.push([check.id, check.title, result.state, result.threshold, result.value, result.error])
     } catch (ex) {
       acc.push([check.id, check.title, 'error', null, null, String(ex)])
     }
@@ -28,7 +31,14 @@ function NodeChecks(props: NodeChecksProps) {
   }, [] as DataTableValue[][])
 
   return (
-    <DataTable id="node.checks.table" headers={headers} rows={data}>
+    <DataTable id="node.checks.table" headers={headers} rows={data} rowStyle={r => {
+      switch(r[2]){
+        case 'fail':
+          return { background: 'red' }
+        case 'error':
+          return { background: 'darkred' }
+      }
+    }} >
 
     </DataTable>
   )
