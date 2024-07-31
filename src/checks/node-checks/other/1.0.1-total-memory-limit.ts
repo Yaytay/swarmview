@@ -30,7 +30,7 @@ export const swarmMemorylimit : Check = {
     } else {
       return {
         state: State.error
-        , error: 'nodes not set'
+        , error: (args.nodes && 'tasks not set' || 'nodes not set')
       }
     }
   }

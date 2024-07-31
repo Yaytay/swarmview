@@ -27,7 +27,7 @@ export const nodeMemorylimit : Check = {
     } else {
       return {
         state: State.error
-
+        , error: (args.node && 'tasks not set' || 'node not set')
       }
     }
   }

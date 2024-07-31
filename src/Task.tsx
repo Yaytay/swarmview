@@ -5,11 +5,11 @@ import Grid from '@mui/material/Grid';
 import { Network, Service, Task, Node } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
-import { Tabs, Tab, Paper, InputLabel, Select, MenuItem, Checkbox, TextField } from '@mui/material';
+import { Tabs, Tab } from '@mui/material';
 import JSONPretty from 'react-json-pretty';
 import VisNetwork, { GraphData, Node as NetworkNode, Edge } from './VisNetwork';
-import LogsContent from './LogsContent';
 import LogsView from './LogsView';
+import TaskChecks from './TaskChecks';
 
 interface TaskUiProps {
   baseUrl: string
@@ -283,6 +283,7 @@ function TaskUi(props: TaskUiProps) {
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
             <Tab label="Details" />
             <Tab label="Logs" />
+            <Tab label="Checks" />
             <Tab label="Raw" />
           </Tabs>
         </Box>
@@ -405,6 +406,10 @@ function TaskUi(props: TaskUiProps) {
         }
         {
           tab === 2 &&
+          <TaskChecks task={task} />
+        }
+        {
+          tab === 3 &&
           <Box>
             <JSONPretty data={task} />
           </Box>

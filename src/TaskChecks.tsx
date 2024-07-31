@@ -1,25 +1,25 @@
 import DataTable, { DataTableValue } from "./DataTable";
 import { Check } from "./checks/checks";
-import { Node, Task } from "./docker-schema";
-import { nodeMemorylimit } from "./checks/node-checks/other/1.0.0-memory-limit";
-import { swarmMemorylimit } from "./checks/node-checks/other/1.0.1-total-memory-limit";
+import { Task } from "./docker-schema";
 import Paper from "@mui/material/Paper";
+import { taskRestartPolicy } from "./checks/task-checks/other/1.0.0-task-restart-policy";
+import { taskRestartPolicyLimit } from "./checks/task-checks/other/1.0.1-task-restart-policy-limit";
+import { taskRestartPolicyDelay } from "./checks/task-checks/other/1.0.2-task-restart-policy-delay";
 
-interface NodeChecksProps {
-  node: Node
-  , nodes: Node[]
-  , tasks: Task[]
+interface TaskChecksProps {
+  task: Task
 }
-function NodeChecks(props: NodeChecksProps) {
+function TaskChecks(props: TaskChecksProps) {
 
   const checks: Check[] = [
-    nodeMemorylimit
-    , swarmMemorylimit
+    taskRestartPolicy
+    , taskRestartPolicyLimit
+    , taskRestartPolicyDelay
   ]
 
   const headers = ['ID', 'CHECK', 'RESULT', 'THRESHOLD', 'VALUE', 'ERROR']
 
-  const args = {node: props.node, nodes: props.nodes, tasks: props.tasks}
+  const args = { task: props.task }
 
   const data = checks.reduce((acc, check) => {
     try {
@@ -33,12 +33,14 @@ function NodeChecks(props: NodeChecksProps) {
 
   return (
     <Paper sx={{ flexGrow: 0, display: 'flex', flexFlow: 'column' }}>
-      <DataTable id="node.checks.table" headers={headers} rows={data} rowStyle={r => {
-        switch(r[2]){
+      <DataTable id="task.checks.table" headers={headers} rows={data} rowStyle={r => {
+        switch (r[2]) {
           case 'fail':
             return { background: 'red' }
           case 'error':
             return { background: 'darkred' }
+          case 'warning':
+            return { background: 'yellow' }
         }
       }} >
 
@@ -47,4 +49,4 @@ function NodeChecks(props: NodeChecksProps) {
   )
 }
 
-export default NodeChecks
+export default TaskChecks

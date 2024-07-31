@@ -9,6 +9,7 @@ import Section from './Section';
 interface StackUiProps {
   baseUrl: string
   setTitle: (title: string) => void
+  exposedPorts: Record<string, string[]>
 }
 type StackUiParams = {
   id: string;
@@ -21,13 +22,15 @@ function StackUi(props: StackUiProps) {
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map())
   const [tasks, setTasks] = useState<Map<string, Map<string, Task[]>>>(new Map())
 
+  const [stackServices, setStackServices] = useState<DataTableValue[][]>([])
+  const [stackServiceHeaders, setStackServiceHeaders] = useState<string[]>([])
   const [stackTasks, setStackTasks] = useState<DataTableValue[][]>([])
   const [stackTaskHeaders, setStackTaskHeaders] = useState<string[]>([])
   const [stackNetworks, setStackNetworks] = useState<DataTableValue[][]>([])
   const [stackNetworkHeaders, setStackNetworkHeaders] = useState<string[]>([])
 
   useEffect(() => {
-    fetch(props.baseUrl + 'services')
+    fetch(props.baseUrl + 'services?status=true')
       .then(r => {
         if (r.ok) {
           return r.json();
@@ -45,6 +48,36 @@ function StackUi(props: StackUiProps) {
           }
         })
         setServices(buildServices)
+        setStackServiceHeaders(['ID', 'NAME', 'MODE', 'REPLICAS', 'IMAGE', 'PORTS'])
+        setStackServices(baseServices.reduce((acc, svc) => {
+          const labels = svc.Spec?.Labels
+          if (labels) {
+            const namespace = labels['com.docker.stack.namespace']
+            if (namespace == id) {
+              acc.push([
+                svc.ID ? { link: '/service/' + svc.ID, value: svc.ID } : ''
+                , svc.Spec?.Name || ''
+                , Object.keys(svc.Spec?.Mode || [''])[0]
+                , svc.ServiceStatus?.RunningTasks + ' / ' + svc.ServiceStatus?.DesiredTasks
+                , svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
+                ,
+                (
+                  svc.Endpoint?.Ports?.map((p) => {
+                    return p.PublishedPort + ':' + p.TargetPort
+                  }).join(', ') || ''
+                )
+                + (svc.Endpoint?.Ports ? ', ' : '')
+                + (
+                  props.exposedPorts
+                  && svc.Spec?.TaskTemplate?.ContainerSpec?.Image
+                  && props.exposedPorts[svc.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.join(', ') || ''
+                )
+              ])
+            }
+          }
+
+          return acc
+        }, [] as DataTableValue[][]))
       })
 
     fetch(props.baseUrl + 'networks')
@@ -206,6 +239,13 @@ function StackUi(props: StackUiProps) {
     <Box>
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
+        {
+            stackServices &&
+            <Section id="stack.services" heading="Services" xs={12}>
+              <DataTable id="stack.services.table" headers={stackServiceHeaders} rows={stackServices}>
+              </DataTable>
+            </Section>
+          }
           {
             stackTasks &&
             <Section id="stack.tasks" heading="Tasks" xs={12}>

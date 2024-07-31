@@ -121,7 +121,7 @@ function App() {
           <Box className="content" sx={{height: '100%'}}>
             <Routes>
               <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} />}></Route>
               <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} />}></Route>
               <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
               <Route path='/node/:id' element={<NodeUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
