@@ -37,6 +37,7 @@ jobs:
       run: |
         sed -i 's#<meta name="version" content="" />#<meta name="version" content="'$GITHUB_REF'@'$GITHUB_SHA'" />#' index.html
         sed -i 's#<span>0.0.0</span>#<span>$GITHUB_REF</span>#' src/Version.tsx
+        sed -i 's#  "version": "[0-9].[0-9].[0-9]",#  "version": "$GITHUB_REF",#' package.json
         grep version index.html
         npm ci
         npx tsc --noEmit
@@ -46,12 +47,25 @@ jobs:
     - name: Build server
       run: |
         cd server
+        sed -i 's#  "version": "[0-9].[0-9].[0-9]",#  "version": "$GITHUB_REF",#' package.json
         npm ci
         npx tsc --noEmit
+
+    - name: Create SBOMs
+      run: |
+        npx @cyclonedx/cyclonedx-npm --output-file swarmview-ui.sbom.json
+        cd server
+        npx @cyclonedx/cyclonedx-npm --output-file ..\swarmview-server.sbom.json
+        cd ..
+        docker run -v .:/files cyclonedx/cyclonedx-cli merge --input-files /files/swarmview-server.sbom.json /files/swarmview-ui.sbom.json --output-file /files/swarmview.sbom.json
 
     - name: Build image
       run: |
         docker build -t ${GITHUB_REPOSITORY#*/}:${GITHUB_REF_NAME} .
+
+    - name: Generate SBOMs
+    
+      run: |
 
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
@@ -61,7 +75,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
             
     - name: Deploy container image
-      run: |        
+      run: |
         echo ${GITHUB_REPOSITORY#*/}
         docker image ls | head
         IFS=' ' read -ra PARTS <<< `docker image ls | grep ${GITHUB_REPOSITORY#*/} | grep -v ghcr` && \
