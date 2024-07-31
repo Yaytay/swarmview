@@ -55,7 +55,7 @@ jobs:
       run: |
         npx @cyclonedx/cyclonedx-npm --output-file swarmview-ui.sbom.json
         cd server
-        npx @cyclonedx/cyclonedx-npm --output-file ..\swarmview-server.sbom.json
+        npx @cyclonedx/cyclonedx-npm --output-file ../swarmview-server.sbom.json
         cd ..
         docker run -v .:/files cyclonedx/cyclonedx-cli merge --input-files /files/swarmview-server.sbom.json /files/swarmview-ui.sbom.json --output-file /files/swarmview.sbom.json
 
