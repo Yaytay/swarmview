@@ -51,22 +51,20 @@ jobs:
         npm ci
         npx tsc --noEmit
 
+    - name: Build image
+      run: |
+        docker build -t ${GITHUB_REPOSITORY#*/}:${GITHUB_REF_NAME} .
+
+
     - name: Create SBOMs
       run: |
         npx @cyclonedx/cyclonedx-npm --output-file swarmview-ui.sbom.json
         cd server
         npx @cyclonedx/cyclonedx-npm --output-file ../swarmview-server.sbom.json
         cd ..
-        docker run -v .:/files cyclonedx/cyclonedx-cli merge --input-files /files/swarmview-server.sbom.json /files/swarmview-ui.sbom.json --output-file /files/swarmview.sbom.json
-
-    - name: Build image
-      run: |
-        docker build -t ${GITHUB_REPOSITORY#*/}:${GITHUB_REF_NAME} .
-
-    - name: Generate SBOMs
-    
-      run: |
-
+        docker run -v .:/files aquasec/trivy sbom ${GITHUB_REPOSITORY#*/}:${GITHUB_REF_NAME} 
+        docker run -v .:/files cyclonedx/cyclonedx-cli merge --input-files /files/swarmview-server.sbom.json /files/swarmview-ui.sbom.json --output-file /files/swarmview.sbom.json --group spudsoft --name swarmview --version "$GITHUB_REF_NAME" --hierarchical
+  
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
       with:
@@ -82,6 +80,7 @@ jobs:
         echo $PARTS
         docker tag ${PARTS[2]} ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} && \
         docker push ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]}
+        docker run -it --rm -v .:/workspace -v /var/run/docker:/var/run/docker ghcr.io/oras-project/oras:v1.2.0 attach --artifact-type application/vnd.cyclonedx+json ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} swarmview.sbom.json
         
     #- name: asciidoctor-ghpages
     #  uses: manoelcampos/asciidoctor-ghpages-action@v2

@@ -1,5 +1,5 @@
 {
-  "name": "swarmview",
+  "name": "swarmview-server",
   "private": true,
   "version": "0.0.0",
   "type": "module",
