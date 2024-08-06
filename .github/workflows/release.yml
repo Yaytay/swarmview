@@ -81,7 +81,7 @@ jobs:
         echo $PARTS
         docker tag ${PARTS[2]} ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} && \
         docker push ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]}
-        docker run --rm -v .:/workspace -v /var/run/docker:/var/run/docker ghcr.io/oras-project/oras:v1.2.0 attach --artifact-type application/vnd.cyclonedx+json ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} swarmview.sbom.json
+        docker run --rm -v .:/workspace -v ${HOME}/.docker:.docker -v /var/run/docker:/var/run/docker ghcr.io/oras-project/oras:v1.2.0 attach --artifact-type application/vnd.cyclonedx+json ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} swarmview.sbom.json
         
     #- name: asciidoctor-ghpages
     #  uses: manoelcampos/asciidoctor-ghpages-action@v2
