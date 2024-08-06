@@ -63,6 +63,7 @@ jobs:
         npx --yes @cyclonedx/cyclonedx-npm --output-file ../swarmview-server.sbom.json
         cd ..
         docker run -v /var/run/docker.sock:/var/run/docker.sock -v$(pwd):/app:rw  aquasec/trivy --format cyclonedx --output /app/swarmview-docker.sbom.json image ${GITHUB_REPOSITORY#*/}:${GITHUB_REF_NAME} 
+        sed -i 's#"specVersion": "1.6"#"specVersion": "1.5"#' swarmview-docker.sbom.json
         docker run -v .:/files cyclonedx/cyclonedx-cli merge --input-files /files/swarmview-docker.sbom.json /files/swarmview-server.sbom.json /files/swarmview-ui.sbom.json --output-file /files/swarmview.sbom.json --group spudsoft --name swarmview --version "$GITHUB_REF_NAME" --hierarchical
   
     - name: Login to GitHub Container Registry
