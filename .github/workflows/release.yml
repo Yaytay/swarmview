@@ -83,6 +83,11 @@ jobs:
         docker push ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]}
         docker run --rm -v .:/workspace -v ${HOME}/.docker:/root/.docker -v /var/run/docker:/var/run/docker ghcr.io/oras-project/oras:v1.2.0 attach --artifact-type application/vnd.cyclonedx+json ghcr.io/yaytay/${PARTS[0]}:${PARTS[1]} swarmview.sbom.json
         
+    - name: Create release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "swarmview*.sbom.json"
+        token: ${{ github.token }} 
     #- name: asciidoctor-ghpages
     #  uses: manoelcampos/asciidoctor-ghpages-action@v2
     #  with:
