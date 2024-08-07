@@ -1,10 +1,11 @@
-import { Node, Service, Task } from '../docker-schema'
+import { Node, Service, SystemInfo, Task } from '../docker-schema'
 
 export interface CheckArguments {
   node?: Node
   , stack?: string
   , service?: Service
   , task?: Task
+  , system?: SystemInfo
 
   , nodes?: Node[]
   , stacks?: string[]
@@ -23,7 +24,7 @@ export interface CheckResult {
   state: State
   , value?: number
   , threshold?: number
-  , error?: string
+  , message?: string
 }
 
 export interface Check {
@@ -32,6 +33,7 @@ export interface Check {
   , title: string
   , description: string
   , remediation: string
+  , remediationImpact: string
   , reference: string
 
   , evaluate(args: CheckArguments) : CheckResult

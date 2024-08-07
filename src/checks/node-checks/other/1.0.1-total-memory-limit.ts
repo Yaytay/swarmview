@@ -1,14 +1,15 @@
 import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
 export const swarmMemorylimit : Check = {
-  category: "Other",
-  id: "1.0.1",
-  title: 'Swarm memory limit',
-  description: "Is the total memory of all nodes sufficient for the tasks running on the swarm?",
-  remediation: "Increase the memory of the nodes, increase the number of nodes, or reduce the memory limit of the tasks",
-  reference: '',
-
-  evaluate: function (args: CheckArguments): CheckResult {
+  category: "Other"
+  , id: "1.0.1"
+  , title: 'Swarm memory limit'
+  , description: "Is the total memory of all nodes sufficient for the tasks running on the swarm?"
+  , remediation: "Increase the memory of the nodes, increase the number of nodes, or reduce the memory limit of the tasks"
+  , remediationImpact: "Increased cost or load on VM hosts"
+  , reference: ''
+  
+  , evaluate: function (args: CheckArguments): CheckResult {
 
     if (args.nodes && args.tasks) {
       const totalRequirement = args.tasks.reduce((acc, tsk) => {
@@ -30,7 +31,7 @@ export const swarmMemorylimit : Check = {
     } else {
       return {
         state: State.error
-        , error: (args.nodes && 'tasks not set' || 'nodes not set')
+        , message: (args.nodes && 'tasks not set' || 'nodes not set')
       }
     }
   }

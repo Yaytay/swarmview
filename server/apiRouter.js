@@ -21,6 +21,7 @@ if (!process.env.DOCKER_PROXY_SERVICE) {
   )
 }
 
+const serviceProxiesUrl = 'http://' + endpoint + '/v1.45/tasks?filters={%22name%22:[%22' + service + '%22],%22desired-state%22:[%22running%22]}'
 
 router.use('/docker', proxy(endpoint, {
   filter: (req, res) => {    
@@ -70,6 +71,19 @@ function getExportsForKnownImages(result, host) {
     })
 }
 
+// Get docker system info for one host
+function getSystemInfo(host) {
+  const url = 'http://' + host + '/v1.45/info'
+  return fetch(url)
+    .then(r => r.json())
+    .then(j => {
+      return j
+    })
+    .catch(ex => {
+      console.log('Failed to get ' + url + ': ', ex)
+    })
+}
+
 // Get all the exports known to any of the hosts running the docker proxy
 function getExportsFromAllDockerProxies(result, url) {
   return fetch(url)
@@ -95,21 +109,52 @@ function getExportsFromAllDockerProxies(result, url) {
     })
 }
 
-router.use('/api/exposed', (req, res) => {
-  console.log(req.params.image)
-
+router.use('/api/exposed', (_, res) => {
   if (!service) {
     res.status(404).send('Not configured for image processing')
   }
 
   const result = {}
-  getExportsFromAllDockerProxies(result, 'http://' + endpoint + '/v1.45/tasks?filters={%22name%22:[%22' + service + '%22],%22desired-state%22:[%22running%22]}')
+  getExportsFromAllDockerProxies(result, serviceProxiesUrl)
     .then(_ => {
       res.send(JSON.stringify(result))
     })
     .catch(reason => {
       console.log('Failed to get docker proxy tasks:', reason)
       res.status(500).send('Failed to get docker proxy tasks')
+    })
+})
+
+router.use('/api/system/:node', (req, res) => {
+  //console.log(req.params.node)
+  if (!service) {
+    res.status(404).send('Not configured for system data')
+  }
+
+  return fetch(serviceProxiesUrl)
+    .then(r => r.json())
+    .then(j => {
+      if (Array.isArray(j)) {
+        const tsk = j.filter(tsk => tsk.NodeID === req.params.node && tsk.Status.State === 'running').pop()
+        if (tsk) {
+          let dockerProxyHost = service + '.' + tsk.NodeID + '.' + tsk.ID + ':' + service_port
+          //console.log(dockerProxyHost)
+          //console.log(service_redirect)
+          if (service_redirect && service_redirect[dockerProxyHost]) {
+            console.log('Using ' + service_redirect[dockerProxyHost] + ' instead of ' + dockerProxyHost)
+            dockerProxyHost = service_redirect[dockerProxyHost]
+          }
+          getSystemInfo(dockerProxyHost)
+            .then(j => res.status(200).send(j))
+        } else {
+          res.status(404).send('Cannot find system info ' + req.params.node)
+        }
+      } else {
+        res.status(404).send('Cannot process proxies')
+      }
+    })
+    .catch(ex => {
+      console.log('Failed to get ' + serviceProxiesUrl + ': ', ex)
     })
 })
 

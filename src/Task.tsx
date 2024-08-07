@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import { Network, Service, Task, Node } from './docker-schema';
+import { Network, Service, Task, Node, SystemInfo } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
 import { Tabs, Tab } from '@mui/material';
@@ -21,6 +21,7 @@ type TaskUiParams = {
 function TaskUi(props: TaskUiProps) {
   const { id } = useParams<TaskUiParams>();
 
+  const [system, setSystem] = useState<SystemInfo | undefined>()
   const [services, setServices] = useState<Map<string, Service>>(new Map())
   const [servicesByNetwork, setServicesByNetwork] = useState<Map<string, Service[]>>(new Map())
   const [networks, setNetworks] = useState<Map<string, Network>>(new Map())
@@ -110,7 +111,6 @@ function TaskUi(props: TaskUiProps) {
         setNodes(buildNodes)
       })
 
-
     fetch(props.baseUrl + 'tasks/' + id)
       .then(r => {
         if (r.ok) {
@@ -125,6 +125,7 @@ function TaskUi(props: TaskUiProps) {
       })
   }
     , [props.baseUrl, id])
+
 
   useEffect(() => {
     if (task) {
@@ -247,9 +248,17 @@ function TaskUi(props: TaskUiProps) {
       })
       setResources(buildResources)
 
-
     }
   }, [id, task, networks, nodes, services, props, servicesByNetwork])
+
+  useEffect(() => {
+    if (task && !system) {
+      fetch('/api/system/' + task.NodeID)
+        .then(r => r.json())
+        .then(j => setSystem(j))
+        .catch(ex => console.log('Failed to get system info: ', ex))
+    }
+  }, [task])
 
   const reachOptions = {
     height: (500 * Math.log10(reachGraph.nodes?.length || 1)) + "px"
@@ -401,12 +410,12 @@ function TaskUi(props: TaskUiProps) {
           tab === 1 &&
           <LogsView
             logsUrl={props.baseUrl + 'tasks/' + id + '/logs'}
-            id='tasks.logs' 
-            />
+            id='tasks.logs'
+          />
         }
         {
           tab === 2 &&
-          <TaskChecks task={task} />
+          <TaskChecks task={task} system={system} />
         }
         {
           tab === 3 &&

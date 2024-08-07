@@ -17,14 +17,14 @@ function NodeChecks(props: NodeChecksProps) {
     , swarmMemorylimit
   ]
 
-  const headers = ['ID', 'CHECK', 'RESULT', 'THRESHOLD', 'VALUE', 'ERROR']
+  const headers = ['ID', 'CHECK', 'RESULT', 'THRESHOLD', 'VALUE', 'MESSAGE']
 
   const args = {node: props.node, nodes: props.nodes, tasks: props.tasks}
 
   const data = checks.reduce((acc, check) => {
     try {
       const result = check.evaluate(args)
-      acc.push([check.id, check.title, result.state, result.threshold, result.value, result.error])
+      acc.push([check.id, check.title, result.state, result.threshold, result.value, result.message])
     } catch (ex) {
       acc.push([check.id, check.title, 'error', null, null, String(ex)])
     }
