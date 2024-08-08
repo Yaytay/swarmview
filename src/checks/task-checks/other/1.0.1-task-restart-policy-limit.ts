@@ -1,6 +1,6 @@
 import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
-export const taskRestartPolicyLimit: Check = {
+export const other_1_0_1_taskRestartPolicyLimit: Check = {
   category: "Other"
   , id: "1.0.1"
   , title: 'Restart policy with limit'

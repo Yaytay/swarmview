@@ -1,6 +1,6 @@
 import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
-export const appArmorEnabled: Check = {
+export const cis_5_2_appArmorEnabled: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.2"
   , title: 'AppArmor Enabled'

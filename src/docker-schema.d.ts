@@ -830,16 +830,7 @@ export type HostConfig = Resources & {
   ReadonlyPaths?: string[];
 };
 
-/**
- * Configuration for a container that is portable between hosts.
- *
- * When used as `ContainerConfig` field in an image, `ContainerConfig` is an
- * optional field containing the configuration of the container that was last
- * committed when creating the image.
- *
- * Previous versions of Docker builder used this field to store build cache,
- * and it is not in active use anymore.
- */
+/** Configuration for a container that is portable between hosts. */
 export interface ContainerConfig {
   /**
    * The hostname to use for the container, as a valid RFC 1123 hostname.
@@ -957,6 +948,204 @@ export interface ContainerConfig {
   StopSignal?: string | null;
   /**
    * Timeout to stop a container in seconds.
+   * @default 10
+   */
+  StopTimeout?: number | null;
+  /**
+   * Shell for when `RUN`, `CMD`, and `ENTRYPOINT` uses a shell.
+   * @example ["/bin/sh","-c"]
+   */
+  Shell?: string[] | null;
+}
+
+/**
+ * Configuration of the image. These fields are used as defaults
+ * when starting a container from the image.
+ * @example {"Hostname":"","Domainname":"","User":"web:web","AttachStdin":false,"AttachStdout":false,"AttachStderr":false,"ExposedPorts":{"80/tcp":{},"443/tcp":{}},"Tty":false,"OpenStdin":false,"StdinOnce":false,"Env":["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"],"Cmd":["/bin/sh"],"Healthcheck":{"Test":["string"],"Interval":0,"Timeout":0,"Retries":0,"StartPeriod":0,"StartInterval":0},"ArgsEscaped":true,"Image":"","Volumes":{"/app/data":{},"/app/config":{}},"WorkingDir":"/public/","Entrypoint":[],"OnBuild":[],"Labels":{"com.example.some-label":"some-value","com.example.some-other-label":"some-other-value"},"StopSignal":"SIGTERM","Shell":["/bin/sh","-c"]}
+ */
+export interface ImageConfig {
+  /**
+   * The hostname to use for the container, as a valid RFC 1123 hostname.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always empty and must not be used.
+   * @example ""
+   */
+  Hostname?: string;
+  /**
+   * The domain name to use for the container.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always empty and must not be used.
+   * @example ""
+   */
+  Domainname?: string;
+  /**
+   * The user that commands are run as inside the container.
+   * @example "web:web"
+   */
+  User?: string;
+  /**
+   * Whether to attach to `stdin`.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always false and must not be used.
+   * @default false
+   * @example false
+   */
+  AttachStdin?: boolean;
+  /**
+   * Whether to attach to `stdout`.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always false and must not be used.
+   * @default false
+   * @example false
+   */
+  AttachStdout?: boolean;
+  /**
+   * Whether to attach to `stderr`.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always false and must not be used.
+   * @default false
+   * @example false
+   */
+  AttachStderr?: boolean;
+  /**
+   * An object mapping ports to an empty object in the form:
+   *
+   * `{"<port>/<tcp|udp|sctp>": {}}`
+   * @example {"80/tcp":{},"443/tcp":{}}
+   */
+  ExposedPorts?: Record<string, "[object Object]">;
+  /**
+   * Attach standard streams to a TTY, including `stdin` if it is not closed.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always false and must not be used.
+   * @default false
+   * @example false
+   */
+  Tty?: boolean;
+  /**
+   * Open `stdin`
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always false and must not be used.
+   * @default false
+   * @example false
+   */
+  OpenStdin?: boolean;
+  /**
+   * Close `stdin` after one attached client disconnects.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always false and must not be used.
+   * @default false
+   * @example false
+   */
+  StdinOnce?: boolean;
+  /**
+   * A list of environment variables to set inside the container in the
+   * form `["VAR=value", ...]`. A variable without `=` is removed from the
+   * environment, rather than to have an empty value.
+   * @example ["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"]
+   */
+  Env?: string[];
+  /**
+   * Command to run specified as a string or an array of strings.
+   * @example ["/bin/sh"]
+   */
+  Cmd?: string[];
+  /** A test to perform to check that the container is healthy. */
+  Healthcheck?: HealthConfig;
+  /**
+   * Command is already escaped (Windows only)
+   * @default false
+   * @example false
+   */
+  ArgsEscaped?: boolean | null;
+  /**
+   * The name (or reference) of the image to use when creating the container,
+   * or which was used when the container was created.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always empty and must not be used.
+   * @default ""
+   * @example ""
+   */
+  Image?: string;
+  /**
+   * An object mapping mount point paths inside the container to empty
+   * objects.
+   * @example {"/app/data":{},"/app/config":{}}
+   */
+  Volumes?: Record<string, "[object Object]">;
+  /**
+   * The working directory for commands to run in.
+   * @example "/public/"
+   */
+  WorkingDir?: string;
+  /**
+   * The entry point for the container as a string or an array of strings.
+   *
+   * If the array consists of exactly one empty string (`[""]`) then the
+   * entry point is reset to system default (i.e., the entry point used by
+   * docker when there is no `ENTRYPOINT` instruction in the `Dockerfile`).
+   * @example []
+   */
+  Entrypoint?: string[];
+  /**
+   * Disable networking for the container.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always omitted and must not be used.
+   * @default false
+   * @example false
+   */
+  NetworkDisabled?: boolean | null;
+  /**
+   * MAC address of the container.
+   *
+   * <p><br /></p>
+   *
+   * > **Deprecated**: this field is deprecated in API v1.44 and up. It is always omitted.
+   * @default ""
+   * @example ""
+   */
+  MacAddress?: string | null;
+  /**
+   * `ONBUILD` metadata that were defined in the image's `Dockerfile`.
+   * @example []
+   */
+  OnBuild?: string[] | null;
+  /**
+   * User-defined key/value metadata.
+   * @example {"com.example.some-label":"some-value","com.example.some-other-label":"some-other-value"}
+   */
+  Labels?: Record<string, string>;
+  /**
+   * Signal to stop a container as a string or unsigned integer.
+   * @example "SIGTERM"
+   */
+  StopSignal?: string | null;
+  /**
+   * Timeout to stop a container in seconds.
+   *
+   * <p><br /></p>
+   *
+   * > **Note**: this field is always omitted and must not be used.
    * @default 10
    */
   StopTimeout?: number | null;
@@ -1290,21 +1479,6 @@ export interface ImageInspect {
    */
   Created?: string | null;
   /**
-   * The ID of the container that was used to create the image.
-   *
-   * Depending on how the image was created, this field may be empty.
-   *
-   * **Deprecated**: this field is kept for backward compatibility, but
-   * will be removed in API v1.45.
-   * @example "65974bc86f1770ae4bff79f651ebdbce166ae9aada632ee3fa9af3a264911735"
-   */
-  Container?: string;
-  /**
-   * **Deprecated**: this field is kept for backward compatibility, but
-   * will be removed in API v1.45.
-   */
-  ContainerConfig?: ContainerConfig;
-  /**
    * The version of Docker that was used to build the image.
    *
    * Depending on how the image was created, this field may be empty.
@@ -1318,16 +1492,10 @@ export interface ImageInspect {
    */
   Author: string;
   /**
-   * Configuration for a container that is portable between hosts.
-   *
-   * When used as `ContainerConfig` field in an image, `ContainerConfig` is an
-   * optional field containing the configuration of the container that was last
-   * committed when creating the image.
-   *
-   * Previous versions of Docker builder used this field to store build cache,
-   * and it is not in active use anymore.
+   * Configuration of the image. These fields are used as defaults
+   * when starting a container from the image.
    */
-  Config?: ContainerConfig;
+  Config?: ImageConfig;
   /**
    * Hardware CPU architecture that the image runs on.
    * @example "arm"
@@ -1621,28 +1789,116 @@ export interface VolumeListResponse {
   Warnings?: string[];
 }
 
-/** @example {"Name":"net01","Id":"7d86d31b1478e7cca9ebed7e73aa0fdeec46c5ca29497431d3007d2d9e15ed99","Created":"2016-10-19T04:33:30.360899459Z","Scope":"local","Driver":"bridge","EnableIPv6":false,"IPAM":{"Driver":"default","Config":[{"Subnet":"172.19.0.0/16","Gateway":"172.19.0.1"}],"Options":{"foo":"bar"}},"Internal":false,"Attachable":false,"Ingress":false,"Containers":{"19a4d5d687db25203351ed79d478946f861258f018fe384f229f2efa4b23513c":{"Name":"test","EndpointID":"628cadb8bcb92de107b2a1e516cbffe463e321f548feb37697cce00ad694f21a","MacAddress":"02:42:ac:13:00:02","IPv4Address":"172.19.0.2/16","IPv6Address":""}},"Options":{"com.docker.network.bridge.default_bridge":"true","com.docker.network.bridge.enable_icc":"true","com.docker.network.bridge.enable_ip_masquerade":"true","com.docker.network.bridge.host_binding_ipv4":"0.0.0.0","com.docker.network.bridge.name":"docker0","com.docker.network.driver.mtu":"1500"},"Labels":{"com.example.some-label":"some-value","com.example.some-other-label":"some-other-value"}} */
 export interface Network {
+  /**
+   * Name of the network.
+   * @example "my_network"
+   */
   Name?: string;
+  /**
+   * ID that uniquely identifies a network on a single machine.
+   * @example "7d86d31b1478e7cca9ebed7e73aa0fdeec46c5ca29497431d3007d2d9e15ed99"
+   */
   Id?: string;
-  /** @format dateTime */
+  /**
+   * Date and time at which the network was created in
+   * [RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format with nano-seconds.
+   * @format dateTime
+   * @example "2016-10-19T04:33:30.360899459Z"
+   */
   Created?: string;
+  /**
+   * The level at which the network exists (e.g. `swarm` for cluster-wide
+   * or `local` for machine level)
+   * @example "local"
+   */
   Scope?: string;
+  /**
+   * The name of the driver used to create the network (e.g. `bridge`,
+   * `overlay`).
+   * @example "overlay"
+   */
   Driver?: string;
+  /**
+   * Whether the network was created with IPv6 enabled.
+   * @example false
+   */
   EnableIPv6?: boolean;
   IPAM?: IPAM;
+  /**
+   * Whether the network is created to only allow internal networking
+   * connectivity.
+   * @default false
+   * @example false
+   */
   Internal?: boolean;
+  /**
+   * Wheter a global / swarm scope network is manually attachable by regular
+   * containers from workers in swarm mode.
+   * @default false
+   * @example false
+   */
   Attachable?: boolean;
+  /**
+   * Whether the network is providing the routing-mesh for the swarm cluster.
+   * @default false
+   * @example false
+   */
   Ingress?: boolean;
+  /**
+   * The config-only network source to provide the configuration for
+   * this network.
+   */
+  ConfigFrom?: ConfigReference;
+  /**
+   * Whether the network is a config-only network. Config-only networks are
+   * placeholder networks for network configurations to be used by other
+   * networks. Config-only networks cannot be used directly to run containers
+   * or services.
+   * @default false
+   */
+  ConfigOnly?: boolean;
+  /**
+   * Contains endpoints attached to the network.
+   * @example {"19a4d5d687db25203351ed79d478946f861258f018fe384f229f2efa4b23513c":{"Name":"test","EndpointID":"628cadb8bcb92de107b2a1e516cbffe463e321f548feb37697cce00ad694f21a","MacAddress":"02:42:ac:13:00:02","IPv4Address":"172.19.0.2/16","IPv6Address":""}}
+   */
   Containers?: Record<string, NetworkContainer>;
+  /**
+   * Network-specific options uses when creating the network.
+   * @example {"com.docker.network.bridge.default_bridge":"true","com.docker.network.bridge.enable_icc":"true","com.docker.network.bridge.enable_ip_masquerade":"true","com.docker.network.bridge.host_binding_ipv4":"0.0.0.0","com.docker.network.bridge.name":"docker0","com.docker.network.driver.mtu":"1500"}
+   */
   Options?: Record<string, string>;
+  /**
+   * User-defined key/value metadata.
+   * @example {"com.example.some-label":"some-value","com.example.some-other-label":"some-other-value"}
+   */
   Labels?: Record<string, string>;
+  /**
+   * List of peer nodes for an overlay network. This field is only present
+   * for overlay networks, and omitted for other network types.
+   */
+  Peers?: PeerInfo[] | null;
+}
+
+/**
+ * The config-only network source to provide the configuration for
+ * this network.
+ */
+export interface ConfigReference {
+  /**
+   * The name of the config-only network that provides the network's
+   * configuration. The specified network must be an existing config-only
+   * network. Only network names are allowed, not network IDs.
+   * @example "config_only_network_01"
+   */
+  Network?: string;
 }
 
 export interface IPAM {
   /**
    * Name of the IPAM driver to use.
    * @default "default"
+   * @example "default"
    */
   Driver?: string;
   /**
@@ -1653,23 +1909,48 @@ export interface IPAM {
    * ```
    */
   Config?: IPAMConfig[];
-  /** Driver-specific options, specified as a map. */
+  /**
+   * Driver-specific options, specified as a map.
+   * @example {"foo":"bar"}
+   */
   Options?: Record<string, string>;
 }
 
 export interface IPAMConfig {
+  /** @example "172.20.0.0/16" */
   Subnet?: string;
+  /** @example "172.20.10.0/24" */
   IPRange?: string;
+  /** @example "172.20.10.11" */
   Gateway?: string;
   AuxiliaryAddresses?: Record<string, string>;
 }
 
 export interface NetworkContainer {
+  /** @example "container_1" */
   Name?: string;
+  /** @example "628cadb8bcb92de107b2a1e516cbffe463e321f548feb37697cce00ad694f21a" */
   EndpointID?: string;
+  /** @example "02:42:ac:13:00:02" */
   MacAddress?: string;
+  /** @example "172.19.0.2/16" */
   IPv4Address?: string;
+  /** @example "" */
   IPv6Address?: string;
+}
+
+/** PeerInfo represents one peer of an overlay network. */
+export interface PeerInfo {
+  /**
+   * ID of the peer-node in the Swarm cluster.
+   * @example "6869d7c1732b"
+   */
+  Name?: string;
+  /**
+   * IP-address of the peer-node in the Swarm cluster.
+   * @example "10.133.77.91"
+   */
+  IP?: string;
 }
 
 export interface BuildInfo {
@@ -4728,6 +5009,412 @@ export interface ClusterVolumeSpec {
  */
 export type Topology = Record<string, string>;
 
+export type ContainerListData = ContainerSummary[];
+
+export type ContainerCreateData = ContainerCreateResponse;
+
+/** ContainerInspectResponse */
+export interface ContainerInspectData {
+  /** The ID of the container */
+  Id?: string;
+  /** The time the container was created */
+  Created?: string;
+  /** The path to the command being run */
+  Path?: string;
+  /** The arguments to the command being run */
+  Args?: string[];
+  /**
+   * ContainerState stores container's running state. It's part of ContainerJSONBase
+   * and will be returned by the "inspect" command.
+   */
+  State?: ContainerState;
+  /** The container's image ID */
+  Image?: string;
+  ResolvConfPath?: string;
+  HostnamePath?: string;
+  HostsPath?: string;
+  LogPath?: string;
+  Name?: string;
+  RestartCount?: number;
+  Driver?: string;
+  Platform?: string;
+  MountLabel?: string;
+  ProcessLabel?: string;
+  AppArmorProfile?: string;
+  /** IDs of exec instances that are running in the container. */
+  ExecIDs?: string[] | null;
+  /** Container configuration that depends on the host we are running on */
+  HostConfig?: HostConfig;
+  /**
+   * Information about the storage driver used to store the container's and
+   * image's filesystem.
+   */
+  GraphDriver?: GraphDriverData;
+  /**
+   * The size of files that have been created or changed by this
+   * container.
+   * @format int64
+   */
+  SizeRw?: number;
+  /**
+   * The total size of all the files in this container.
+   * @format int64
+   */
+  SizeRootFs?: number;
+  Mounts?: MountPoint[];
+  /** Configuration for a container that is portable between hosts. */
+  Config?: ContainerConfig;
+  /** NetworkSettings exposes the network settings in the API */
+  NetworkSettings?: NetworkSettings;
+}
+
+/**
+ * ContainerTopResponse
+ * OK response to ContainerTop operation
+ */
+export interface ContainerTopData {
+  /** The ps column titles */
+  Titles?: string[];
+  /**
+   * Each process running in the container, where each is process
+   * is an array of values corresponding to the titles.
+   */
+  Processes?: string[][];
+}
+
+/** @format binary */
+export type ContainerLogsData = File;
+
+export type ContainerChangesData = FilesystemChange[];
+
+export type ContainerExportData = any;
+
+export type ContainerStatsData = object;
+
+export type ContainerResizeData = any;
+
+export type ContainerStartData = any;
+
+export type ContainerStopData = any;
+
+export type ContainerRestartData = any;
+
+export type ContainerKillData = any;
+
+/**
+ * ContainerUpdateResponse
+ * OK response to ContainerUpdate operation
+ */
+export interface ContainerUpdateData {
+  Warnings?: string[];
+}
+
+export type ContainerRenameData = any;
+
+export type ContainerPauseData = any;
+
+export type ContainerUnpauseData = any;
+
+export type ContainerAttachData = any;
+
+export type ContainerAttachWebsocketData = any;
+
+export type ContainerWaitData = ContainerWaitResponse;
+
+export type ContainerDeleteData = any;
+
+export type ContainerArchiveInfoData = any;
+
+export type ContainerArchiveData = any;
+
+export type PutContainerArchiveData = any;
+
+/** ContainerPruneResponse */
+export interface ContainerPruneData {
+  /** Container IDs that were deleted */
+  ContainersDeleted?: string[];
+  /**
+   * Disk space reclaimed in bytes
+   * @format int64
+   */
+  SpaceReclaimed?: number;
+}
+
+export type ImageListData = ImageSummary[];
+
+export type ImageBuildData = any;
+
+/** BuildPruneResponse */
+export interface BuildPruneData {
+  CachesDeleted?: string[];
+  /**
+   * Disk space reclaimed in bytes
+   * @format int64
+   */
+  SpaceReclaimed?: number;
+}
+
+export type ImageCreateData = any;
+
+export type ImageInspectData = ImageInspect;
+
+export type ImageHistoryData = {
+  Id: string;
+  /** @format int64 */
+  Created: number;
+  CreatedBy: string;
+  Tags: string[];
+  /** @format int64 */
+  Size: number;
+  Comment: string;
+}[];
+
+export type ImagePushData = any;
+
+export type ImageTagData = any;
+
+export type ImageDeleteData = ImageDeleteResponseItem[];
+
+export type ImageSearchData = {
+  description?: string;
+  is_official?: boolean;
+  /**
+   * Whether this repository has automated builds enabled.
+   *
+   * <p><br /></p>
+   *
+   * > **Deprecated**: This field is deprecated and will always be "false".
+   * @example false
+   */
+  is_automated?: boolean;
+  name?: string;
+  star_count?: number;
+}[];
+
+/** ImagePruneResponse */
+export interface ImagePruneData {
+  /** Images that were deleted */
+  ImagesDeleted?: ImageDeleteResponseItem[];
+  /**
+   * Disk space reclaimed in bytes
+   * @format int64
+   */
+  SpaceReclaimed?: number;
+}
+
+/** SystemAuthResponse */
+export interface SystemAuthData {
+  /** The status of the authentication */
+  Status: string;
+  /** An opaque token used to authenticate a user after a successful login */
+  IdentityToken: string;
+}
+
+export type SystemInfoData = SystemInfo;
+
+export type SystemVersionData = SystemVersion;
+
+/** @example "OK" */
+export type SystemPingData = string;
+
+/** @example "(empty)" */
+export type SystemPingHeadData = string;
+
+export type ImageCommitData = IdResponse;
+
+export type SystemEventsData = EventMessage;
+
+/**
+ * SystemDataUsageResponse
+ * @example {"LayersSize":1092588,"Images":[{"Id":"sha256:2b8fd9751c4c0f5dd266fcae00707e67a2545ef34f9a29354585f93dac906749","ParentId":"","RepoTags":["busybox:latest"],"RepoDigests":["busybox@sha256:a59906e33509d14c036c8678d687bd4eec81ed7c4b8ce907b888c607f6a1e0e6"],"Created":1466724217,"Size":1092588,"SharedSize":0,"Labels":{},"Containers":1}],"Containers":[{"Id":"e575172ed11dc01bfce087fb27bee502db149e1a0fad7c296ad300bbff178148","Names":["/top"],"Image":"busybox","ImageID":"sha256:2b8fd9751c4c0f5dd266fcae00707e67a2545ef34f9a29354585f93dac906749","Command":"top","Created":1472592424,"Ports":[],"SizeRootFs":1092588,"Labels":{},"State":"exited","Status":"Exited (0) 56 minutes ago","HostConfig":{"NetworkMode":"default"},"NetworkSettings":{"Networks":{"bridge":{"IPAMConfig":null,"Links":null,"Aliases":null,"NetworkID":"d687bc59335f0e5c9ee8193e5612e8aee000c8c62ea170cfb99c098f95899d92","EndpointID":"8ed5115aeaad9abb174f68dcf135b49f11daf597678315231a32ca28441dec6a","Gateway":"172.18.0.1","IPAddress":"172.18.0.2","IPPrefixLen":16,"IPv6Gateway":"","GlobalIPv6Address":"","GlobalIPv6PrefixLen":0,"MacAddress":"02:42:ac:12:00:02"}}},"Mounts":[]}],"Volumes":[{"Name":"my-volume","Driver":"local","Mountpoint":"/var/lib/docker/volumes/my-volume/_data","Labels":null,"Scope":"local","Options":null,"UsageData":{"Size":10920104,"RefCount":2}}],"BuildCache":[{"ID":"hw53o5aio51xtltp5xjp8v7fx","Parents":[],"Type":"regular","Description":"pulled from docker.io/library/debian@sha256:234cb88d3020898631af0ccbbcca9a66ae7306ecd30c9720690858c1b007d2a0","InUse":false,"Shared":true,"Size":0,"CreatedAt":"2021-06-28T13:31:01.474619385Z","LastUsedAt":"2021-07-07T22:02:32.738075951Z","UsageCount":26},{"ID":"ndlpt0hhvkqcdfkputsk4cq9c","Parents":["ndlpt0hhvkqcdfkputsk4cq9c"],"Type":"regular","Description":"mount / from exec /bin/sh -c echo 'Binary::apt::APT::Keep-Downloaded-Packages \"true\";' > /etc/apt/apt.conf.d/keep-cache","InUse":false,"Shared":true,"Size":51,"CreatedAt":"2021-06-28T13:31:03.002625487Z","LastUsedAt":"2021-07-07T22:02:32.773909517Z","UsageCount":26}]}
+ */
+export interface SystemDataUsageData {
+  /** @format int64 */
+  LayersSize?: number;
+  Images?: ImageSummary[];
+  Containers?: ContainerSummary[];
+  Volumes?: Volume[];
+  BuildCache?: BuildCache[];
+}
+
+/** @format binary */
+export type ImageGetData = File;
+
+/** @format binary */
+export type ImageGetAllData = File;
+
+export type ImageLoadData = any;
+
+export type ContainerExecData = IdResponse;
+
+export type ExecStartData = any;
+
+export type ExecResizeData = any;
+
+/** ExecInspectResponse */
+export interface ExecInspectData {
+  CanRemove?: boolean;
+  DetachKeys?: string;
+  ID?: string;
+  Running?: boolean;
+  ExitCode?: number;
+  ProcessConfig?: ProcessConfig;
+  OpenStdin?: boolean;
+  OpenStderr?: boolean;
+  OpenStdout?: boolean;
+  ContainerID?: string;
+  /** The system process ID for the exec process. */
+  Pid?: number;
+}
+
+export type VolumeListData = VolumeListResponse;
+
+export type VolumeCreateData = Volume;
+
+export type VolumeInspectData = Volume;
+
+export type VolumeUpdateData = any;
+
+export type VolumeDeleteData = any;
+
+/** VolumePruneResponse */
+export interface VolumePruneData {
+  /** Volumes that were deleted */
+  VolumesDeleted?: string[];
+  /**
+   * Disk space reclaimed in bytes
+   * @format int64
+   */
+  SpaceReclaimed?: number;
+}
+
+export type NetworkListData = Network[];
+
+export type NetworkInspectData = Network;
+
+export type NetworkDeleteData = any;
+
+/**
+ * NetworkCreateResponse
+ * @example {"Id":"22be93d5babb089c5aab8dbc369042fad48ff791584ca2da2100db837a1c7c30","Warning":""}
+ */
+export interface NetworkCreateData {
+  /** The ID of the created network. */
+  Id?: string;
+  Warning?: string;
+}
+
+export type NetworkConnectData = any;
+
+export type NetworkDisconnectData = any;
+
+/** NetworkPruneResponse */
+export interface NetworkPruneData {
+  /** Networks that were deleted */
+  NetworksDeleted?: string[];
+}
+
+export type PluginListData = Plugin[];
+
+/** @example [{"Name":"network","Description":"","Value":["host"]},{"Name":"mount","Description":"","Value":["/data"]},{"Name":"device","Description":"","Value":["/dev/cpu_dma_latency"]}] */
+export type GetPluginPrivilegesData = PluginPrivilege[];
+
+export type PluginPullData = any;
+
+export type PluginInspectData = Plugin;
+
+export type PluginDeleteData = Plugin;
+
+export type PluginEnableData = any;
+
+export type PluginDisableData = any;
+
+export type PluginUpgradeData = any;
+
+export type PluginCreateData = any;
+
+export type PluginPushData = any;
+
+export type PluginSetData = any;
+
+export type NodeListData = Node[];
+
+export type NodeInspectData = Node;
+
+export type NodeDeleteData = any;
+
+export type NodeUpdateData = any;
+
+export type SwarmInspectData = Swarm;
+
+/**
+ * The node ID
+ * @example "7v2t30z9blmxuhnyo6s4cpenp"
+ */
+export type SwarmInitData = string;
+
+export type SwarmJoinData = any;
+
+export type SwarmLeaveData = any;
+
+export type SwarmUpdateData = any;
+
+/**
+ * UnlockKeyResponse
+ * @example {"UnlockKey":"SWMKEY-1-7c37Cc8654o6p38HnroywCi19pllOnGtbdZEgtKxZu8"}
+ */
+export interface SwarmUnlockkeyData {
+  /** The swarm's unlock key. */
+  UnlockKey?: string;
+}
+
+export type SwarmUnlockData = any;
+
+export type ServiceListData = Service[];
+
+export type ServiceCreateData = ServiceCreateResponse;
+
+export type ServiceInspectData = Service;
+
+export type ServiceDeleteData = any;
+
+export type ServiceUpdateData = ServiceUpdateResponse;
+
+/** @format binary */
+export type ServiceLogsData = File;
+
+/** @example [{"ID":"0kzzo1i0y4jz6027t0k7aezc7","Version":{"Index":71},"CreatedAt":"2016-06-07T21:07:31.171892745Z","UpdatedAt":"2016-06-07T21:07:31.376370513Z","Spec":{"ContainerSpec":{"Image":"redis"},"Resources":{"Limits":{},"Reservations":{}},"RestartPolicy":{"Condition":"any","MaxAttempts":0},"Placement":{}},"ServiceID":"9mnpnzenvg8p8tdbtq4wvbkcz","Slot":1,"NodeID":"60gvrl6tm78dmak4yl7srz94v","Status":{"Timestamp":"2016-06-07T21:07:31.290032978Z","State":"running","Message":"started","ContainerStatus":{"ContainerID":"e5d62702a1b48d01c3e02ca1e0212a250801fa8d67caca0b6f35919ebc12f035","PID":677}},"DesiredState":"running","NetworksAttachments":[{"Network":{"ID":"4qvuz4ko70xaltuqbt8956gd1","Version":{"Index":18},"CreatedAt":"2016-06-07T20:31:11.912919752Z","UpdatedAt":"2016-06-07T21:07:29.955277358Z","Spec":{"Name":"ingress","Labels":{"com.docker.swarm.internal":"true"},"DriverConfiguration":{},"IPAMOptions":{"Driver":{},"Configs":[{"Subnet":"10.255.0.0/16","Gateway":"10.255.0.1"}]}},"DriverState":{"Name":"overlay","Options":{"com.docker.network.driver.overlay.vxlanid_list":"256"}},"IPAMOptions":{"Driver":{"Name":"default"},"Configs":[{"Subnet":"10.255.0.0/16","Gateway":"10.255.0.1"}]}},"Addresses":["10.255.0.10/16"]}]},{"ID":"1yljwbmlr8er2waf8orvqpwms","Version":{"Index":30},"CreatedAt":"2016-06-07T21:07:30.019104782Z","UpdatedAt":"2016-06-07T21:07:30.231958098Z","Name":"hopeful_cori","Spec":{"ContainerSpec":{"Image":"redis"},"Resources":{"Limits":{},"Reservations":{}},"RestartPolicy":{"Condition":"any","MaxAttempts":0},"Placement":{}},"ServiceID":"9mnpnzenvg8p8tdbtq4wvbkcz","Slot":1,"NodeID":"60gvrl6tm78dmak4yl7srz94v","Status":{"Timestamp":"2016-06-07T21:07:30.202183143Z","State":"shutdown","Message":"shutdown","ContainerStatus":{"ContainerID":"1cf8d63d18e79668b0004a4be4c6ee58cddfad2dae29506d8781581d0688a213"}},"DesiredState":"shutdown","NetworksAttachments":[{"Network":{"ID":"4qvuz4ko70xaltuqbt8956gd1","Version":{"Index":18},"CreatedAt":"2016-06-07T20:31:11.912919752Z","UpdatedAt":"2016-06-07T21:07:29.955277358Z","Spec":{"Name":"ingress","Labels":{"com.docker.swarm.internal":"true"},"DriverConfiguration":{},"IPAMOptions":{"Driver":{},"Configs":[{"Subnet":"10.255.0.0/16","Gateway":"10.255.0.1"}]}},"DriverState":{"Name":"overlay","Options":{"com.docker.network.driver.overlay.vxlanid_list":"256"}},"IPAMOptions":{"Driver":{"Name":"default"},"Configs":[{"Subnet":"10.255.0.0/16","Gateway":"10.255.0.1"}]}},"Addresses":["10.255.0.5/16"]}]}] */
+export type TaskListData = Task[];
+
+export type TaskInspectData = Task;
+
+/** @format binary */
+export type TaskLogsData = File;
+
+/** @example [{"ID":"blt1owaxmitz71s9v5zh81zun","Version":{"Index":85},"CreatedAt":"2017-07-20T13:55:28.678958722Z","UpdatedAt":"2017-07-20T13:55:28.678958722Z","Spec":{"Name":"mysql-passwd","Labels":{"some.label":"some.value"},"Driver":{"Name":"secret-bucket","Options":{"OptionA":"value for driver option A","OptionB":"value for driver option B"}}}},{"ID":"ktnbjxoalbkvbvedmg1urrz8h","Version":{"Index":11},"CreatedAt":"2016-11-05T01:20:17.327670065Z","UpdatedAt":"2016-11-05T01:20:17.327670065Z","Spec":{"Name":"app-dev.crt","Labels":{"foo":"bar"}}}] */
+export type SecretListData = Secret[];
+
+export type SecretCreateData = IdResponse;
+
+export type SecretInspectData = Secret;
+
+export type SecretDeleteData = any;
+
+export type SecretUpdateData = any;
+
+/** @example [{"ID":"ktnbjxoalbkvbvedmg1urrz8h","Version":{"Index":11},"CreatedAt":"2016-11-05T01:20:17.327670065Z","UpdatedAt":"2016-11-05T01:20:17.327670065Z","Spec":{"Name":"server.conf"}}] */
+export type ConfigListData = Config[];
+
+export type ConfigCreateData = IdResponse;
+
+export type ConfigInspectData = Config;
+
+export type ConfigDeleteData = any;
+
+export type ConfigUpdateData = any;
+
+export type DistributionInspectData = DistributionInspect;
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -5069,7 +5756,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerSummary[], ErrorResponse>({
+      this.request<ContainerListData, ErrorResponse>({
         path: `/containers/json`,
         method: "GET",
         query: query,
@@ -5127,7 +5814,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerCreateResponse, ErrorResponse>({
+      this.request<ContainerCreateData, ErrorResponse>({
         path: `/containers/create`,
         method: "POST",
         query: query,
@@ -5156,71 +5843,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          /** The ID of the container */
-          Id?: string;
-          /** The time the container was created */
-          Created?: string;
-          /** The path to the command being run */
-          Path?: string;
-          /** The arguments to the command being run */
-          Args?: string[];
-          /**
-           * ContainerState stores container's running state. It's part of ContainerJSONBase
-           * and will be returned by the "inspect" command.
-           */
-          State?: ContainerState;
-          /** The container's image ID */
-          Image?: string;
-          ResolvConfPath?: string;
-          HostnamePath?: string;
-          HostsPath?: string;
-          LogPath?: string;
-          Name?: string;
-          RestartCount?: number;
-          Driver?: string;
-          Platform?: string;
-          MountLabel?: string;
-          ProcessLabel?: string;
-          AppArmorProfile?: string;
-          /** IDs of exec instances that are running in the container. */
-          ExecIDs?: string[] | null;
-          /** Container configuration that depends on the host we are running on */
-          HostConfig?: HostConfig;
-          /**
-           * Information about the storage driver used to store the container's and
-           * image's filesystem.
-           */
-          GraphDriver?: GraphDriverData;
-          /**
-           * The size of files that have been created or changed by this
-           * container.
-           * @format int64
-           */
-          SizeRw?: number;
-          /**
-           * The total size of all the files in this container.
-           * @format int64
-           */
-          SizeRootFs?: number;
-          Mounts?: MountPoint[];
-          /**
-           * Configuration for a container that is portable between hosts.
-           *
-           * When used as `ContainerConfig` field in an image, `ContainerConfig` is an
-           * optional field containing the configuration of the container that was last
-           * committed when creating the image.
-           *
-           * Previous versions of Docker builder used this field to store build cache,
-           * and it is not in active use anymore.
-           */
-          Config?: ContainerConfig;
-          /** NetworkSettings exposes the network settings in the API */
-          NetworkSettings?: NetworkSettings;
-        },
-        ErrorResponse
-      >({
+      this.request<ContainerInspectData, ErrorResponse>({
         path: `/containers/${id}/json`,
         method: "GET",
         query: query,
@@ -5247,18 +5870,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          /** The ps column titles */
-          Titles?: string[];
-          /**
-           * Each process running in the container, where each is process
-           * is an array of values corresponding to the titles.
-           */
-          Processes?: string[][];
-        },
-        ErrorResponse
-      >({
+      this.request<ContainerTopData, ErrorResponse>({
         path: `/containers/${id}/top`,
         method: "GET",
         query: query,
@@ -5316,7 +5928,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<File, ErrorResponse>({
+      this.request<ContainerLogsData, ErrorResponse>({
         path: `/containers/${id}/logs`,
         method: "GET",
         query: query,
@@ -5332,7 +5944,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/containers/{id}/changes
      */
     containerChanges: (id: string, params: RequestParams = {}) =>
-      this.request<FilesystemChange[], ErrorResponse>({
+      this.request<ContainerChangesData, ErrorResponse>({
         path: `/containers/${id}/changes`,
         method: "GET",
         format: "json",
@@ -5348,7 +5960,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/containers/{id}/export
      */
     containerExport: (id: string, params: RequestParams = {}) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerExportData, ErrorResponse>({
         path: `/containers/${id}/export`,
         method: "GET",
         ...params,
@@ -5380,7 +5992,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<object, ErrorResponse>({
+      this.request<ContainerStatsData, ErrorResponse>({
         path: `/containers/${id}/stats`,
         method: "GET",
         query: query,
@@ -5406,7 +6018,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerResizeData, ErrorResponse>({
         path: `/containers/${id}/resize`,
         method: "POST",
         query: query,
@@ -5433,7 +6045,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, void | ErrorResponse>({
+      this.request<ContainerStartData, void | ErrorResponse>({
         path: `/containers/${id}/start`,
         method: "POST",
         query: query,
@@ -5458,7 +6070,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, void | ErrorResponse>({
+      this.request<ContainerStopData, void | ErrorResponse>({
         path: `/containers/${id}/stop`,
         method: "POST",
         query: query,
@@ -5483,7 +6095,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerRestartData, ErrorResponse>({
         path: `/containers/${id}/restart`,
         method: "POST",
         query: query,
@@ -5509,7 +6121,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerKillData, ErrorResponse>({
         path: `/containers/${id}/kill`,
         method: "POST",
         query: query,
@@ -5538,12 +6150,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          Warnings?: string[];
-        },
-        ErrorResponse
-      >({
+      this.request<ContainerUpdateData, ErrorResponse>({
         path: `/containers/${id}/update`,
         method: "POST",
         body: update,
@@ -5568,7 +6175,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerRenameData, ErrorResponse>({
         path: `/containers/${id}/rename`,
         method: "POST",
         query: query,
@@ -5584,7 +6191,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/containers/{id}/pause
      */
     containerPause: (id: string, params: RequestParams = {}) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerPauseData, ErrorResponse>({
         path: `/containers/${id}/pause`,
         method: "POST",
         ...params,
@@ -5599,7 +6206,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/containers/{id}/unpause
      */
     containerUnpause: (id: string, params: RequestParams = {}) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerUnpauseData, ErrorResponse>({
         path: `/containers/${id}/unpause`,
         method: "POST",
         ...params,
@@ -5657,7 +6264,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, void | ErrorResponse>({
+      this.request<ContainerAttachData, void | ErrorResponse>({
         path: `/containers/${id}/attach`,
         method: "POST",
         query: query,
@@ -5709,7 +6316,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, void | ErrorResponse>({
+      this.request<ContainerAttachWebsocketData, void | ErrorResponse>({
         path: `/containers/${id}/attach/ws`,
         method: "GET",
         query: query,
@@ -5737,7 +6344,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerWaitResponse, ErrorResponse>({
+      this.request<ContainerWaitData, ErrorResponse>({
         path: `/containers/${id}/wait`,
         method: "POST",
         query: query,
@@ -5774,7 +6381,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerDeleteData, ErrorResponse>({
         path: `/containers/${id}`,
         method: "DELETE",
         query: query,
@@ -5797,7 +6404,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerArchiveInfoData, ErrorResponse>({
         path: `/containers/${id}/archive`,
         method: "HEAD",
         query: query,
@@ -5820,7 +6427,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ContainerArchiveData, ErrorResponse>({
         path: `/containers/${id}/archive`,
         method: "GET",
         query: query,
@@ -5855,7 +6462,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       inputStream: File,
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<PutContainerArchiveData, ErrorResponse>({
         path: `/containers/${id}/archive`,
         method: "PUT",
         query: query,
@@ -5884,18 +6491,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          /** Container IDs that were deleted */
-          ContainersDeleted?: string[];
-          /**
-           * Disk space reclaimed in bytes
-           * @format int64
-           */
-          SpaceReclaimed?: number;
-        },
-        ErrorResponse
-      >({
+      this.request<ContainerPruneData, ErrorResponse>({
         path: `/containers/prune`,
         method: "POST",
         query: query,
@@ -5954,7 +6550,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<IdResponse, ErrorResponse>({
+      this.request<ContainerExecData, ErrorResponse>({
         path: `/containers/${id}/exec`,
         method: "POST",
         body: execConfig,
@@ -6006,7 +6602,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageSummary[], ErrorResponse>({
+      this.request<ImageListData, ErrorResponse>({
         path: `/images/json`,
         method: "GET",
         query: query,
@@ -6066,7 +6662,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ImageCreateData, ErrorResponse>({
         path: `/images/create`,
         method: "POST",
         query: query,
@@ -6084,7 +6680,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/images/{name}/json
      */
     imageInspect: (name: string, params: RequestParams = {}) =>
-      this.request<ImageInspect, ErrorResponse>({
+      this.request<ImageInspectData, ErrorResponse>({
         path: `/images/${name}/json`,
         method: "GET",
         format: "json",
@@ -6100,19 +6696,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/images/{name}/history
      */
     imageHistory: (name: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          Id: string;
-          /** @format int64 */
-          Created: number;
-          CreatedBy: string;
-          Tags: string[];
-          /** @format int64 */
-          Size: number;
-          Comment: string;
-        }[],
-        ErrorResponse
-      >({
+      this.request<ImageHistoryData, ErrorResponse>({
         path: `/images/${name}/history`,
         method: "GET",
         format: "json",
@@ -6135,7 +6719,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ImagePushData, ErrorResponse>({
         path: `/images/${name}/push`,
         method: "POST",
         query: query,
@@ -6160,7 +6744,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ImageTagData, ErrorResponse>({
         path: `/images/${name}/tag`,
         method: "POST",
         query: query,
@@ -6191,7 +6775,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageDeleteResponseItem[], ErrorResponse>({
+      this.request<ImageDeleteData, ErrorResponse>({
         path: `/images/${name}`,
         method: "DELETE",
         query: query,
@@ -6223,24 +6807,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          description?: string;
-          is_official?: boolean;
-          /**
-           * Whether this repository has automated builds enabled.
-           *
-           * <p><br /></p>
-           *
-           * > **Deprecated**: This field is deprecated and will always be "false".
-           * @example false
-           */
-          is_automated?: boolean;
-          name?: string;
-          star_count?: number;
-        }[],
-        ErrorResponse
-      >({
+      this.request<ImageSearchData, ErrorResponse>({
         path: `/images/search`,
         method: "GET",
         query: query,
@@ -6271,18 +6838,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          /** Images that were deleted */
-          ImagesDeleted?: ImageDeleteResponseItem[];
-          /**
-           * Disk space reclaimed in bytes
-           * @format int64
-           */
-          SpaceReclaimed?: number;
-        },
-        ErrorResponse
-      >({
+      this.request<ImagePruneData, ErrorResponse>({
         path: `/images/prune`,
         method: "POST",
         query: query,
@@ -6299,7 +6855,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/images/{name}/get
      */
     imageGet: (name: string, params: RequestParams = {}) =>
-      this.request<File, ErrorResponse>({
+      this.request<ImageGetData, ErrorResponse>({
         path: `/images/${name}/get`,
         method: "GET",
         ...params,
@@ -6320,7 +6876,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<File, ErrorResponse>({
+      this.request<ImageGetAllData, ErrorResponse>({
         path: `/images/get`,
         method: "GET",
         query: query,
@@ -6346,7 +6902,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ImageLoadData, ErrorResponse>({
         path: `/images/load`,
         method: "POST",
         query: query,
@@ -6460,7 +7016,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ImageBuildData, ErrorResponse>({
         path: `/build`,
         method: "POST",
         query: query,
@@ -6504,17 +7060,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          CachesDeleted?: string[];
-          /**
-           * Disk space reclaimed in bytes
-           * @format int64
-           */
-          SpaceReclaimed?: number;
-        },
-        ErrorResponse
-      >({
+      this.request<BuildPruneData, ErrorResponse>({
         path: `/build/prune`,
         method: "POST",
         query: query,
@@ -6532,15 +7078,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/auth
      */
     systemAuth: (authConfig: AuthConfig, params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The status of the authentication */
-          Status: string;
-          /** An opaque token used to authenticate a user after a successful login */
-          IdentityToken: string;
-        },
-        ErrorResponse
-      >({
+      this.request<SystemAuthData, ErrorResponse>({
         path: `/auth`,
         method: "POST",
         body: authConfig,
@@ -6559,7 +7097,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/info
      */
     systemInfo: (params: RequestParams = {}) =>
-      this.request<SystemInfo, ErrorResponse>({
+      this.request<SystemInfoData, ErrorResponse>({
         path: `/info`,
         method: "GET",
         format: "json",
@@ -6576,7 +7114,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/version
      */
     systemVersion: (params: RequestParams = {}) =>
-      this.request<SystemVersion, ErrorResponse>({
+      this.request<SystemVersionData, ErrorResponse>({
         path: `/version`,
         method: "GET",
         format: "json",
@@ -6593,7 +7131,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/_ping
      */
     systemPing: (params: RequestParams = {}) =>
-      this.request<string, ErrorResponse>({
+      this.request<SystemPingData, ErrorResponse>({
         path: `/_ping`,
         method: "GET",
         ...params,
@@ -6608,7 +7146,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request HEAD:/_ping
      */
     systemPingHead: (params: RequestParams = {}) =>
-      this.request<string, ErrorResponse>({
+      this.request<SystemPingHeadData, ErrorResponse>({
         path: `/_ping`,
         method: "HEAD",
         ...params,
@@ -6646,7 +7184,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<IdResponse, ErrorResponse>({
+      this.request<ImageCommitData, ErrorResponse>({
         path: `/commit`,
         method: "POST",
         query: query,
@@ -6693,7 +7231,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<EventMessage, ErrorResponse>({
+      this.request<SystemEventsData, ErrorResponse>({
         path: `/events`,
         method: "GET",
         query: query,
@@ -6717,17 +7255,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          /** @format int64 */
-          LayersSize?: number;
-          Images?: ImageSummary[];
-          Containers?: ContainerSummary[];
-          Volumes?: Volume[];
-          BuildCache?: BuildCache[];
-        },
-        ErrorResponse
-      >({
+      this.request<SystemDataUsageData, ErrorResponse>({
         path: `/system/df`,
         method: "GET",
         query: query,
@@ -6760,7 +7288,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ExecStartData, ErrorResponse>({
         path: `/exec/${id}/start`,
         method: "POST",
         body: execStartConfig,
@@ -6786,7 +7314,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ExecResizeData, ErrorResponse>({
         path: `/exec/${id}/resize`,
         method: "POST",
         query: query,
@@ -6802,23 +7330,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/exec/{id}/json
      */
     execInspect: (id: string, params: RequestParams = {}) =>
-      this.request<
-        {
-          CanRemove?: boolean;
-          DetachKeys?: string;
-          ID?: string;
-          Running?: boolean;
-          ExitCode?: number;
-          ProcessConfig?: ProcessConfig;
-          OpenStdin?: boolean;
-          OpenStderr?: boolean;
-          OpenStdout?: boolean;
-          ContainerID?: string;
-          /** The system process ID for the exec process. */
-          Pid?: number;
-        },
-        ErrorResponse
-      >({
+      this.request<ExecInspectData, ErrorResponse>({
         path: `/exec/${id}/json`,
         method: "GET",
         format: "json",
@@ -6854,7 +7366,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<VolumeListResponse, ErrorResponse>({
+      this.request<VolumeListData, ErrorResponse>({
         path: `/volumes`,
         method: "GET",
         query: query,
@@ -6871,7 +7383,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/volumes/create
      */
     volumeCreate: (volumeConfig: VolumeCreateOptions, params: RequestParams = {}) =>
-      this.request<Volume, ErrorResponse>({
+      this.request<VolumeCreateData, ErrorResponse>({
         path: `/volumes/create`,
         method: "POST",
         body: volumeConfig,
@@ -6889,7 +7401,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/volumes/{name}
      */
     volumeInspect: (name: string, params: RequestParams = {}) =>
-      this.request<Volume, ErrorResponse>({
+      this.request<VolumeInspectData, ErrorResponse>({
         path: `/volumes/${name}`,
         method: "GET",
         format: "json",
@@ -6921,7 +7433,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<VolumeUpdateData, ErrorResponse>({
         path: `/volumes/${name}`,
         method: "PUT",
         query: query,
@@ -6949,7 +7461,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<VolumeDeleteData, ErrorResponse>({
         path: `/volumes/${name}`,
         method: "DELETE",
         query: query,
@@ -6977,18 +7489,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          /** Volumes that were deleted */
-          VolumesDeleted?: string[];
-          /**
-           * Disk space reclaimed in bytes
-           * @format int64
-           */
-          SpaceReclaimed?: number;
-        },
-        ErrorResponse
-      >({
+      this.request<VolumePruneData, ErrorResponse>({
         path: `/volumes/prune`,
         method: "POST",
         query: query,
@@ -7028,7 +7529,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Network[], ErrorResponse>({
+      this.request<NetworkListData, ErrorResponse>({
         path: `/networks`,
         method: "GET",
         query: query,
@@ -7057,7 +7558,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Network, ErrorResponse>({
+      this.request<NetworkInspectData, ErrorResponse>({
         path: `/networks/${id}`,
         method: "GET",
         query: query,
@@ -7074,7 +7575,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request DELETE:/networks/{id}
      */
     networkDelete: (id: string, params: RequestParams = {}) =>
-      this.request<void, ErrorResponse>({
+      this.request<NetworkDeleteData, ErrorResponse>({
         path: `/networks/${id}`,
         method: "DELETE",
         ...params,
@@ -7090,46 +7591,77 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     networkCreate: (
       networkConfig: {
-        /** The network's name. */
+        /**
+         * The network's name.
+         * @example "my_network"
+         */
         Name: string;
-        /** Deprecated: CheckDuplicate is now always enabled. */
+        /**
+         * Deprecated: CheckDuplicate is now always enabled.
+         * @example true
+         */
         CheckDuplicate?: boolean;
         /**
          * Name of the network driver plugin to use.
          * @default "bridge"
+         * @example "bridge"
          */
         Driver?: string;
+        /**
+         * The level at which the network exists (e.g. `swarm` for cluster-wide
+         * or `local` for machine level).
+         */
+        Scope?: string;
         /** Restrict external access to the network. */
         Internal?: boolean;
         /**
          * Globally scoped network is manually attachable by regular
          * containers from workers in swarm mode.
+         * @example true
          */
         Attachable?: boolean;
         /**
          * Ingress network is the network which provides the routing-mesh
          * in swarm mode.
+         * @example false
          */
         Ingress?: boolean;
+        /**
+         * Creates a config-only network. Config-only networks are placeholder
+         * networks for network configurations to be used by other networks.
+         * Config-only networks cannot be used directly to run containers
+         * or services.
+         * @default false
+         * @example false
+         */
+        ConfigOnly?: boolean;
+        /**
+         * Specifies the source which will provide the configuration for
+         * this network. The specified network must be an existing
+         * config-only network; see ConfigOnly.
+         */
+        ConfigFrom?: ConfigReference;
         /** Optional custom IP scheme for the network. */
         IPAM?: IPAM;
-        /** Enable IPv6 on the network. */
+        /**
+         * Enable IPv6 on the network.
+         * @example true
+         */
         EnableIPv6?: boolean;
-        /** Network specific options to be used by the drivers. */
+        /**
+         * Network specific options to be used by the drivers.
+         * @example {"com.docker.network.bridge.default_bridge":"true","com.docker.network.bridge.enable_icc":"true","com.docker.network.bridge.enable_ip_masquerade":"true","com.docker.network.bridge.host_binding_ipv4":"0.0.0.0","com.docker.network.bridge.name":"docker0","com.docker.network.driver.mtu":"1500"}
+         */
         Options?: Record<string, string>;
-        /** User-defined key/value metadata. */
+        /**
+         * User-defined key/value metadata.
+         * @example {"com.example.some-label":"some-value","com.example.some-other-label":"some-other-value"}
+         */
         Labels?: Record<string, string>;
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          /** The ID of the created network. */
-          Id?: string;
-          Warning?: string;
-        },
-        ErrorResponse
-      >({
+      this.request<NetworkCreateData, ErrorResponse>({
         path: `/networks/create`,
         method: "POST",
         body: networkConfig,
@@ -7156,7 +7688,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<NetworkConnectData, ErrorResponse>({
         path: `/networks/${id}/connect`,
         method: "POST",
         body: container,
@@ -7182,7 +7714,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<NetworkDisconnectData, ErrorResponse>({
         path: `/networks/${id}/disconnect`,
         method: "POST",
         body: container,
@@ -7211,13 +7743,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<
-        {
-          /** Networks that were deleted */
-          NetworksDeleted?: string[];
-        },
-        ErrorResponse
-      >({
+      this.request<NetworkPruneData, ErrorResponse>({
         path: `/networks/prune`,
         method: "POST",
         query: query,
@@ -7249,7 +7775,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Plugin[], ErrorResponse>({
+      this.request<PluginListData, ErrorResponse>({
         path: `/plugins`,
         method: "GET",
         query: query,
@@ -7275,7 +7801,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<PluginPrivilege[], ErrorResponse>({
+      this.request<GetPluginPrivilegesData, ErrorResponse>({
         path: `/plugins/privileges`,
         method: "GET",
         query: query,
@@ -7309,7 +7835,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: PluginPrivilege[],
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<PluginPullData, ErrorResponse>({
         path: `/plugins/pull`,
         method: "POST",
         query: query,
@@ -7326,7 +7852,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/plugins/{name}/json
      */
     pluginInspect: (name: string, params: RequestParams = {}) =>
-      this.request<Plugin, ErrorResponse>({
+      this.request<PluginInspectData, ErrorResponse>({
         path: `/plugins/${name}/json`,
         method: "GET",
         format: "json",
@@ -7353,7 +7879,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Plugin, ErrorResponse>({
+      this.request<PluginDeleteData, ErrorResponse>({
         path: `/plugins/${name}`,
         method: "DELETE",
         query: query,
@@ -7380,7 +7906,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<PluginEnableData, ErrorResponse>({
         path: `/plugins/${name}/enable`,
         method: "POST",
         query: query,
@@ -7403,7 +7929,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<PluginDisableData, ErrorResponse>({
         path: `/plugins/${name}/disable`,
         method: "POST",
         query: query,
@@ -7431,7 +7957,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: PluginPrivilege[],
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<PluginUpgradeData, ErrorResponse>({
         path: `/plugins/${name}/upgrade`,
         method: "POST",
         query: query,
@@ -7458,7 +7984,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       tarContext: File,
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<PluginCreateData, ErrorResponse>({
         path: `/plugins/create`,
         method: "POST",
         query: query,
@@ -7475,7 +8001,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/plugins/{name}/push
      */
     pluginPush: (name: string, params: RequestParams = {}) =>
-      this.request<void, ErrorResponse>({
+      this.request<PluginPushData, ErrorResponse>({
         path: `/plugins/${name}/push`,
         method: "POST",
         ...params,
@@ -7490,7 +8016,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/plugins/{name}/set
      */
     pluginSet: (name: string, body: string[], params: RequestParams = {}) =>
-      this.request<void, ErrorResponse>({
+      this.request<PluginSetData, ErrorResponse>({
         path: `/plugins/${name}/set`,
         method: "POST",
         body: body,
@@ -7524,7 +8050,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Node[], ErrorResponse>({
+      this.request<NodeListData, ErrorResponse>({
         path: `/nodes`,
         method: "GET",
         query: query,
@@ -7541,7 +8067,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/nodes/{id}
      */
     nodeInspect: (id: string, params: RequestParams = {}) =>
-      this.request<Node, ErrorResponse>({
+      this.request<NodeInspectData, ErrorResponse>({
         path: `/nodes/${id}`,
         method: "GET",
         format: "json",
@@ -7567,7 +8093,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<NodeDeleteData, ErrorResponse>({
         path: `/nodes/${id}`,
         method: "DELETE",
         query: query,
@@ -7595,7 +8121,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: NodeSpec,
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<NodeUpdateData, ErrorResponse>({
         path: `/nodes/${id}/update`,
         method: "POST",
         query: query,
@@ -7614,7 +8140,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/swarm
      */
     swarmInspect: (params: RequestParams = {}) =>
-      this.request<Swarm, ErrorResponse>({
+      this.request<SwarmInspectData, ErrorResponse>({
         path: `/swarm`,
         method: "GET",
         format: "json",
@@ -7687,7 +8213,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<string, ErrorResponse>({
+      this.request<SwarmInitData, ErrorResponse>({
         path: `/swarm/init`,
         method: "POST",
         body: body,
@@ -7741,7 +8267,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<SwarmJoinData, ErrorResponse>({
         path: `/swarm/join`,
         method: "POST",
         body: body,
@@ -7768,7 +8294,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<SwarmLeaveData, ErrorResponse>({
         path: `/swarm/leave`,
         method: "POST",
         query: query,
@@ -7810,7 +8336,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: SwarmSpec,
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<SwarmUpdateData, ErrorResponse>({
         path: `/swarm/update`,
         method: "POST",
         query: query,
@@ -7828,13 +8354,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/swarm/unlockkey
      */
     swarmUnlockkey: (params: RequestParams = {}) =>
-      this.request<
-        {
-          /** The swarm's unlock key. */
-          UnlockKey?: string;
-        },
-        ErrorResponse
-      >({
+      this.request<SwarmUnlockkeyData, ErrorResponse>({
         path: `/swarm/unlockkey`,
         method: "GET",
         type: ContentType.Json,
@@ -7857,7 +8377,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<SwarmUnlockData, ErrorResponse>({
         path: `/swarm/unlock`,
         method: "POST",
         body: body,
@@ -7893,7 +8413,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Service[], ErrorResponse>({
+      this.request<ServiceListData, ErrorResponse>({
         path: `/services`,
         method: "GET",
         query: query,
@@ -7910,7 +8430,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/services/create
      */
     serviceCreate: (body: ServiceSpec & object, params: RequestParams = {}) =>
-      this.request<ServiceCreateResponse, ErrorResponse>({
+      this.request<ServiceCreateData, ErrorResponse>({
         path: `/services/create`,
         method: "POST",
         body: body,
@@ -7938,7 +8458,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Service, ErrorResponse>({
+      this.request<ServiceInspectData, ErrorResponse>({
         path: `/services/${id}`,
         method: "GET",
         query: query,
@@ -7955,7 +8475,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request DELETE:/services/{id}
      */
     serviceDelete: (id: string, params: RequestParams = {}) =>
-      this.request<void, ErrorResponse>({
+      this.request<ServiceDeleteData, ErrorResponse>({
         path: `/services/${id}`,
         method: "DELETE",
         ...params,
@@ -7996,7 +8516,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: ServiceSpec & object,
       params: RequestParams = {},
     ) =>
-      this.request<ServiceUpdateResponse, ErrorResponse>({
+      this.request<ServiceUpdateData, ErrorResponse>({
         path: `/services/${id}/update`,
         method: "POST",
         query: query,
@@ -8056,7 +8576,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<File, ErrorResponse>({
+      this.request<ServiceLogsData, ErrorResponse>({
         path: `/services/${id}/logs`,
         method: "GET",
         query: query,
@@ -8091,7 +8611,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Task[], ErrorResponse>({
+      this.request<TaskListData, ErrorResponse>({
         path: `/tasks`,
         method: "GET",
         query: query,
@@ -8108,7 +8628,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/tasks/{id}
      */
     taskInspect: (id: string, params: RequestParams = {}) =>
-      this.request<Task, ErrorResponse>({
+      this.request<TaskInspectData, ErrorResponse>({
         path: `/tasks/${id}`,
         method: "GET",
         format: "json",
@@ -8165,7 +8685,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<File, ErrorResponse>({
+      this.request<TaskLogsData, ErrorResponse>({
         path: `/tasks/${id}/logs`,
         method: "GET",
         query: query,
@@ -8198,7 +8718,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Secret[], ErrorResponse>({
+      this.request<SecretListData, ErrorResponse>({
         path: `/secrets`,
         method: "GET",
         query: query,
@@ -8215,7 +8735,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/secrets/create
      */
     secretCreate: (body: SecretSpec & object, params: RequestParams = {}) =>
-      this.request<IdResponse, ErrorResponse>({
+      this.request<SecretCreateData, ErrorResponse>({
         path: `/secrets/create`,
         method: "POST",
         body: body,
@@ -8233,7 +8753,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/secrets/{id}
      */
     secretInspect: (id: string, params: RequestParams = {}) =>
-      this.request<Secret, ErrorResponse>({
+      this.request<SecretInspectData, ErrorResponse>({
         path: `/secrets/${id}`,
         method: "GET",
         format: "json",
@@ -8249,7 +8769,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request DELETE:/secrets/{id}
      */
     secretDelete: (id: string, params: RequestParams = {}) =>
-      this.request<void, ErrorResponse>({
+      this.request<SecretDeleteData, ErrorResponse>({
         path: `/secrets/${id}`,
         method: "DELETE",
         ...params,
@@ -8276,7 +8796,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: SecretSpec,
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<SecretUpdateData, ErrorResponse>({
         path: `/secrets/${id}/update`,
         method: "POST",
         query: query,
@@ -8311,7 +8831,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<Config[], ErrorResponse>({
+      this.request<ConfigListData, ErrorResponse>({
         path: `/configs`,
         method: "GET",
         query: query,
@@ -8328,7 +8848,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/configs/create
      */
     configCreate: (body: ConfigSpec & object, params: RequestParams = {}) =>
-      this.request<IdResponse, ErrorResponse>({
+      this.request<ConfigCreateData, ErrorResponse>({
         path: `/configs/create`,
         method: "POST",
         body: body,
@@ -8346,7 +8866,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/configs/{id}
      */
     configInspect: (id: string, params: RequestParams = {}) =>
-      this.request<Config, ErrorResponse>({
+      this.request<ConfigInspectData, ErrorResponse>({
         path: `/configs/${id}`,
         method: "GET",
         format: "json",
@@ -8362,7 +8882,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request DELETE:/configs/{id}
      */
     configDelete: (id: string, params: RequestParams = {}) =>
-      this.request<void, ErrorResponse>({
+      this.request<ConfigDeleteData, ErrorResponse>({
         path: `/configs/${id}`,
         method: "DELETE",
         ...params,
@@ -8389,7 +8909,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: ConfigSpec,
       params: RequestParams = {},
     ) =>
-      this.request<void, ErrorResponse>({
+      this.request<ConfigUpdateData, ErrorResponse>({
         path: `/configs/${id}/update`,
         method: "POST",
         query: query,
@@ -8408,7 +8928,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/distribution/{name}/json
      */
     distributionInspect: (name: string, params: RequestParams = {}) =>
-      this.request<DistributionInspect, ErrorResponse>({
+      this.request<DistributionInspectData, ErrorResponse>({
         path: `/distribution/${name}/json`,
         method: "GET",
         format: "json",

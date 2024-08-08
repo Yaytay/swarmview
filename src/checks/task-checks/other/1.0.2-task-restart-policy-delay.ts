@@ -1,6 +1,6 @@
 import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
-export const taskRestartPolicyDelay: Check = {
+export const other_1_0_2_taskRestartPolicyDelay: Check = {
   category: "Other"
   , id: "1.0.2"
   , title: 'Restart policy with delay'

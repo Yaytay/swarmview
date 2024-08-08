@@ -1,6 +1,6 @@
 import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
-export const seLinuxEnabled: Check = {
+export const cis_5_3_seLinuxEnabled: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.3"
   , title: 'SELinux Enabled'

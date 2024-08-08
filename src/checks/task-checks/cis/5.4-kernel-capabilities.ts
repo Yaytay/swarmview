@@ -1,6 +1,6 @@
 import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
-export const kernelCapabilities: Check = {
+export const cis_5_4_kernelCapabilities: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.4"
   , title: 'Kernel capabilities'
@@ -11,27 +11,36 @@ export const kernelCapabilities: Check = {
 
   , evaluate: function (args: CheckArguments): CheckResult {
 
+    /*
     if (args.system && args.system.SecurityOptions && !args.system.SecurityOptions.find(v => v === 'name=no-new-privileges')) {
       return {
         state: State.pass
         , message: 'Node configured with no-new-privileges'
       }
     }
-    if (args.task) {
-      if (args.task?.Spec?.ContainerSpec?.Privileges?.SELinuxContext) {
+      */
+    if (args.container) {
+      if (args.container.HostConfig?.CapAdd) {
         return {
-          state: args.task?.Spec?.ContainerSpec?.Privileges?.SELinuxContext.Disable ? State.fail : State.pass
+          state: State.fail
+          , message: 'Adds kernel capabilities: ' + args.container.HostConfig?.CapAdd?.join(', ')
         }
       } else {
-        return {
-          state: State.warning
-          , message: 'SELinux not configured'
+        if (args.container.HostConfig?.CapDrop?.find(cap => cap === 'NET_RAW')) {
+          return {
+            state: State.pass
+          }
+        } else {
+          return {
+            state: State.fail
+            , message: 'Does not remove NET_RAW capability: ' + (args.container.HostConfig?.CapDrop?.join(', ') || 'CapDrop not set')
+          }
         }
       }
     } else {
       return {
         state: State.error
-        , message: 'task not set'
+        , message: 'container not set'
       }
     }
   }
