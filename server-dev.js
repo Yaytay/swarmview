@@ -1,6 +1,7 @@
 //server-dev.js
 import fs from 'fs';
 import express from 'express';
+import morgan from 'morgan';
 import { createServer } from 'vite';
 import apiRouter from './server/apiRouter.js';
  
@@ -13,6 +14,8 @@ const vite = await createServer({
   appType: 'custom',
 });
  
+app.use(morgan('combined'))
+
 app.use(apiRouter)
 
 app.use(vite.middlewares);

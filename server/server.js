@@ -3,10 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
+import morgan from 'morgan';
 import apiRouter from './apiRouter.js';
  
 const app = express();
  
+app.use(morgan('combined'))
 app.use(apiRouter)
 app.get('/health', (_, res) => {
   res.send('up')

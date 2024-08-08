@@ -90,8 +90,16 @@ function getContainerDetails(host, taskid) {
     .then(j => {
       if (Array.isArray(j) && j.length > 0) {
         const url = 'http://' + host + '/v1.45/containers/' + j[0].Id + '/json'
-        return fetch(url)
-          .then(r => r.json())  
+        const prom1 = fetch(url).then(r => r.json())  
+        const urlTop = 'http://' + host + '/v1.45/containers/' + j[0].Id + '/top'
+        const prom2 = fetch(urlTop).then(r => r.json())
+
+        return Promise.all([prom1, prom2]).then(v => {
+          return {
+            container: v[0]
+            , top: v[1]
+          }
+        })
       } else {
         console.log('URL ' + urlQuery + ' returned ', j)
         return Promise.reject(new HttpError(404, 'Unable to get container ID'))
