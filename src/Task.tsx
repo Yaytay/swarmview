@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import { Network, Service, Task, Node, SystemInfo } from './docker-schema';
+import { Network, Service, Task, Node, SystemInfo, ContainerConfig } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
 import { Tabs, Tab } from '@mui/material';
@@ -22,6 +22,7 @@ function TaskUi(props: TaskUiProps) {
   const { id } = useParams<TaskUiParams>();
 
   const [system, setSystem] = useState<SystemInfo | undefined>()
+  const [container, setContainer] = useState<ContainerConfig | undefined>()
   const [services, setServices] = useState<Map<string, Service>>(new Map())
   const [servicesByNetwork, setServicesByNetwork] = useState<Map<string, Service[]>>(new Map())
   const [networks, setNetworks] = useState<Map<string, Network>>(new Map())
@@ -257,6 +258,12 @@ function TaskUi(props: TaskUiProps) {
         .then(r => r.json())
         .then(j => setSystem(j))
         .catch(ex => console.log('Failed to get system info: ', ex))
+    }
+    if (task && !container && task.NodeID && task.ID) {
+      fetch('/api/container/' + task.NodeID + '/' + task.ID)
+        .then(r => r.json())
+        .then(j => setContainer(j))
+        .catch(ex => console.log('Failed to get container details: ', ex))
     }
   }, [task])
 

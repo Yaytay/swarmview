@@ -1,6 +1,7 @@
 import express from "express";
 import proxy from "express-http-proxy"
 import 'dotenv/config'
+import { Http } from "@mui/icons-material";
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ if (!process.env.DOCKER_PROXY_ENDPOINT) {
 
 const service = process.env.DOCKER_PROXY_SERVICE
 const service_port = process.env.DOCKER_PROXY_SERVICE_PORT || '2375'
-const service_redirect = JSON.parse(process.env.DOCKER_PROXY_SERVICE_REDIRECT || '{}' )
+const service_redirect = JSON.parse(process.env.DOCKER_PROXY_SERVICE_REDIRECT || '{}')
 
 if (!process.env.DOCKER_PROXY_SERVICE) {
   console.log('Set the environment variable DOCKER_PROXY_SERVICE to enable dynamic discovery of docker services.\n'
@@ -24,7 +25,7 @@ if (!process.env.DOCKER_PROXY_SERVICE) {
 const serviceProxiesUrl = 'http://' + endpoint + '/v1.45/tasks?filters={%22name%22:[%22' + service + '%22],%22desired-state%22:[%22running%22]}'
 
 router.use('/docker', proxy(endpoint, {
-  filter: (req, res) => {    
+  filter: (req, res) => {
     console.log('Request to ' + req.url)
     return req.method === 'GET'
   }
@@ -37,7 +38,7 @@ function getExportsForImage(result, url) {
     .then(j => {
       if (j.Config.ExposedPorts && Array.isArray(j.RepoDigests)) {
         j.RepoDigests.forEach(digest => {
-          console.log('At ' + url + ' for ' + digest + ' got: ', j.Config.ExposedPorts)
+          // console.log('At ' + url + ' for ' + digest + ' got: ', j.Config.ExposedPorts)
           result[digest] = Object.keys(j.Config.ExposedPorts)
         })
       }
@@ -79,8 +80,22 @@ function getSystemInfo(host) {
     .then(j => {
       return j
     })
-    .catch(ex => {
-      console.log('Failed to get ' + url + ': ', ex)
+}
+
+// Inspect container on a host given its task ID
+function getContainerDetails(host, taskid) {
+  const urlQuery = 'http://' + host + '/v1.45/containers/json?filters={%22label%22:[%22com.docker.swarm.task.id=' + taskid + '%22]}'
+  return fetch(urlQuery)
+    .then(r => r.json())
+    .then(j => {
+      if (Array.isArray(j) && j.length > 0) {
+        const url = 'http://' + host + '/v1.45/containers/' + j[0].Id + '/json'
+        return fetch(url)
+          .then(r => r.json())  
+      } else {
+        console.log('URL ' + urlQuery + ' returned ', j)
+        return Promise.reject(new HttpError(404, 'Unable to get container ID'))
+      }
     })
 }
 
@@ -125,17 +140,32 @@ router.use('/api/exposed', (_, res) => {
     })
 })
 
-router.use('/api/system/:node', (req, res) => {
-  //console.log(req.params.node)
-  if (!service) {
-    res.status(404).send('Not configured for system data')
-  }
+// Return an error with an HTTP status code
+class HttpError extends Error {
+  constructor(status, ...params) {
+    // Pass remaining arguments (including vendor specific ones) to parent constructor
+    super(...params);
 
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, HttpError);
+    }
+
+    this.statusCode = status
+  }
+}
+
+// Return a promise containing the URL to use for a given node
+// The result cannot be (easily) cached because the proxy URL may change for a given node
+function getUrlForNode(nodeid) {
+  if (!service) {
+    return Promise.reject(new HttpError(404, 'Not configured for node-based data'))
+  }
   return fetch(serviceProxiesUrl)
     .then(r => r.json())
     .then(j => {
       if (Array.isArray(j)) {
-        const tsk = j.filter(tsk => tsk.NodeID === req.params.node && tsk.Status.State === 'running').pop()
+        const tsk = j.filter(tsk => tsk.NodeID === nodeid && tsk.Status.State === 'running').pop()
         if (tsk) {
           let dockerProxyHost = service + '.' + tsk.NodeID + '.' + tsk.ID + ':' + service_port
           //console.log(dockerProxyHost)
@@ -144,17 +174,41 @@ router.use('/api/system/:node', (req, res) => {
             console.log('Using ' + service_redirect[dockerProxyHost] + ' instead of ' + dockerProxyHost)
             dockerProxyHost = service_redirect[dockerProxyHost]
           }
-          getSystemInfo(dockerProxyHost)
-            .then(j => res.status(200).send(j))
+          return dockerProxyHost
         } else {
-          res.status(404).send('Cannot find system info ' + req.params.node)
+          throw new HttpError(404, 'Cannot find proxy service for ' + req.params.node)
         }
       } else {
-        res.status(404).send('Cannot process proxies')
+        throw new HttpError(404, 'Cannot process proxy services')
       }
     })
+}
+
+router.use('/api/system/:nodeid', (req, res) => {
+  return getUrlForNode(req.params.nodeid)
+    .then(dockerProxyHost => getSystemInfo(dockerProxyHost))
+    .then(j => res.status(200).send(j))
     .catch(ex => {
-      console.log('Failed to get ' + serviceProxiesUrl + ': ', ex)
+      console.log('Failed to get system details: ', ex)
+      if (ex instanceof HttpError) {
+        res.status(ex.statusCode).send(ex.message)
+      } else {
+        res.status(500).send('Unable to get container details')
+      }
+    })
+})
+
+router.use('/api/container/:nodeid/:taskid', (req, res) => {
+  return getUrlForNode(req.params.nodeid)
+    .then(dockerProxyHost => getContainerDetails(dockerProxyHost, req.params.taskid))
+    .then(j => res.status(200).send(j))
+    .catch(ex => {
+      console.log('Failed to get container details: ', ex)
+      if (ex instanceof HttpError) {
+        res.status(ex.statusCode).send(ex.message)
+      } else {
+        res.status(500).send('Unable to get container details')
+      }
     })
 })
 
