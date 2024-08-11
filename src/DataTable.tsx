@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -23,6 +23,7 @@ export interface DataTablePropsEntry {
   link?: string
   value: string
   sx?: SxProps<Theme>
+  children?: ReactNode
 }
 export type DataTableValue = (null | undefined | string | number | string[] | DataTablePropsEntry | DataTablePropsEntry[])
 
@@ -39,7 +40,6 @@ interface DataTableValueProps {
   value: DataTableValue
 }
 function DataTableValue(props: DataTableValueProps) {
-
   if (!props.value) {
     return (<></>)
   } else if (Array.isArray(props.value)) {
@@ -49,8 +49,10 @@ function DataTableValue(props: DataTableValueProps) {
       })
     }</>)
   } else if (typeof props.value === 'object') {
-    if (props.value.link) {
-      return (<Typography sx={[...(Array.isArray(props.value.sx) ? props.value.sx : [props.value.sx])]}><Link to={props.value.link}>{props.value.value}</Link></Typography>)
+    if (props.value.children) {
+      return (<>{props.value.children}</>)
+    } else if (props.value.link) {
+        return (<Typography sx={[...(Array.isArray(props.value.sx) ? props.value.sx : [props.value.sx])]}><Link to={props.value.link}>{props.value.value}</Link></Typography>)
     } else {
       return (<Typography sx={[...(Array.isArray(props.value.sx) ? props.value.sx : [props.value.sx])]}>{props.value.value}</Typography>)
     }

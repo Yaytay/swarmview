@@ -1,4 +1,4 @@
-import {  ContainerInspectData, Node, Service, SystemInfo, Task } from '../docker-schema'
+import {  ContainerInspectData, ContainerTopData, Node, Service, SystemInfo, Task } from '../docker-schema'
 
 export interface CheckArguments {
   node?: Node
@@ -7,6 +7,7 @@ export interface CheckArguments {
   , task?: Task
   , system?: SystemInfo
   , container?: ContainerInspectData
+  , top?: ContainerTopData
 
   , nodes?: Node[]
   , stacks?: string[]

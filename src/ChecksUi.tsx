@@ -2,6 +2,8 @@ import Grid from "@mui/material/Grid";
 import DataTable, { DataTableValue } from "./DataTable";
 import Section from "./Section";
 import { Check, CheckArguments } from "./checks/checks";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
 
 interface ChecksUiProps {
   id: string
@@ -24,9 +26,13 @@ class CheckResultsCategory {
 function evaluate(check: Check, args: CheckArguments) {
   try {
     const result = check.evaluate(args)
-    return [check.id, check.title, result.state, result.threshold, result.value, result.message]
+    return [check.id
+      , {children: (<Tooltip placement="bottom-start" title={check.description}><Typography>{check.title}</Typography></Tooltip>), value: check.title}
+      , result.state, result.threshold, result.value, result.message]
   } catch (ex) {
-    return [check.id, check.title, 'error', null, null, String(ex)]
+    return [check.id
+      , {children: (<Tooltip placement="bottom-start" title={check.description}><span>{check.title}</span></Tooltip>), value: check.title}
+      , 'error', null, null, String(ex)]
   }
 }
 function ChecksUi(props: ChecksUiProps) {
