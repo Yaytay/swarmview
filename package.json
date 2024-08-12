@@ -38,7 +38,7 @@
     "nodemon": "^3.1.4",
     "react-router-dom": "^6.26.0",
     "typescript": "^5.5.4",
-    "vite": "^5.3.5",
+    "vite": "^5.4.0",
     "express": "^4.19.2",
     "express-http-proxy": "^2.0.0",
     "morgan": "^1.10.0"
