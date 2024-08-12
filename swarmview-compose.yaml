@@ -45,7 +45,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
   swarmview:
-    image: ghcr.io/yaytay/swarmview:0.0.5
+    image: ghcr.io/yaytay/swarmview:0.0.26
     deploy:
       replicas: 2
       resources:
