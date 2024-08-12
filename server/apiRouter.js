@@ -1,4 +1,5 @@
 import express from "express";
+import process from "node";
 import proxy from "express-http-proxy"
 import 'dotenv/config'
 
@@ -24,7 +25,7 @@ if (!process.env.DOCKER_PROXY_SERVICE) {
 const serviceProxiesUrl = 'http://' + endpoint + '/v1.45/tasks?filters={%22name%22:[%22' + service + '%22],%22desired-state%22:[%22running%22]}'
 
 router.use('/docker', proxy(endpoint, {
-  filter: (req, res) => {
+  filter: (req) => {
     console.log('Request to ' + req.url)
     return req.method === 'GET'
   }
@@ -138,7 +139,7 @@ router.use('/api/exposed', (_, res) => {
 
   const result = {}
   getExportsFromAllDockerProxies(result, serviceProxiesUrl)
-    .then(_ => {
+    .then(() => {
       res.send(JSON.stringify(result))
     })
     .catch(reason => {
@@ -183,7 +184,7 @@ function getUrlForNode(nodeid) {
           }
           return dockerProxyHost
         } else {
-          throw new HttpError(404, 'Cannot find proxy service for ' + req.params.node)
+          throw new HttpError(404, 'Cannot find proxy service for ' + nodeid)
         }
       } else {
         throw new HttpError(404, 'Cannot process proxy services')
