@@ -11,7 +11,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@mui/system": "^5.16.6",
+    "@mui/system": "^5.16.7",
     "dotenv": "^16.4.5",
     "install": "^0.13.0",
     "npm": "^10.8.2",
@@ -24,8 +24,8 @@
   "devDependencies": {
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
-    "@mui/icons-material": "^5.16.6",
-    "@mui/material": "^5.16.6",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/material": "^5.16.7",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^8.0.1",
@@ -38,9 +38,9 @@
     "nodemon": "^3.1.4",
     "react-router-dom": "^6.26.0",
     "typescript": "^5.5.4",
-    "vite": "^5.3.5",
+    "vite": "^5.4.0",
     "express": "^4.19.2",
-    "express-http-proxy": "^2.0.0",
+    "express-http-proxy": "^2.1.1",
     "morgan": "^1.10.0"
   }
 }
