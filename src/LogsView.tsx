@@ -66,7 +66,7 @@ function LogsView(props: LogsViewProps) {
           <MenuItem value={5000}>5000</MenuItem>
         </Select>
         <InputLabel htmlFor="logsFollowInput" sx={{ padding: '8px' }} >Follow: </InputLabel>
-        <Checkbox id="logsFollowInput" checked={logsFollow} onChange={e => { setFollow(!logsFollow) }} />
+        <Checkbox id="logsFollowInput" checked={logsFollow} onChange={() => { setFollow(!logsFollow) }} />
         <InputLabel htmlFor="logsFilterInput" sx={{ padding: '8px' }} >Filter: </InputLabel>
         <TextField id="logsFilterInput" variant="outlined" value={logsFilterEdit} sx={{ paddingTop: '0px', paddingBottom: '0px' }} size="small" onChange={e => setLogsFilterEdit(e.target.value)} onBlur={e => setFilter(e.target.value)} />
       </Box>

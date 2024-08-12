@@ -269,13 +269,14 @@ function TaskUi(props: TaskUiProps) {
         })
         .catch(ex => console.log('Failed to get container details: ', ex))
     }
-  }, [task])
+  }, [task, system, container])
 
   const reachOptions = {
     height: (500 * Math.log10(reachGraph.nodes?.length || 1)) + "px"
   };
 
   const reachEvents = {
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
     doubleClick: (params: any) => {
       console.log(params)
       if (params.nodes.length == 1) {

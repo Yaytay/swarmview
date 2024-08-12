@@ -11,6 +11,7 @@ export type GraphData = {
 interface VisNetworkProps {
   options: Options
   data: GraphData
+  /* eslint-disable  @typescript-eslint/no-explicit-any */
   events: Record<string, (params?: any) => void>
   sx?: SxProps<Theme>
 }

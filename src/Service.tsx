@@ -333,6 +333,7 @@ function ServiceUi(props: ServiceProps) {
   };
 
   const reachEvents = {
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
     doubleClick: (params : any) => {
       console.log(params)
       if (params.nodes.length == 1) {

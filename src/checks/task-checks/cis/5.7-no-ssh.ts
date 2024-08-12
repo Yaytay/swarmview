@@ -12,7 +12,7 @@ export const cis_5_7_noSsh: Check = {
   , evaluate: function (args: CheckArguments): CheckResult {
 
     if (args.top) {
-      const sshProc = args.top.Processes?.find(proc => {proc[proc.length - 1].indexOf('ssh') >= 0})
+      const sshProc = args.top.Processes?.find(proc => { return proc[proc.length - 1].indexOf('ssh') >= 0 })
       if (sshProc) {
         return {
           state: State.fail
