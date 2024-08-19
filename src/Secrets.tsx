@@ -4,10 +4,12 @@ import { Secret, Service } from './docker-schema'
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
+import { DockerApi } from './DockerApi';
 
 interface SecretsProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
 }
 function Secrets(props: SecretsProps) {
 
@@ -16,30 +18,14 @@ function Secrets(props: SecretsProps) {
   const [data, setData] = useState<(string | DataTablePropsEntry | DataTablePropsEntry[])[][]>()
 
   useEffect(() => {
-    fetch(props.baseUrl + 'secrets')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get secrets:', reason)
-      })
+    props.docker.secrets()
       .then(j => {
         props.setTitle('Secrets')
         setSecrets(j)
-      })    
-    fetch(props.baseUrl + 'services')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
       })
-      .catch(reason => {
-        console.log('Failed to get services:', reason)
-      })
+    props.docker.services()
       .then(j => {
-        const buildServices : Map<string, Service[]> = new Map()
+        const buildServices: Map<string, Service[]> = new Map()
         j.forEach((svc: Service) => {
           svc.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.forEach(svcSec => {
             if (svcSec.SecretID) {

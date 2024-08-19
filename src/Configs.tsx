@@ -4,10 +4,12 @@ import { Config, Service } from './docker-schema'
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
+import { DockerApi } from './DockerApi';
 
 interface ConfigsProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
 }
 function Configs(props: ConfigsProps) {
 
@@ -16,31 +18,16 @@ function Configs(props: ConfigsProps) {
   const [data, setData] = useState<(string | DataTablePropsEntry | DataTablePropsEntry[])[][]>()
 
   useEffect(() => {
-    fetch(props.baseUrl + 'configs')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get configs:', reason)
-      })
+
+    props.docker.configs()
       .then(j => {
         props.setTitle('Configs')
         setConfigs(j)
       })
-    fetch(props.baseUrl + 'services')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get services:', reason)
-      })
-      .then(j => {
+    props.docker.services()
+      .then(svcs => {
         const buildServices: Map<string, Service[]> = new Map()
-        j.forEach((svc: Service) => {
+        svcs.forEach((svc: Service) => {
           svc.Spec?.TaskTemplate?.ContainerSpec?.Configs?.forEach(svcCnf => {
             if (svcCnf.ConfigID) {
               let svcConfigs = buildServices.get(svcCnf.ConfigID)

@@ -9,11 +9,13 @@ import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DataTable, { DataTableValue } from './DataTable';
+import { DockerApi } from './DockerApi';
 
 
 interface SecretProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
 }
 type SecretUiParams = {
   id: string;
@@ -29,28 +31,14 @@ function SecretUi(props: SecretProps) {
   const [secretServices, setSecretServices] = useState<DataTableValue[][]>([])
 
   useEffect(() => {
-    fetch(props.baseUrl + 'secrets/' + id)
-      .then(r => {
-        if (r.ok) {
-          return r.json();
+    props.docker.secret(id)
+      .then(sec => {
+        if (sec) {
+          setSecret(sec)
         }
       })
-      .catch(reason => {
-        console.log('Failed to get secret:', reason)
-      })
+    props.docker.services()
       .then(j => {
-        setSecret(j)
-      })
-    fetch(props.baseUrl + 'services')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get service:', reason)
-      })
-      .then(j => {        
         const svcs = j as Service[]
         const buildServices = svcs.filter(svc => {
           return svc.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.find(sec => sec.SecretID === id)
@@ -62,8 +50,8 @@ function SecretUi(props: SecretProps) {
   useEffect(() => {
     props.setTitle('Secret: ' + (secret?.Spec?.Name || secret?.ID))
 
-    if  (secret && services) {
-      const secSvcs : DataTableValue[][] = []
+    if (secret && services) {
+      const secSvcs: DataTableValue[][] = []
       services.forEach(svc => {
         svc.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.forEach(sec => {
           if (sec.SecretID === id) {
@@ -91,7 +79,7 @@ function SecretUi(props: SecretProps) {
     return <></>
   } else {
     return (
-      <Box sx={{ width: '100%'}} >
+      <Box sx={{ width: '100%' }} >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
             <Tab label="Details" />
@@ -99,41 +87,41 @@ function SecretUi(props: SecretProps) {
           </Tabs>
         </Box>
         {
-      tab === 0 &&
-      <Box>
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2}>
-            <Section id="secret.overview" heading="Overview" >
-              <DataTable id="secret.overview.table" kvTable={true} rows={
-                [
-                  ['ID', secret.ID || '']
-                  , ['Created', secret.CreatedAt ]
-                  , ['Updated', secret.UpdatedAt ]
-                ]
-              }>
-              </DataTable>
-            </Section>
-            {
-            services &&
-            <Section id="secret.services" heading="Services" xs={12}>
-              <DataTable
-                id="secret.services.table" 
-                headers={['SERVICE', 'SECRET NAME', 'MOUNTPOINT', 'UID:GID']}
-                rows={secretServices}
-              />
-            </Section>
-            }
+          tab === 0 &&
+          <Box>
+            <Box sx={{ flexGrow: 1 }}>
+              <Grid container spacing={2}>
+                <Section id="secret.overview" heading="Overview" >
+                  <DataTable id="secret.overview.table" kvTable={true} rows={
+                    [
+                      ['ID', secret.ID || '']
+                      , ['Created', secret.CreatedAt]
+                      , ['Updated', secret.UpdatedAt]
+                    ]
+                  }>
+                  </DataTable>
+                </Section>
+                {
+                  services &&
+                  <Section id="secret.services" heading="Services" xs={12}>
+                    <DataTable
+                      id="secret.services.table"
+                      headers={['SERVICE', 'SECRET NAME', 'MOUNTPOINT', 'UID:GID']}
+                      rows={secretServices}
+                    />
+                  </Section>
+                }
 
-          </Grid>
-        </Box>
-      </Box>
-    }
-    {
-      tab === 1 &&
-      <Box>
-        <JSONPretty data={secret} />
-      </Box>
-    }
+              </Grid>
+            </Box>
+          </Box>
+        }
+        {
+          tab === 1 &&
+          <Box>
+            <JSONPretty data={secret} />
+          </Box>
+        }
       </Box >
     )
   }

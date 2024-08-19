@@ -10,10 +10,12 @@ import JSONPretty from 'react-json-pretty';
 import VisNetwork, { GraphData, Node as NetworkNode, Edge } from './VisNetwork';
 import LogsView from './LogsView';
 import TaskChecks from './TaskChecks';
+import { DockerApi } from './DockerApi';
 
 interface TaskUiProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
 }
 type TaskUiParams = {
   id: string;
@@ -39,15 +41,7 @@ function TaskUi(props: TaskUiProps) {
   const [reachGraph, setReachGraph] = useState<GraphData>({})
 
   useEffect(() => {
-    fetch(props.baseUrl + 'services')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get services:', reason)
-      })
+    props.docker.services()
       .then(j => {
         const baseServices = j as Service[]
         const buildServices = new Map<string, Service>()
@@ -73,15 +67,7 @@ function TaskUi(props: TaskUiProps) {
         setServicesByNetwork(buildServicesByNet)
       })
 
-    fetch(props.baseUrl + 'networks')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get networks:', reason)
-      })
+    props.docker.networks()
       .then(j => {
         const baseNetworks = j as Network[]
         const buildNetworks = new Map<string, Network>()
@@ -93,15 +79,7 @@ function TaskUi(props: TaskUiProps) {
         setNetworks(buildNetworks)
       })
 
-    fetch(props.baseUrl + 'nodes')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get nodes:', reason)
-      })
+    props.docker.nodes()
       .then(j => {
         const baseNodes = j as Node[]
         const buildNodes = new Map<string, Node>()
@@ -113,17 +91,11 @@ function TaskUi(props: TaskUiProps) {
         setNodes(buildNodes)
       })
 
-    fetch(props.baseUrl + 'tasks/' + id)
-      .then(r => {
-        if (r.ok) {
-          return r.json();
+    props.docker.task(id)
+      .then(tsk => {
+        if (tsk) {
+          setTask(tsk)
         }
-      })
-      .catch(reason => {
-        console.log('Failed to get tasks:', reason)
-      })
-      .then(j => {
-        setTask(j)
       })
   }
     , [props.baseUrl, id])

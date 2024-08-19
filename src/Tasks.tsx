@@ -4,10 +4,12 @@ import { Service, Task, Node } from './docker-schema'
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
+import { DockerApi } from './DockerApi';
 
 interface TasksProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
 }
 function Tasks(props: TasksProps) {
 
@@ -18,52 +20,32 @@ function Tasks(props: TasksProps) {
   const [data, setData] = useState<(string | string[] | number | DataTablePropsEntry)[][]>()
 
   useEffect(() => {
-    fetch(props.baseUrl + 'tasks')
-    .then(r => {
-      if (r.ok) {
-        return r.json();
-      }
-    })
-    .catch(reason => {
-      console.log('Failed to get tasks:', reason)
-    })
-    .then(j => {
-      setTasks(j)
-    })
+    props.docker.tasks()
+      .then(j => {
+        setTasks(j)
+      })
 
-    fetch(props.baseUrl + 'services')
-    .then(r => {
-      if (r.ok) {
-        return r.json();
-      }
-    })
-    .catch(reason => {
-      console.log('Failed to get services:', reason)
-    })
-    .then(j => {
-      const buildServices = new Map<string, Service>()
-      for (const svc in j) {
-        buildServices.set(j[svc].ID, j[svc])
-      }
-      setServices(buildServices)
-    })
+    props.docker.services()
+      .then(svcs => {
+        const buildServices = new Map<string, Service>()
+        svcs.forEach(svc => {
+          if (svc.ID) {
+            buildServices.set(svc.ID, svc)
+          }
+        })
+        setServices(buildServices)
+      })
 
-    fetch(props.baseUrl + 'nodes')
-    .then(r => {
-      if (r.ok) {
-        return r.json();
-      }
-    })
-    .catch(reason => {
-      console.log('Failed to get nodes:', reason)
-    })
-    .then(j => {
-      const buildNodes = new Map<string, Node>()
-      for (const nod in j) {
-        buildNodes.set(j[nod].ID, j[nod])
-      }
-      setNodes(buildNodes)
-    })
+    props.docker.nodes()
+      .then(nods => {
+        const buildNodes = new Map<string, Node>()
+        nods.forEach(nod => {
+          if (nod.ID) {
+            buildNodes.set(nod.ID, nod)
+          }
+        })
+        setNodes(buildNodes)
+      })
   }, [props.baseUrl])
 
   useEffect(() => {
@@ -76,9 +58,9 @@ function Tasks(props: TasksProps) {
             [
               { link: '/task/' + tsk.ID, value: tsk.ID }
               , { link: '/service/' + tsk.ServiceID, value: ((tsk.ServiceID && services.get(tsk.ServiceID)?.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID) }
-              , { link: '/node/' + tsk.NodeID, value: (nodes && tsk.NodeID && nodes.get(tsk.NodeID)?.Description?.Hostname || tsk.NodeID || '') } 
+              , { link: '/node/' + tsk.NodeID, value: (nodes && tsk.NodeID && nodes.get(tsk.NodeID)?.Description?.Hostname || tsk.NodeID || '') }
               , tsk.CreatedAt || ''
-              , tsk.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ''              
+              , tsk.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
               , tsk.DesiredState || ''
               , tsk.Status?.State || ''
               , tsk?.Status?.State === 'running' && tsk?.Spec?.Resources?.Limits?.MemoryBytes ? tsk?.Spec?.Resources?.Limits?.MemoryBytes / 1048576 : ''
@@ -90,10 +72,10 @@ function Tasks(props: TasksProps) {
             ]
           )
         }
-      });      
+      });
       setData(newData)
     }
-}, [tasks, services, nodes, props])
+  }, [tasks, services, nodes, props])
 
   return (<>
     <Box sx={{ flexGrow: 1 }}>

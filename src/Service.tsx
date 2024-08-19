@@ -11,10 +11,12 @@ import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import VisNetwork, { GraphData, Node, Edge } from './VisNetwork';
 import LogsView from './LogsView';
+import { DockerApi } from './DockerApi';
 
 interface ServiceProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
   exposedPorts: Record<string, string[]>
 }
 type ServiceUiParams = {
@@ -45,63 +47,23 @@ function ServiceUi(props: ServiceProps) {
   const [svcTaskHeaders, setSvcTaskHeaders] = useState<string[]>([])
 
   useEffect(() => {
-    fetch(props.baseUrl + 'tasks')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get tasks:', reason)
-      })
+    props.docker.tasks()
       .then(j => {
         setTasks(j)
       })
-    fetch(props.baseUrl + 'networks')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get networks:', reason)
-      })
+    props.docker.networks()
       .then(j => {
         setNetworks(j as Network[])
       })
-    fetch(props.baseUrl + 'secrets')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get secrets:', reason)
-      })
+    props.docker.secrets()
       .then(j => {
         setSecrets(j)
       })
-    fetch(props.baseUrl + 'configs')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get configs:', reason)
-      })
+    props.docker.configs()
       .then(j => {
         setConfigs(j)
       })
-    fetch(props.baseUrl + 'services?status=true')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get service:', reason)
-      })
+    props.docker.services()
       .then(j => {
         setServices(j)
         const buildService = (j as Service[]).find(svc => { return svc.ID === id })

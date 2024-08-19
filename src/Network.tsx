@@ -9,11 +9,13 @@ import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
+import { DockerApi } from './DockerApi';
 
 
 interface NetworkProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
 }
 type NetworkUiParams = {
   id: string;
@@ -30,33 +32,16 @@ function NetworkUi(props: NetworkProps) {
   const [networkServices, setNetworkServices] = useState<DataTableValue[][]>([])
 
   useEffect(() => {
-    fetch(props.baseUrl + 'networks')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get networks:', reason)
-      })
-      .then(j => {
-        console.log('Networks: ', j)
-        const nets = j as Network[]
+    props.docker.networks()
+      .then(nets => {
+        console.log('Networks: ', nets)
         const net = nets.find(net => { return net.Id === id })
         if (net) {
           setNetwork(net)
         } 
       })
 
-    fetch(props.baseUrl + 'services?status=true')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get services:', reason)
-      })
+    props.docker.services()
       .then(j => {
         setServices(j)
       })

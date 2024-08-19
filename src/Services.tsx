@@ -4,10 +4,12 @@ import { Service } from './docker-schema'
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
+import { DockerApi } from './DockerApi';
 
 interface ServicesProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
   exposedPorts: Record<string, string[]>
 }
 function Services(props: ServicesProps) {
@@ -15,15 +17,7 @@ function Services(props: ServicesProps) {
   const [data, setData] = useState<(string | DataTablePropsEntry)[][]>()
 
   useEffect(() => {
-    fetch(props.baseUrl + 'services?status=true')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get services:', reason)
-      })
+    props.docker.services()
       .then(j => {
         props.setTitle('Services')
         const newData = [] as (string | DataTablePropsEntry)[][]

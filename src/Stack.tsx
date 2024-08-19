@@ -5,10 +5,12 @@ import Grid from '@mui/material/Grid';
 import { Network, Service, Task, Node } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
+import { DockerApi } from './DockerApi';
 
 interface StackUiProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
   exposedPorts: Record<string, string[]>
 }
 type StackUiParams = {
@@ -30,15 +32,7 @@ function StackUi(props: StackUiProps) {
   const [stackNetworkHeaders, setStackNetworkHeaders] = useState<string[]>([])
 
   useEffect(() => {
-    fetch(props.baseUrl + 'services?status=true')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get services:', reason)
-      })
+    props.docker.services()
       .then(j => {
         const baseServices = j as Service[]
         const buildServices = new Map<string, Service>()
@@ -80,15 +74,7 @@ function StackUi(props: StackUiProps) {
         }, [] as DataTableValue[][]))
       })
 
-    fetch(props.baseUrl + 'networks')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get networks:', reason)
-      })
+      props.docker.networks()
       .then(j => {
         const baseNetworks = j as Network[]
         const buildNetworks = new Map<string, Network>()
@@ -100,15 +86,7 @@ function StackUi(props: StackUiProps) {
         setNetworks(buildNetworks)
       })
 
-    fetch(props.baseUrl + 'nodes')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get nodes:', reason)
-      })
+    props.docker.nodes()
       .then(j => {
         const baseNodes = j as Node[]
         const buildNodes = new Map<string, Node>()
@@ -120,16 +98,7 @@ function StackUi(props: StackUiProps) {
         setNodes(buildNodes)
       })
 
-
-    fetch(props.baseUrl + 'tasks')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get tasks:', reason)
-      })
+    props.docker.tasks()
       .then(j => {
         props.setTitle('Stack: ' + id)
         const baseTasks = j as Task[]

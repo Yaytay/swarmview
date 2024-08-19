@@ -4,10 +4,12 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { Network, Service } from './docker-schema';
+import { DockerApi } from './DockerApi';
 
 interface StacksProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
 }
 function Stacks(props: StacksProps) {
 
@@ -16,15 +18,7 @@ function Stacks(props: StacksProps) {
   const [networks, setNetworks] = useState<Map<string, Network[]>>(new Map())
 
   useEffect(() => {
-    fetch(props.baseUrl + 'services')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get services:', reason)
-      })
+    props.docker.services()
       .then(j => {
         props.setTitle('Stacks')
         const baseServices = j as Service[]
@@ -45,15 +39,7 @@ function Stacks(props: StacksProps) {
         })
         setServices(buildServices)
       })
-    fetch(props.baseUrl + 'networks')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get networks:', reason)
-      })
+    props.docker.networks()
       .then(j => {
         const baseNetworks = j as Network[]
         const buildNetworks = new Map<string, Network[]>()

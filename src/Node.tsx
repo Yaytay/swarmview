@@ -10,11 +10,13 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import NodeChecks from './NodeChecks';
+import { DockerApi } from './DockerApi';
 
 
 interface NodeProps {
   baseUrl: string
   setTitle: (title: string) => void
+  docker: DockerApi
 }
 type NodeUiParams = {
   id: string;
@@ -34,15 +36,7 @@ function NodeUi(props: NodeProps) {
   const [nodeTaskHeaders, setNodeTaskHeaders] = useState<string[]>([])
 
   useEffect(() => {
-    fetch(props.baseUrl + 'nodes')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get nodes:', reason)
-      })
+    props.docker.nodes()
       .then(j => {
         console.log('Nodes: ', j)
         const returnedNodes = j as Node[]
@@ -52,34 +46,20 @@ function NodeUi(props: NodeProps) {
           setNode(node)
         } 
       })
-
-      fetch(props.baseUrl + 'tasks')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get tasks:', reason)
-      })
+    
+    props.docker.tasks()
       .then(j => {
         setTasks(j)
       })
 
-      fetch(props.baseUrl + 'services')
-      .then(r => {
-        if (r.ok) {
-          return r.json();
-        }
-      })
-      .catch(reason => {
-        console.log('Failed to get services:', reason)
-      })
-      .then(j => {
+    props.docker.services()
+      .then(svcs => {
         const buildServices = new Map<string, Service>()
-        for (const svc in j) {
-          buildServices.set(j[svc].ID, j[svc])
-        }
+        svcs.forEach(svc => {
+          if (svc.ID) {
+            buildServices.set(svc.ID, svc)
+          }
+        })
         setServices(buildServices)
       })
   }

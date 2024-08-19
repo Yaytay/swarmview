@@ -33,6 +33,7 @@ import ConfigUi from './Config';
 import Version from './Version';
 import Stack from '@mui/material/Stack';
 import { PaletteMode } from '@mui/material';
+import { DockerApi } from './DockerApi';
 
 function App() {
 
@@ -46,6 +47,7 @@ function App() {
     return storedValue === 'dark' ? 'dark' : 'light'
   })
 
+  const dockerApi = useMemo(() => new DockerApi(baseUrl), [])
 
   useEffect(() => {
     fetch('/api/exposed')
@@ -120,21 +122,21 @@ function App() {
           </Box>
           <Box className="content" sx={{height: '100%'}}>
             <Routes>
-              <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} />}></Route>
-              <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} />}></Route>
-              <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route path='/node/:id' element={<NodeUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route path='/task/:id' element={<TaskUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route path='/secret/:id' element={<SecretUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route path='/config/:id' element={<ConfigUi baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} />}></Route>
-              <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route index path='/nodes' element={<Nodes baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route index path='/networks' element={<Networks baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route index path='/secrets' element={<Secrets baseUrl={baseUrl} setTitle={setTitle} />}></Route>
-              <Route index path='/configs' element={<Configs baseUrl={baseUrl} setTitle={setTitle} />}></Route>
+              <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} />}></Route>
+              <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} />}></Route>
+              <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route path='/node/:id' element={<NodeUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route path='/task/:id' element={<TaskUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route path='/secret/:id' element={<SecretUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route path='/config/:id' element={<ConfigUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} />}></Route>
+              <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route index path='/nodes' element={<Nodes baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route index path='/networks' element={<Networks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route index path='/secrets' element={<Secrets baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route index path='/configs' element={<Configs baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
               <Route path="*" element={<Navigate to="/services" replace={true} />} />
             </Routes>
           </Box>
