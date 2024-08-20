@@ -53,6 +53,7 @@ jobs:
         cd server
         npm ci
         npx tsc --noEmit
+        cd ..
         npx eslint server
 
     - name: Build image
