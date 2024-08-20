@@ -37,7 +37,7 @@ jobs:
         grep version index.html
         npm ci
         npx tsc --noEmit
-        npx eslint server
+        npx eslint 
         npm run build --if-present
         tar -czf build.tar.gz dist
 
@@ -53,6 +53,7 @@ jobs:
         cd server
         npm ci
         npx tsc --noEmit
+        npx eslint server
 
     - name: Build image
       run: |
