@@ -10,6 +10,7 @@ interface StacksProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 function Stacks(props: StacksProps) {
 
@@ -60,7 +61,7 @@ function Stacks(props: StacksProps) {
         setNetworks(buildNetworks)
       })
   }
-    , [props.baseUrl, props])
+    , [props])
 
   useEffect(() => {
     const buildStacks = [] as (string | number | DataTablePropsEntry)[][]

@@ -10,6 +10,7 @@ interface SecretsProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 function Secrets(props: SecretsProps) {
 

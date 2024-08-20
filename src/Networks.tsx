@@ -10,6 +10,7 @@ interface NetworksProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 function Networks(props: NetworksProps) {
 
@@ -34,7 +35,7 @@ function Networks(props: NetworksProps) {
         setData(newData)
       })
   }
-    , [props])
+    , [props.refresh])
 
   return (<>
     <Box sx={{ flexGrow: 1 }}>

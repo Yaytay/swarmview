@@ -10,6 +10,7 @@ interface ServicesProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
   exposedPorts: Record<string, string[]>
 }
 function Services(props: ServicesProps) {

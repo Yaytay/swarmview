@@ -35,9 +35,9 @@ jobs:
 
     - name: Build UI
       run: |
-        sed -i 's#<meta name="version" content="" />#<meta name="version" content="'$GITHUB_REF_NAME'@'$GITHUB_SHA'" />#' index.html
-        sed -i 's#<span>0.0.0</span>#<span>$GITHUB_REF_NAME</span>#' src/Version.tsx
-        sed -i 's#  "version": "[0-9].[0-9].[0-9]",#  "version": "'"$GITHUB_REF_NAME"'",#' package.json
+        sed -i 's#<meta name="version" content="" />#<meta name="version" content="'${GITHUB_REF_NAME}'@'${GITHUB_SHA}'" />#' index.html
+        sed -i 's#<span>0.0.0</span>#<span>'"${GITHUB_REF_NAME}"'</span>#' src/Version.tsx
+        sed -i 's#  "version": "[0-9].[0-9].[0-9]",#  "version": "'"${GITHUB_REF_NAME}"'",#' package.json
         grep version index.html
         npm ci
         npx tsc --noEmit

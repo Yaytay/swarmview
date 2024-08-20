@@ -17,6 +17,7 @@ interface ServiceProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
   exposedPorts: Record<string, string[]>
 }
 type ServiceUiParams = {

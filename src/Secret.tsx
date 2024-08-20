@@ -16,6 +16,7 @@ interface SecretProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 type SecretUiParams = {
   id: string;
@@ -45,7 +46,7 @@ function SecretUi(props: SecretProps) {
         })
         setServices(buildServices)
       })
-  }, [props.baseUrl, id])
+  }, [props, id])
 
   useEffect(() => {
     props.setTitle('Secret: ' + (secret?.Spec?.Name || secret?.ID))

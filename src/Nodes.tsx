@@ -10,6 +10,7 @@ interface NodesProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 function Nodes(props: NodesProps) {
 

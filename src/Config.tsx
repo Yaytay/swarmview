@@ -16,6 +16,7 @@ interface ConfigProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 type ConfigUiParams = {
   id: string;
@@ -47,7 +48,7 @@ function ConfigUi(props: ConfigProps) {
         setServices(buildServices)
       })
 
-  }, [props.baseUrl, id])
+  }, [props.refresh, id])
 
   useEffect(() => {
     props.setTitle('Config: ' + (config?.Spec?.Name || config?.ID))

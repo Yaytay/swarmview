@@ -10,6 +10,7 @@ interface ConfigsProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 function Configs(props: ConfigsProps) {
 
@@ -41,7 +42,7 @@ function Configs(props: ConfigsProps) {
         });
         setServices(buildServices)
       })
-  }, [props])
+  }, [props.refresh])
 
   useEffect(() => {
     const newData = [] as (string | DataTablePropsEntry | DataTablePropsEntry[])[][]

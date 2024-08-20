@@ -19,6 +19,7 @@ import Box from '@mui/material/Box';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import LayersIcon from '@mui/icons-material/Layers';
+import CachedIcon from '@mui/icons-material/Cached';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import HubIcon from '@mui/icons-material/Hub';
@@ -48,6 +49,7 @@ function App() {
   })
 
   const dockerApi = useMemo(() => new DockerApi(baseUrl), [])
+  const [lastUpdate, setLastUpdate] = useState<Date>(dockerApi.lastUpdated())
 
   useEffect(() => {
     fetch('/api/exposed')
@@ -87,11 +89,16 @@ function App() {
     localStorage.setItem('theme', mode);
   }
 
+  function refreshCache() {
+    dockerApi.clearCache()
+    setLastUpdate(dockerApi.lastUpdated())
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <Box id="navbar" className="sidebar" borderRight='2px solid' borderColor="gray" >
+        <Box id="navbar" className="sidebar" borderRight='2px solid' borderColor="gray" sx={{ height: '100%' }}>
           <Box sx={{ padding: '2px' }}>
             <Typography variant='h6'>Swarm View</Typography>
             <Typography variant='body2'>Version <Version/></Typography>
@@ -108,35 +115,41 @@ function App() {
             <Link className='navlink' to="/configs"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><DisplaySettingsIcon fontSize='small' /><Typography>Configs</Typography></Stack></Link>
             <Link className='navlink' to="/secrets"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><KeyIcon fontSize='small' /><Typography>Secrets</Typography></Stack></Link>
           </Box>
+          <Box sx={{ position:'absolute', bottom:0 }}>
+            <Typography fontSize={'8pt'} padding='2px'>
+              Data last updated:<br/>{lastUpdate.toISOString()}
+            </Typography>
+          </Box>
         </Box>
         <Box className='notSideBar'>
-          <Box className='titleBar' bgcolor='primary.main' width='100%' sx={{ boxShadow: 3 }} >
-            <Typography variant='h4'>{title}</Typography>
+          <Box className='titleBar' bgcolor='primary.main' width='100%' sx={{ display: 'flex' }} >
+            <Typography variant='h4' flexGrow={1}>{title}</Typography>
             <Box>
+              <CachedIcon onClick={() => { refreshCache() }} ></CachedIcon>
               {mode === 'light' ? (
-                <DarkModeIcon className='modeChange' onClick={() => { updateMode('dark') }}></DarkModeIcon>
+                <DarkModeIcon onClick={() => { updateMode('dark') }}></DarkModeIcon>
               ) : (
-                <LightModeIcon className='modeChange' onClick={() => { updateMode('light') }}></LightModeIcon>
+                <LightModeIcon onClick={() => { updateMode('light') }}></LightModeIcon>
               )}
             </Box>
           </Box>
           <Box className="content" sx={{height: '100%'}}>
             <Routes>
-              <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} />}></Route>
-              <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} />}></Route>
-              <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route path='/node/:id' element={<NodeUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route path='/task/:id' element={<TaskUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route path='/secret/:id' element={<SecretUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route path='/config/:id' element={<ConfigUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} />}></Route>
-              <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route index path='/nodes' element={<Nodes baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route index path='/networks' element={<Networks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route index path='/secrets' element={<Secrets baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
-              <Route index path='/configs' element={<Configs baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} />}></Route>
+              <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route path='/node/:id' element={<NodeUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route path='/task/:id' element={<TaskUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route path='/secret/:id' element={<SecretUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route path='/config/:id' element={<ConfigUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/nodes' element={<Nodes baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/networks' element={<Networks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/secrets' element={<Secrets baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/configs' element={<Configs baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route path="*" element={<Navigate to="/services" replace={true} />} />
             </Routes>
           </Box>

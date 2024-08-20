@@ -14,14 +14,6 @@
   flex: 0 1 auto;
 }
 
-.modeChange {
-  margin: 4px;
-  padding: 0;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-}
-
 .notSideBar {
   margin: 0;
   margin-left: 200px;

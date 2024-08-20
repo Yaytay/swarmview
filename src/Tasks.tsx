@@ -10,6 +10,7 @@ interface TasksProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 function Tasks(props: TasksProps) {
 
@@ -46,7 +47,7 @@ function Tasks(props: TasksProps) {
         })
         setNodes(buildNodes)
       })
-  }, [props.baseUrl])
+  }, [props])
 
   useEffect(() => {
     if (tasks && services) {

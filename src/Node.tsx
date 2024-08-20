@@ -17,6 +17,7 @@ interface NodeProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 type NodeUiParams = {
   id: string;
@@ -63,7 +64,7 @@ function NodeUi(props: NodeProps) {
         setServices(buildServices)
       })
   }
-    , [props, id])
+    , [props.refresh, id])
 
   useEffect(() => {
     props.setTitle('Node: ' + node?.Description?.Hostname || node?.ID || '')

@@ -1,21 +1,14 @@
 import { Config, Network, Node, Secret, Service, Task } from "./docker-schema";
 
 class Cache {
+  lastUpdate: Date = new Date()
+
   configs: Config[] | undefined
   networks: Network[] | undefined
   nodes: Node[] | undefined
   secrets: Secret[] | undefined
   services: Service[] | undefined
   tasks: Task[] | undefined
-
-  clear() {
-    this.configs = undefined
-    this.networks = undefined
-    this.nodes = undefined
-    this.secrets = undefined
-    this.services = undefined
-    this.tasks = undefined
-  }
 }
 
 export class DockerApi {
@@ -36,6 +29,7 @@ export class DockerApi {
       })
       .then(j => {
         const conf = j as Type[]
+        console.log('Got ' + type, conf)
         return conf
       })
       .catch(reason => {
@@ -45,7 +39,12 @@ export class DockerApi {
   }
 
   clearCache() {
-    this.cache.clear()
+    this.cache = new Cache()
+    console.log('New cache ', this.cache.lastUpdate)
+  }
+
+  lastUpdated(): Date {
+    return this.cache.lastUpdate
   }
 
   config(id: string | undefined): Promise<Config | undefined> {
@@ -56,15 +55,39 @@ export class DockerApi {
   }
 
   configs(): Promise<Config[]> {
-    return this.getAll<Config>('configs', 'configs')
+    if (this.cache.configs) {
+      return Promise.resolve(this.cache.configs)
+    } else {
+      return this.getAll<Secret>('configs', 'configs')
+        .then(cnfs => {
+          this.cache.configs = cnfs
+          return cnfs
+        })
+    }
   }
 
   networks(): Promise<Network[]> {
-    return this.getAll<Network>('networks', 'networks')
+    if (this.cache.networks) {
+      return Promise.resolve(this.cache.networks)
+    } else {
+      return this.getAll<Network>('networks', 'networks')
+        .then(nets => {
+          this.cache.networks = nets
+          return nets
+        })
+    }
   }
 
   nodes(): Promise<Node[]> {
-    return this.getAll<Node>('nodes', 'nodes')
+    if (this.cache.nodes) {
+      return Promise.resolve(this.cache.nodes)
+    } else {
+      return this.getAll<Node>('nodes', 'nodes')
+        .then(nods => {
+          this.cache.nodes = nods
+          return nods
+        })
+    }
   }
 
   secret(id: string | undefined): Promise<Secret | undefined> {

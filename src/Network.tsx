@@ -16,6 +16,7 @@ interface NetworkProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
+  refresh: Date
 }
 type NetworkUiParams = {
   id: string;
@@ -46,7 +47,7 @@ function NetworkUi(props: NetworkProps) {
         setServices(j)
       })
   }
-    , [props.baseUrl, id])
+    , [props.refresh, id])
 
   useEffect(() => {
     props.setTitle('Network: ' + network?.Name)

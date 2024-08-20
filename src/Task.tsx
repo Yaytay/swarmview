@@ -15,7 +15,8 @@ import { DockerApi } from './DockerApi';
 interface TaskUiProps {
   baseUrl: string
   setTitle: (title: string) => void
-  docker: DockerApi
+  docker: DockerApi  
+  refresh: Date
 }
 type TaskUiParams = {
   id: string;
@@ -98,7 +99,7 @@ function TaskUi(props: TaskUiProps) {
         }
       })
   }
-    , [props.baseUrl, id])
+    , [props, id])
 
 
   useEffect(() => {
