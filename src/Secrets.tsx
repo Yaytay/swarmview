@@ -20,9 +20,11 @@ function Secrets(props: SecretsProps) {
 
   useEffect(() => {
     props.docker.secrets()
-      .then(j => {
+      .then(secs => {
         props.setTitle('Secrets')
-        setSecrets(j)
+        if (secs) {
+          setSecrets(secs)
+        }
       })
     props.docker.services()
       .then(j => {

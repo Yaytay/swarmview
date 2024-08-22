@@ -21,9 +21,11 @@ function Configs(props: ConfigsProps) {
   useEffect(() => {
 
     props.docker.configs()
-      .then(j => {
+      .then(cfgs => {
         props.setTitle('Configs')
-        setConfigs(j)
+        if (cfgs) {
+          setConfigs(cfgs)
+        }
       })
     props.docker.services()
       .then(svcs => {
