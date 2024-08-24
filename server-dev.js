@@ -14,7 +14,7 @@ const vite = await createServer({
   appType: 'custom',
 });
  
-app.use(morgan('combined'))
+// app.use(morgan('combined'))
 
 app.use(apiRouter)
 

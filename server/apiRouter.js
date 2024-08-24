@@ -28,6 +28,11 @@ router.use('/docker', proxy(endpoint, {
     console.log('Request to ' + req.url)
     return req.method === 'GET'
   }
+  , proxyErrorHandler: function(err, res, next) {  
+    let status = 500
+    console.log('Reporting err ' + err + ' as ' + status)
+    return res.status(status).send(String(err))
+  }
 }))
 
 // Get all the exports for one image

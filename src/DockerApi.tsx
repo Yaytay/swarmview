@@ -9,33 +9,53 @@ class Cache {
   secrets: Secret[] | undefined
   services: Service[] | undefined
   tasks: Task[] | undefined
+
+  exposedPorts: Record<string, string[]> | undefined  
+
 }
 
 export class DockerApi {
   baseUrl: string
   cache: Cache
+  errorCallback: (err : string) => void
 
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+  constructor(baseUrl: string, errorCallback: (err : string) => void) {
+    this.baseUrl = baseUrl.endsWith('/') ? baseUrl : (baseUrl + '/')
     this.cache = new Cache()
+    this.errorCallback = errorCallback
   }
 
-  private getAll<Type>(path: string, type: string, queryString?: string): Promise<Type[]> {
-    return fetch(this.baseUrl + path + (queryString ? ('?' + queryString) : ''))
+  private get<Type>(path: string, type: string, queryString?: string): Promise<Type> {
+    const url = this.baseUrl + path + (queryString ? ('?' + queryString) : '')
+    console.log('Getting ' + url)
+    return fetch(url)
       .then(r => {
         if (r.ok) {
           return r.json();
+        } else {
+          console.log('Fetch failed: ', r)
+          return r.text().then(t => {
+            console.log(t)
+            throw new Error('Failed to get ' + type + ':  (' + String(r.status) + ') ' + t)
+          })
         }
       })
       .then(j => {
-        const conf = j as Type[]
+        const conf = j as Type
         console.log('Got ' + type, conf)
         return conf
       })
       .catch(reason => {
-        console.log('Failed to get ' + type + 's:  ', reason)
+        console.log('Failed to get ' + type + ':  ', reason)
+        if (this.errorCallback) {
+          this.errorCallback('Failed to get ' + type + ':  ' + String(reason))
+        }
         throw reason
       })
+  }
+
+  private getAll<Type>(path: string, type: string, queryString?: string): Promise<Type[]> {
+    return this.get<Type[]>('docker/v1.45/' + path, type + 's', queryString)
   }
 
   clearCache() {
@@ -55,7 +75,7 @@ export class DockerApi {
   }
 
   configs(): Promise<Config[]> {
-    if (this.cache.configs) {
+    if (this.cache.configs !== undefined) {
       return Promise.resolve(this.cache.configs)
     } else {
       return this.getAll<Secret>('configs', 'configs')
@@ -63,11 +83,14 @@ export class DockerApi {
           this.cache.configs = cnfs
           return cnfs
         })
+        .catch(_ => {
+          return this.cache.configs = []
+        })
     }
   }
 
   networks(): Promise<Network[]> {
-    if (this.cache.networks) {
+    if (this.cache.networks !== undefined) {
       return Promise.resolve(this.cache.networks)
     } else {
       return this.getAll<Network>('networks', 'networks')
@@ -75,17 +98,23 @@ export class DockerApi {
           this.cache.networks = nets
           return nets
         })
+        .catch(_ => {
+          return this.cache.networks = []
+        })
     }
   }
 
   nodes(): Promise<Node[]> {
-    if (this.cache.nodes) {
+    if (this.cache.nodes !== undefined) {
       return Promise.resolve(this.cache.nodes)
     } else {
       return this.getAll<Node>('nodes', 'nodes')
         .then(nods => {
           this.cache.nodes = nods
           return nods
+        })
+        .catch(_ => {
+          return this.cache.nodes = []
         })
     }
   }
@@ -98,7 +127,7 @@ export class DockerApi {
   }
 
   secrets(): Promise<Secret[]> {
-    if (this.cache.secrets) {
+    if (this.cache.secrets !== undefined) {
       return Promise.resolve(this.cache.secrets)
     } else {
       return this.getAll<Secret>('secrets', 'secrets')
@@ -106,17 +135,23 @@ export class DockerApi {
           this.cache.secrets = secs
           return secs
         })
+        .catch(_ => {
+          return this.cache.secrets = []
+        })
     }
   }
 
   services(): Promise<Service[]> {
-    if (this.cache.services) {
+    if (this.cache.services !== undefined) {
       return Promise.resolve(this.cache.services)
     } else {
       return this.getAll<Service>('services', 'services', 'status=true')
         .then(svcs => {
           this.cache.services = svcs
           return svcs
+        })
+        .catch(_ => {
+          return this.cache.services = []
         })
     }
   }
@@ -129,7 +164,7 @@ export class DockerApi {
   }
 
   tasks(): Promise<Task[]> {
-    if (this.cache.tasks) {
+    if (this.cache.tasks !== undefined) {
       return Promise.resolve(this.cache.tasks)
     } else {
       return this.getAll<Task>('tasks', 'tasks')
@@ -137,8 +172,29 @@ export class DockerApi {
           this.cache.tasks = tsks
           return tsks
         })
+        .catch(_ => {
+          return this.cache.tasks = []
+        })
 
     }
+  }
+
+  exposedPorts(): Promise<Record<string, string[]>> {
+    if (this.cache.exposedPorts !== undefined) {
+      return Promise.resolve(this.cache.exposedPorts)
+    } else {
+      return this.get<Record<string, string[]>>('api/exposed', 'exposed ports')
+        .then(ports => {
+          this.cache.exposedPorts = ports
+          return ports
+        })
+        .catch(_ => {
+          this.cache.exposedPorts = {}
+          return this.cache.exposedPorts
+        })
+
+    }
+
   }
 
 }

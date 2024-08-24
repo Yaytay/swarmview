@@ -11,44 +11,52 @@ interface ServicesProps {
   setTitle: (title: string) => void
   docker: DockerApi
   refresh: Date
-  exposedPorts: Record<string, string[]>
 }
 function Services(props: ServicesProps) {
 
   const [data, setData] = useState<(string | DataTablePropsEntry)[][]>()
+  const [services, setServices] = useState<Service[]>()
+  const [exposedPorts, setExposedPorts] = useState<Record<string, string[]>>()
 
   useEffect(() => {
-    props.docker.services()
-      .then(j => {
-        props.setTitle('Services')
-        const newData = [] as (string | DataTablePropsEntry)[][]
-        j.forEach((svc: Service) => {
-          newData.push(
-            [
-              svc.ID ? { link: '/service/' + svc.ID, value: svc.ID } : ''
-              , svc.Spec?.Name || ''
-              , Object.keys(svc.Spec?.Mode || [''])[0]
-              , svc.ServiceStatus?.RunningTasks + ' / ' + svc.ServiceStatus?.DesiredTasks
-              , svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
-              ,
-              (
-                svc.Endpoint?.Ports?.map((p) => {
-                  return p.PublishedPort + ':' + p.TargetPort
-                }).join(', ') || ''
-              )
-              + (svc.Endpoint?.Ports ? ', ' : '')
-              + (
-                props.exposedPorts
-                && svc.Spec?.TaskTemplate?.ContainerSpec?.Image
-                && props.exposedPorts[svc.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.join(', ') || ''
-              )
-            ]
-          )
-        });
-        setData(newData)
+    props.docker.exposedPorts()
+      .then(ports => {
+        setExposedPorts(ports)
       })
-  }
-    , [props])
+    props.docker.services()
+      .then(svcs => {
+        props.setTitle('Services')
+        setServices(svcs)
+      })
+  }, [props])
+
+  useEffect(() => {
+    const newData = [] as (string | DataTablePropsEntry)[][]
+    services?.forEach((svc: Service) => {
+      newData.push(
+        [
+          svc.ID ? { link: '/service/' + svc.ID, value: svc.ID } : ''
+          , svc.Spec?.Name || ''
+          , Object.keys(svc.Spec?.Mode || [''])[0]
+          , svc.ServiceStatus?.RunningTasks + ' / ' + svc.ServiceStatus?.DesiredTasks
+          , svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
+          ,
+          (
+            svc.Endpoint?.Ports?.map((p) => {
+              return p.PublishedPort + ':' + p.TargetPort
+            }).join(', ') || ''
+          )
+          + (svc.Endpoint?.Ports ? ', ' : '')
+          + (
+            exposedPorts
+            && svc.Spec?.TaskTemplate?.ContainerSpec?.Image
+            && exposedPorts[svc.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.join(', ') || ''
+          )
+        ]
+      )
+    });
+    setData(newData)
+  }, [exposedPorts, services])
 
   return (<>
     <Box sx={{ flexGrow: 1 }}>

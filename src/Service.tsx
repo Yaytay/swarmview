@@ -18,7 +18,6 @@ interface ServiceProps {
   setTitle: (title: string) => void
   docker: DockerApi
   refresh: Date
-  exposedPorts: Record<string, string[]>
 }
 type ServiceUiParams = {
   id: string;
@@ -43,6 +42,7 @@ function ServiceUi(props: ServiceProps) {
   const [ports, setPorts] = useState<(DataTableValue)[][]>([])
   const [svcConfigs, setSvcConfigs] = useState<DataTableValue[][]>([])
   const [svcSecrets, setSvcSecrets] = useState<DataTableValue[][]>([])
+  const [exposedPorts, setExposedPorts] = useState<Record<string, string[]>>()
 
   const [svcTasks, setSvcTasks] = useState<DataTableValue[][]>([])
   const [svcTaskHeaders, setSvcTaskHeaders] = useState<string[]>([])
@@ -63,6 +63,10 @@ function ServiceUi(props: ServiceProps) {
     props.docker.configs()
       .then(j => {
         setConfigs(j)
+      })
+    props.docker.exposedPorts()
+      .then(ports => {
+        setExposedPorts(ports)
       })
     props.docker.services()
       .then(j => {
@@ -191,8 +195,8 @@ function ServiceUi(props: ServiceProps) {
       ])
 
     })
-    if (props.exposedPorts && service?.Spec?.TaskTemplate?.ContainerSpec?.Image) {
-      props.exposedPorts[service.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.forEach(p => {
+    if (exposedPorts && service?.Spec?.TaskTemplate?.ContainerSpec?.Image) {
+      exposedPorts[service.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.forEach(p => {
         buildPorts.push([
           p.replace(/^[^/]*\//, '')
           , p.replace(/\/.*$/, '')
@@ -285,7 +289,7 @@ function ServiceUi(props: ServiceProps) {
       setSvcSecrets(svcSecs)
     }
 
-  }, [service, networks, tasks, secrets, configs, id, services, props.exposedPorts])
+  }, [service, networks, tasks, secrets, configs, id, services, exposedPorts])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);

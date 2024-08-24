@@ -12,7 +12,6 @@ interface StackUiProps {
   setTitle: (title: string) => void
   docker: DockerApi
   refresh: Date
-  exposedPorts: Record<string, string[]>
 }
 type StackUiParams = {
   id: string;
@@ -24,6 +23,7 @@ function StackUi(props: StackUiProps) {
   const [networks, setNetworks] = useState<Map<string, Network>>(new Map())
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map())
   const [tasks, setTasks] = useState<Map<string, Map<string, Task[]>>>(new Map())
+  const [exposedPorts, setExposedPorts] = useState<Record<string, string[]>>()
 
   const [stackServices, setStackServices] = useState<DataTableValue[][]>([])
   const [stackServiceHeaders, setStackServiceHeaders] = useState<string[]>([])
@@ -63,9 +63,9 @@ function StackUi(props: StackUiProps) {
                 )
                 + (svc.Endpoint?.Ports ? ', ' : '')
                 + (
-                  props.exposedPorts
+                  exposedPorts
                   && svc.Spec?.TaskTemplate?.ContainerSpec?.Image
-                  && props.exposedPorts[svc.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.join(', ') || ''
+                  && exposedPorts[svc.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.join(', ') || ''
                 )
               ])
             }
@@ -75,7 +75,7 @@ function StackUi(props: StackUiProps) {
         }, [] as DataTableValue[][]))
       })
 
-      props.docker.networks()
+    props.docker.networks()
       .then(j => {
         const baseNetworks = j as Network[]
         const buildNetworks = new Map<string, Network>()
@@ -133,8 +133,13 @@ function StackUi(props: StackUiProps) {
         console.log(buildTasks)
         setTasks(buildTasks)
       })
+
+    props.docker.exposedPorts()
+      .then(ports => {
+        setExposedPorts(ports)
+      })
   }
-    , [props.baseUrl, id, props])
+    , [id, props])
 
   useEffect(() => {
     if (tasks && networks && nodes && services) {
@@ -153,7 +158,7 @@ function StackUi(props: StackUiProps) {
                   { link: '/task/' + tsk.ID, value: tsk.ID }
                   , { link: '/service/' + tsk.ServiceID, value: ((tsk.ServiceID && services.get(tsk.ServiceID)?.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID), sx: { paddingLeft: (idx > 0 ? '1em' : 'inherited') } }
                   , tsk?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '')
-                  , { link: '/node/' + tsk.NodeID, value: ((tsk?.NodeID && nodes.get(tsk?.NodeID)?.Description?.Hostname) ?? tsk?.NodeID) || ''}
+                  , { link: '/node/' + tsk.NodeID, value: ((tsk?.NodeID && nodes.get(tsk?.NodeID)?.Description?.Hostname) ?? tsk?.NodeID) || '' }
                   , tsk?.DesiredState
                   , tsk?.Status?.State
                   , tsk?.Status?.Err
@@ -209,7 +214,7 @@ function StackUi(props: StackUiProps) {
     <Box>
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
-        {
+          {
             stackServices &&
             <Section id="stack.services" heading="Services" xs={12}>
               <DataTable id="stack.services.table" headers={stackServiceHeaders} rows={stackServices}>

@@ -3,7 +3,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter, Link, Routes, Route, Navigate } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 
 import ServiceUi from './Service'
 import NetworkUi from './Network'
@@ -35,28 +35,25 @@ import Version from './Version';
 import Stack from '@mui/material/Stack';
 import { PaletteMode } from '@mui/material';
 import { DockerApi } from './DockerApi';
+import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 
 function App() {
 
-  const baseUrl = '/docker/v1.45/'
+  const baseUrl = ''
 
   const [title, setTitle] = useState('Swarm View')
-  const [exposedPorts, setExposedPorts] = useState<Record<string, string[]>>({})
 
   const [mode, setMode] = useState<PaletteMode>(() => {
     const storedValue = localStorage.getItem('theme')
     return storedValue === 'dark' ? 'dark' : 'light'
   })
 
-  const dockerApi = useMemo(() => new DockerApi(baseUrl), [])
-  const [lastUpdate, setLastUpdate] = useState<Date>(dockerApi.lastUpdated())
+  function apiErrorHandler(err: string) {
+    enqueueSnackbar(err, { variant: 'error' })
+  }
 
-  useEffect(() => {
-    fetch('/api/exposed')
-      .then(r => r.json())
-      .then(j => setExposedPorts(j))
-      .catch(ex => console.log('Failed to get exposed ports: ', ex))
-  }, [baseUrl])
+  const dockerApi = useMemo(() => new DockerApi(baseUrl, apiErrorHandler), [])
+  const [lastUpdate, setLastUpdate] = useState<Date>(dockerApi.lastUpdated())
 
   const theme = useMemo(() => {
     const thm = (mode === 'light' ?
@@ -101,7 +98,7 @@ function App() {
         <Box id="navbar" className="sidebar" borderRight='2px solid' borderColor="gray" sx={{ height: '100%' }}>
           <Box sx={{ padding: '2px' }}>
             <Typography variant='h6'>Swarm View</Typography>
-            <Typography variant='body2'>Version <Version/></Typography>
+            <Typography variant='body2'>Version <Version /></Typography>
           </Box>
           <hr />
           <Box>
@@ -115,9 +112,9 @@ function App() {
             <Link className='navlink' to="/configs"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><DisplaySettingsIcon fontSize='small' /><Typography>Configs</Typography></Stack></Link>
             <Link className='navlink' to="/secrets"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><KeyIcon fontSize='small' /><Typography>Secrets</Typography></Stack></Link>
           </Box>
-          <Box sx={{ position:'absolute', bottom:0 }}>
+          <Box sx={{ position: 'absolute', bottom: 0 }}>
             <Typography fontSize={'8pt'} padding='2px'>
-              Data last updated:<br/>{lastUpdate.toISOString()}
+              Data last updated:<br />{lastUpdate.toISOString()}
             </Typography>
           </Box>
         </Box>
@@ -133,17 +130,17 @@ function App() {
               )}
             </Box>
           </Box>
-          <Box className="content" sx={{height: '100%'}}>
+          <Box className="content" sx={{ height: '100%' }}>
             <Routes>
               <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
-              <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} refresh={lastUpdate} />}></Route>
-              <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route path='/network/:id' element={<NetworkUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route path='/node/:id' element={<NodeUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route path='/task/:id' element={<TaskUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route path='/secret/:id' element={<SecretUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route path='/config/:id' element={<ConfigUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
-              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} exposedPorts={exposedPorts} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route index path='/nodes' element={<Nodes baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
@@ -153,6 +150,7 @@ function App() {
               <Route path="*" element={<Navigate to="/services" replace={true} />} />
             </Routes>
           </Box>
+          <SnackbarProvider  autoHideDuration={10000} />
         </Box>
       </BrowserRouter>
     </ThemeProvider>
@@ -160,3 +158,5 @@ function App() {
 }
 
 export default App
+
+
