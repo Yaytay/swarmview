@@ -38,11 +38,11 @@ function CheckDialog(props: CheckDialogProps) {
   const open: boolean = props.check ? true : false
   return (
     <Dialog open={open} onClose={() => props.onClose()}>
-      <DialogTitle sx={{fontWeight: 700}}>
+      <DialogTitle sx={{ fontWeight: 700 }}>
         {props.check?.category} {props.check?.id} {props.check?.title}
       </DialogTitle>
       <Box sx={{ padding: '0px 24px 32px 24px' }}>
-      {props.check?.description &&
+        {props.check?.description &&
           (
             <Box>
               <Typography>{props.check.description}</Typography>
@@ -111,24 +111,22 @@ function ChecksUi(props: ChecksUiProps) {
     <Grid container spacing={2} >
       {data.map(cat => {
         return (
-          <>
-            <Section id={props.id} heading={cat.category} xs={12}>
-              <DataTable id={props.id + ".table"} headers={headers} rows={cat.data} rowStyle={r => {
-                switch (r[2]) {
-                  case 'fail':
-                    return { background: 'red' }
-                  case 'error':
-                    return { background: 'darkred' }
-                  case 'warning':
-                    return { background: 'yellow' }
-                }
-              }} >
-              </DataTable>
-            </Section>
-            <CheckDialog check={checkDetails} onClose={() => setCheckDetails(undefined)} />
-          </>
+          <Section key={props.id + '.' + cat.category} id={props.id + '.' + cat.category} heading={cat.category} xs={12}>
+            <DataTable id={props.id + ".table"} headers={headers} rows={cat.data} rowStyle={r => {
+              switch (r[2]) {
+                case 'fail':
+                  return { background: 'red' }
+                case 'error':
+                  return { background: 'darkred' }
+                case 'warning':
+                  return { background: 'yellow' }
+              }
+            }} >
+            </DataTable>
+          </Section>
         )
       })}
+      <CheckDialog check={checkDetails} onClose={() => setCheckDetails(undefined)} />
     </Grid>
   )
 }

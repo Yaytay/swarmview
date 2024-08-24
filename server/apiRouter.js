@@ -28,7 +28,7 @@ router.use('/docker', proxy(endpoint, {
     console.log('Request to ' + req.url)
     return req.method === 'GET'
   }
-  , proxyErrorHandler: function(err, res, next) {  
+  , proxyErrorHandler: function(err, res) {  
     let status = 500
     console.log('Reporting err ' + err + ' as ' + status)
     return res.status(status).send(String(err))

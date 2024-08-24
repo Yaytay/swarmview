@@ -227,18 +227,15 @@ function TaskUi(props: TaskUiProps) {
   }, [id, task, networks, nodes, services, props, servicesByNetwork])
 
   useEffect(() => {
-    if (task && !system) {
-      fetch('/api/system/' + task.NodeID)
-        .then(r => r.json())
+    if (task?.NodeID && !system) {
+      props.docker.system(task.NodeID)
         .then(j => setSystem(j))
-        .catch(ex => console.log('Failed to get system info: ', ex))
     }
-    if (task && !container && task.NodeID && task.ID) {
-      fetch('/api/container/' + task.NodeID + '/' + task.ID)
-        .then(r => r.json())
-        .then(j => {
-          setContainer(j['container'])
-          setTop(j['top'])
+    if (task?.NodeID && task?.ID && !container) {
+      props.docker.container(task.NodeID, task.ID)
+        .then(ctr => {
+          setContainer(ctr.container)
+          setTop(ctr.top)
         })
         .catch(ex => console.log('Failed to get container details: ', ex))
     }

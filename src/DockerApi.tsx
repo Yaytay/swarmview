@@ -1,4 +1,4 @@
-import { Config, Network, Node, Secret, Service, Task } from "./docker-schema";
+import { Config, ContainerInspectData, ContainerTopData, Network, Node, Secret, Service, SystemInfo, Task } from "./docker-schema";
 
 class Cache {
   lastUpdate: Date = new Date()
@@ -12,6 +12,13 @@ class Cache {
 
   exposedPorts: Record<string, string[]> | undefined  
 
+  systems: Record<string, SystemInfo> | undefined
+  containers: Record<string, Record<string, ContainerData>> | undefined
+}
+
+export interface ContainerData {
+  container?: ContainerInspectData
+  , top?: ContainerTopData
 }
 
 export class DockerApi {
@@ -189,12 +196,56 @@ export class DockerApi {
           return ports
         })
         .catch(_ => {
-          this.cache.exposedPorts = {}
-          return this.cache.exposedPorts
+          return this.cache.exposedPorts = {}
         })
-
     }
+  }
 
+  container(nodeId: string, taskId: string) : Promise<ContainerData> {
+    if (this.cache.containers && this.cache.containers[nodeId] && this.cache.containers[nodeId][taskId]) {
+      return Promise.resolve(this.cache.containers[nodeId][taskId])
+    } else {
+      return this.get<ContainerData>('api/container/' + nodeId + '/' + taskId, 'container')
+        .then(ctr => {
+          if (!this.cache.containers) {
+            this.cache.containers = {}
+          }
+          if (!this.cache.containers[nodeId]) {
+            this.cache.containers[nodeId] = {}
+          }
+          this.cache.containers[nodeId][taskId] = ctr
+          return ctr
+        })
+        .catch(_ => {
+          if (this.cache.containers && this.cache.containers[nodeId] && this.cache.containers[nodeId][taskId]) {
+            return this.cache.containers[nodeId][taskId] = {} as ContainerData
+          } else {
+            return {} as ContainerData
+          }
+        })
+    }
+  }
+
+  system(nodeId: string) {
+    if (this.cache.systems && this.cache.systems[nodeId]) {
+      return Promise.resolve(this.cache.systems[nodeId])
+    } else {
+      return this.get<SystemInfo>('api/system/' + nodeId, 'system')
+        .then(sys => {
+          if (!this.cache.systems) {
+            this.cache.systems = {}
+          }
+          if (!this.cache.systems[nodeId]) {
+            this.cache.systems[nodeId] = sys
+          }
+          return sys
+        })
+        .catch(_ => {
+          if (this.cache.systems && this.cache.systems[nodeId]) {
+            return this.cache.systems[nodeId] = {}
+          }
+        })
+    }
   }
 
 }
