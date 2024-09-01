@@ -12,6 +12,7 @@ import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import VisNetwork, { GraphData, Node, Edge } from './VisNetwork';
 import LogsView from './LogsView';
 import { DockerApi } from './DockerApi';
+import KeyValueTable from './KeyValueTable';
 
 interface ServiceProps {
   baseUrl: string
@@ -333,7 +334,7 @@ function ServiceUi(props: ServiceProps) {
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 <Section id="service.overview" heading="Overview" >
-                  <DataTable id="service.overview.table" kvTable={true} rows={
+                  <KeyValueTable id="service.overview.table" kvTable={true} rows={
                     [
                       ['ID', service.ID || '']
                       , ['Image', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ' ']
@@ -343,10 +344,10 @@ function ServiceUi(props: ServiceProps) {
                       , ['Stack', service?.Spec?.Labels && service?.Spec?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + service?.Spec?.Labels['com.docker.stack.namespace'], value: service?.Spec?.Labels['com.docker.stack.namespace'] } : '']
                     ]
                   }>
-                  </DataTable>
+                  </KeyValueTable>
                 </Section>
                 <Section id="service.execution" heading="Execution" xs={6} >
-                  <DataTable id="service.execution.table" kvTable={true} rows={
+                  <KeyValueTable id="service.execution.table" kvTable={true} rows={
                     [
                       ['Command', service?.Spec?.TaskTemplate?.ContainerSpec?.Command]
                       , ['Arguments', service?.Spec?.TaskTemplate?.ContainerSpec?.Args]
@@ -357,11 +358,11 @@ function ServiceUi(props: ServiceProps) {
                       , ['Hostname', service?.Spec?.TaskTemplate?.ContainerSpec?.Hostname]
                     ]
                   }>
-                  </DataTable>
+                  </KeyValueTable>
                 </Section>
                 <Section id="service.resources" heading="Resources" >
-                  <DataTable id="service.resources.table" kvTable={true} rows={resources}>
-                  </DataTable>
+                  <KeyValueTable id="service.resources.table" kvTable={true} rows={resources}>
+                  </KeyValueTable>
                 </Section>
                 <Section id="service.status" heading="Status" >
                   <DataTable id="service.status.table" headers={
@@ -383,12 +384,12 @@ function ServiceUi(props: ServiceProps) {
                   </DataTable>
                 </Section>
                 <Section id="service.mounts" heading="Mounts" >
-                  <DataTable id="service.mounts.spec" kvTable={true} sx={{ width: '20em' }} rows={
+                  <KeyValueTable id="service.mounts.spec" kvTable={true} sx={{ width: '20em' }} rows={
                     [
                       ['Read Only Root FS', String(service?.Spec?.TaskTemplate?.ContainerSpec?.ReadOnly)]
                     ]
                   }>
-                  </DataTable>
+                  </KeyValueTable>
                   <br />
                   <DataTable id="service.mounts.list" headers={
                     [

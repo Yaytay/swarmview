@@ -29,7 +29,6 @@ export type DataTableValue = (null | undefined | string | number | string[] | Da
 
 interface DataTableProps {
   id: string
-  kvTable?: boolean
   headers?: string[]
   rows: (DataTableValue)[][] | undefined
   sx?: SxProps<Theme>
@@ -274,7 +273,6 @@ function DataTable(props: DataTableProps) {
         <TableBody>
           {values &&
             values
-              .filter(row => !props.kvTable || row[1])
               .map((r, ir) => {
                 const style : SxProps<Theme> = props.rowStyle && props.rowStyle(r) || { border: 0 }
                 return (

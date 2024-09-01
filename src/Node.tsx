@@ -11,6 +11,7 @@ import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import NodeChecks from './NodeChecks';
 import { DockerApi } from './DockerApi';
+import KeyValueTable from './KeyValueTable';
 
 
 interface NodeProps {
@@ -127,7 +128,7 @@ function NodeUi(props: NodeProps) {
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 <Section id="node.overview" heading="Overview" xs={6} >
-                  <DataTable id="node.overview.table" kvTable={true} rows={
+                  <KeyValueTable id="node.overview.table" kvTable={true} rows={
                     [
                       ['ID', node.ID || '']
                       , ['Created', node.CreatedAt || '']
@@ -135,10 +136,10 @@ function NodeUi(props: NodeProps) {
                       , ['Availability', node?.Spec?.Availability || ' ']
                     ]
                   }>
-                  </DataTable>
+                  </KeyValueTable>
                 </Section>
                 <Section id="node.description" heading="Description" xs={6} >
-                  <DataTable id="node.description.table" kvTable={true} rows={
+                  <KeyValueTable id="node.description.table" kvTable={true} rows={
                     [
                       ['Engine', node?.Description?.Engine?.EngineVersion || ' ']
                       , ['Architecture', node?.Description?.Platform?.Architecture || ' ']
@@ -147,7 +148,7 @@ function NodeUi(props: NodeProps) {
                       , ['CPUs', (node?.Description?.Resources?.NanoCPUs ? node?.Description?.Resources?.NanoCPUs / 1000000000 : null)]
                     ]
                   }>
-                  </DataTable>
+                  </KeyValueTable>
                 </Section>
                 <Section id="node.labels" heading="Labels" xs={6} >
                   <DataTable id="node.labels.table" headers={
