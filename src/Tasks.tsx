@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import DataTable, { DataTablePropsEntry } from './DataTable';
 import { Service, Task, Node } from './docker-schema'
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { DockerApi } from './DockerApi';
+import { MaterialReactTable, MRT_ColumnDef, useMaterialReactTable } from 'material-react-table';
+import { createTheme, ThemeProvider, useTheme } from '@mui/material';
 
 interface TasksProps {
   baseUrl: string
@@ -78,12 +80,83 @@ function Tasks(props: TasksProps) {
     }
   }, [tasks, services, nodes, props])
 
+  const columns = useMemo<MRT_ColumnDef<Task>[]>(
+    () => [
+      {
+        accessorKey: 'ID', //access nested data with dot notation
+        header: 'ID',
+        size: 1,        
+      },
+      {
+        accessorKey: 'NodeID',
+        header: 'NODE',
+        size: 1,
+      },
+      {
+        accessorKey: 'CreatedAt',
+        header: 'CREATED',
+        filterVariant: 'range-slider',
+        size: 1,
+      },
+      {
+        accessorKey: 'Spec.ContainerSpec.Image',
+        header: 'IMAGE',
+        size: 1,
+      },
+      {
+        accessorKey: 'DesiredState',
+        header: 'DESIRED STATE',
+        filterVariant: 'select',
+        size: 1,
+      },
+      {
+        accessorKey: 'Status.State',
+        header: 'CURRENT STATE',
+        filterVariant: 'select',
+        size: 1,
+      },
+      {
+        accessorKey: 'Spec.Resources.Limits.MemoryBytes',
+        header: 'MEMORY',
+        filterVariant: 'range-slider',
+        size: 1,
+      },
+      {
+        accessorKey: 'Status.Err',
+        header: 'ERROR',
+        size: 1,
+      },
+      {
+        accessorKey: 'PORTS',
+        header: 'PORTS',
+        size: 1,
+      },
+    ], [])
+  const globalTheme = useTheme();
+
+  const table = useMaterialReactTable(
+    {
+      columns: columns
+      , data: tasks
+      , enablePagination: false
+      , enableFacetedValues: true
+      , enableColumnDragging: true
+      , enableColumnOrdering: true
+      , initialState: {
+        density: 'compact'
+        , columnVisibility: { 'Status.Err': false, NodeID: false }
+      }
+      , mrtTheme: {
+        baseBackgroundColor: globalTheme.palette.mode === 'light' ? '#F8F8F8' : '#000'
+      }
+      , getRowId: (originalRow) => originalRow.ID || ''
+    }
+  );
   return (<>
     <Box sx={{ flexGrow: 1 }}>
-      <Grid container >
+      <Grid container sx={{ overflowX: 'scroll', overflowY: 'visible' }}>
         <Paper>
-          <DataTable id="tasks" headers={['ID', 'NAME', 'NODE', 'CREATED', 'IMAGE', 'DESIRED STATE', 'CURRENT STATE', 'MEMORY', 'ERROR', 'PORTS']} rows={data}>
-          </DataTable>
+          <MaterialReactTable table={table} />
         </Paper>
       </Grid>
     </Box>

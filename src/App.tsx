@@ -65,7 +65,6 @@ function App() {
             , paper: '#f8f8f8'
           }
         }
-
       })
       :
       createTheme({

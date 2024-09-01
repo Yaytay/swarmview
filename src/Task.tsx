@@ -269,7 +269,7 @@ function TaskUi(props: TaskUiProps) {
     return <></>
   } else {
     return (
-      <Box sx={{ width: '100%', height: '99%', display: 'flex', flexFlow: 'column' }}  >
+      <Box sx={{ width: '100%', height: '99%', display: 'flex', flexFlow: 'column'}}  >
         <Box sx={{ borderBottom: 1, borderColor: 'divider', flex: '0 1 auto' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
             <Tab label="Details" />

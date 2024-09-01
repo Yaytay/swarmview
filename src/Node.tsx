@@ -45,9 +45,9 @@ function NodeUi(props: NodeProps) {
         const node = returnedNodes.find(node => { return node.ID === id })
         if (node) {
           setNode(node)
-        } 
+        }
       })
-    
+
     props.docker.tasks()
       .then(j => {
         setTasks(j)
@@ -77,8 +77,8 @@ function NodeUi(props: NodeProps) {
       setNodeTaskHeaders(['ID', 'NAME', 'CREATED', 'IMAGE', 'DESIRED', 'CURRENT', 'MEMORY', 'ERROR', 'PORTS'])
       const buildStackTasks: DataTableValue[][] = []
       const nodeTasks = tasks.filter(tsk => tsk.NodeID === id)
-      nodeTasks.sort((l,r) => {
-        return (l.CreatedAt??'') > (r.CreatedAt??'') ? -1 : 1
+      nodeTasks.sort((l, r) => {
+        return (l.CreatedAt ?? '') > (r.CreatedAt ?? '') ? -1 : 1
       })
       nodeTasks.forEach((tsk) => {
         if (tsk.ID) {
@@ -88,7 +88,7 @@ function NodeUi(props: NodeProps) {
               , { link: '/service/' + tsk.ServiceID, value: ((tsk.ServiceID && services.get(tsk.ServiceID)?.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID) }
               , tsk?.CreatedAt || ''
               , tsk?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '')
-              , tsk?.DesiredState          
+              , tsk?.DesiredState
               , tsk?.Status?.State
               , tsk?.Status?.State === 'running' && tsk?.Spec?.Resources?.Limits?.MemoryBytes ? tsk?.Spec?.Resources?.Limits?.MemoryBytes / 1048576 : null
               , tsk?.Status?.Err
@@ -113,7 +113,7 @@ function NodeUi(props: NodeProps) {
     return <></>
   } else {
     return (
-      <Box sx={{ width: '100%'}} >
+      <Box sx={{ width: '100%' }} >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
             <Tab label="Details" />
@@ -122,78 +122,78 @@ function NodeUi(props: NodeProps) {
           </Tabs>
         </Box>
         {
-      tab === 0 &&
-      <Box>
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2}>
-          <Section id="node.overview" heading="Overview" xs={6} >
-              <DataTable id="node.overview.table" kvTable={true} rows={
-                [
-                  ['ID', node.ID || '']
-                  , ['Created', node.CreatedAt || '']
-                  , ['Role', node?.Spec?.Role || ' ']
-                  , ['Availability', node?.Spec?.Availability || ' ']
-                ]
-              }>
-              </DataTable>
-            </Section>
-            <Section id="node.description" heading="Description" xs={6} >
-              <DataTable id="node.description.table" kvTable={true} rows={
-                [
-                  ['Engine', node?.Description?.Engine?.EngineVersion || ' ']
-                  , ['Architecture', node?.Description?.Platform?.Architecture || ' ']
-                  , ['OS', node?.Description?.Platform?.OS || ' ']
-                  , ['Memory', node?.Description?.Resources?.MemoryBytes ? String(node?.Description.Resources?.MemoryBytes / 1048576) + ' MB' : null]
-                  , ['CPUs', (node?.Description?.Resources?.NanoCPUs ? node?.Description?.Resources?.NanoCPUs / 1000000000 : null)]
-                ]
-              }>
-              </DataTable>
-            </Section>
-            <Section id="node.labels" heading="Labels" xs={6} >
-              <DataTable id="node.labels.table" headers={
-                [
-                  'Label'
-                  , 'Value'
-                ]
-              } rows={labels}
-              >
-              </DataTable>
-            </Section>
-            <Section id="node.plugins" heading="Plugins" xs={6} >
-              <DataTable id="node.plugins.table" headers={
-                [
-                  'Type'
-                  , 'Name'
-                ]
-              } rows={node?.Description?.Engine?.Plugins?.map(p => [p?.Type, p?.Name])}
-              >
-              </DataTable>
-            </Section>
-            
-            {
-            nodeTasks &&
-            <Section id="node.tasks" heading="Tasks" xs={12}>
-              <DataTable id="node.tasks.table" headers={nodeTaskHeaders} rows={nodeTasks}>
-              </DataTable>
-            </Section>
-            }
+          tab === 0 &&
+          <Box>
+            <Box sx={{ flexGrow: 1 }}>
+              <Grid container spacing={2}>
+                <Section id="node.overview" heading="Overview" xs={6} >
+                  <DataTable id="node.overview.table" kvTable={true} rows={
+                    [
+                      ['ID', node.ID || '']
+                      , ['Created', node.CreatedAt || '']
+                      , ['Role', node?.Spec?.Role || ' ']
+                      , ['Availability', node?.Spec?.Availability || ' ']
+                    ]
+                  }>
+                  </DataTable>
+                </Section>
+                <Section id="node.description" heading="Description" xs={6} >
+                  <DataTable id="node.description.table" kvTable={true} rows={
+                    [
+                      ['Engine', node?.Description?.Engine?.EngineVersion || ' ']
+                      , ['Architecture', node?.Description?.Platform?.Architecture || ' ']
+                      , ['OS', node?.Description?.Platform?.OS || ' ']
+                      , ['Memory', node?.Description?.Resources?.MemoryBytes ? String(node?.Description.Resources?.MemoryBytes / 1048576) + ' MB' : null]
+                      , ['CPUs', (node?.Description?.Resources?.NanoCPUs ? node?.Description?.Resources?.NanoCPUs / 1000000000 : null)]
+                    ]
+                  }>
+                  </DataTable>
+                </Section>
+                <Section id="node.labels" heading="Labels" xs={6} >
+                  <DataTable id="node.labels.table" headers={
+                    [
+                      'Label'
+                      , 'Value'
+                    ]
+                  } rows={labels}
+                  >
+                  </DataTable>
+                </Section>
+                <Section id="node.plugins" heading="Plugins" xs={6} >
+                  <DataTable id="node.plugins.table" headers={
+                    [
+                      'Type'
+                      , 'Name'
+                    ]
+                  } rows={node?.Description?.Engine?.Plugins?.map(p => [p?.Type, p?.Name])}
+                  >
+                  </DataTable>
+                </Section>
 
-          </Grid>
-        </Box>
-      </Box>
-    }
-    {
-      tab === 1 &&
-      <Box>
-        <NodeChecks node={node} tasks={tasks} nodes={nodes}/>
-      </Box>
-    }
-    {
-      tab === 2 &&
-      <Box>
-        <JSONPretty data={node} />
-      </Box>
-    }
+                {
+                  nodeTasks &&
+                  <Section id="node.tasks" heading="Tasks" xs={12}>
+                    <DataTable id="node.tasks.table" headers={nodeTaskHeaders} rows={nodeTasks}>
+                    </DataTable>
+                  </Section>
+                }
+
+              </Grid>
+            </Box>
+          </Box>
+        }
+        {
+          tab === 1 &&
+          <Box>
+            <NodeChecks node={node} tasks={tasks} nodes={nodes} />
+          </Box>
+        }
+        {
+          tab === 2 &&
+          <Box>
+            <JSONPretty data={node} />
+          </Box>
+        }
       </Box >
     )
   }
