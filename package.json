@@ -11,7 +11,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@mui/system": "^5.16.7",
+    "@mui/system": "^6.0.1",
     "dotenv": "^16.4.5",
     "install": "^0.13.0",
     "notistack": "^3.0.1",
