@@ -154,7 +154,7 @@ function Tasks(props: TasksProps) {
   );
   return (<>
     <Box sx={{ flexGrow: 1 }}>
-      <Grid container sx={{ overflowX: 'scroll', overflowY: 'visible' }}>
+      <Grid container sx={{ overflowX: 'auto', overflowY: 'visible' }}>
         <Paper>
           <MaterialReactTable table={table} />
         </Paper>

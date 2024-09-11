@@ -1,15 +1,15 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import DataTable, { DataTablePropsEntry } from './DataTable';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { Network, Service } from './docker-schema';
 import { DockerApi } from './DockerApi';
-import { MaterialReactTable, MRT_ColumnDef, useMaterialReactTable } from 'material-react-table';
+import { MRT_ColumnDef } from 'material-react-table';
 import { Link } from 'react-router-dom';
-import { useTheme } from '@mui/material';
+import MaterialTable from './MaterialTable';
 
-interface Stack {
+interface StackData {
   name: string
   services: number
   networks: number
@@ -24,7 +24,7 @@ interface StacksProps {
 function Stacks(props: StacksProps) {
 
   const [stacks, setStacks] = useState<(string | number | DataTablePropsEntry)[][]>()
-  const [tstacks, setTStacks] = useState<Stack[]>([])
+  const [tstacks, setTStacks] = useState<StackData[]>([])
   const [services, setServices] = useState<Map<string, Service[]>>(new Map())
   const [networks, setNetworks] = useState<Map<string, Network[]>>(new Map())
 
@@ -75,7 +75,7 @@ function Stacks(props: StacksProps) {
 
   useEffect(() => {
     const buildStacks = [] as (string | number | DataTablePropsEntry)[][]
-    const buildTStacks = [] as Stack[]
+    const buildTStacks = [] as StackData[]
     services.forEach((svcs, key) => {
       buildStacks.push([
         { link: '/stack/' + key, value: key }
@@ -92,8 +92,7 @@ function Stacks(props: StacksProps) {
     setTStacks(buildTStacks)
   }, [services, networks])
 
-  const columns = useMemo<MRT_ColumnDef<Stack>[]>(
-    () => [
+  const columns : MRT_ColumnDef<StackData>[] = [
       {
         accessorKey: 'name',
         header: 'NAME',
@@ -111,38 +110,12 @@ function Stacks(props: StacksProps) {
         header: 'NETWORKS',
         size: 1,
       },
-    ], [])
+  ]
 
-  const globalTheme = useTheme();
-
-  const table = useMaterialReactTable(
-    {
-      columns: columns
-      , data: tstacks
-      , enablePagination: false
-      , enableFacetedValues: true
-      , layoutMode: 'semantic'
-      , initialState: {
-        density: 'compact'
-      }
-      , mrtTheme: {
-        baseBackgroundColor: globalTheme.palette.mode === 'light' ? '#F8F8F8' : '#000'
-      }
-      , getRowId: (originalRow) => originalRow.name
-      ,
-    }
-  );
   return (<>
     <Box sx={{ flexGrow: 1 }}>
       <Grid container >
-        <Paper>
-          <DataTable id="stacks" headers={['NAME', 'SERVICES', 'NETWORKS']} rows={stacks}>
-          </DataTable>
-        </Paper>
-      </Grid>
-      <br />
-      <Grid container >
-        <MaterialReactTable table={table} />
+        <MaterialTable id="stacks" columns={columns} data={tstacks} />
       </Grid>
     </Box>
   </>)

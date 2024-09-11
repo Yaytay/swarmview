@@ -10,6 +10,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import { DockerApi } from './DockerApi';
+import KeyValueTable from './KeyValueTable';
 
 
 interface NetworkProps {
@@ -104,7 +105,7 @@ function NetworkUi(props: NetworkProps) {
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
             <Section id="network.overview" heading="Overview" >
-              <DataTable id="network.overview.table" kvTable={true} rows={
+              <KeyValueTable id="network.overview.table" kvTable={true} rows={
                 [
                   ['ID', network.Id || '']
                   , ['Created', network.Created || '']
@@ -117,16 +118,16 @@ function NetworkUi(props: NetworkProps) {
                   , ['Stack', network?.Labels && network?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + network?.Labels['com.docker.stack.namespace'], value: network?.Labels['com.docker.stack.namespace'] } : '' ]
                 ]
               }>
-              </DataTable>
+              </KeyValueTable>
             </Section>
             <Section id="network.ipam" heading="IPAM" xs={6} >
-            <DataTable id="network.ipam.table" kvTable={true} sx={{ width: '20em' }} rows={
+            <KeyValueTable id="network.ipam.table" kvTable={true} sx={{ width: '20em' }} rows={
                 [
                   ['Driver', network?.IPAM?.Driver]
                   , ['Options', JSON.stringify(network?.IPAM?.Options)]
                 ]
               }>
-              </DataTable>
+              </KeyValueTable>
               <h3>IPAM Config</h3>
               <DataTable id="network.ipamconfig.table" 
                 headers={['Subnet', 'IP Range', 'Gateway', 'Auxiliary Addresses']}
