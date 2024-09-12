@@ -1,10 +1,57 @@
 import { useState, useEffect } from 'react';
-import DataTable, { DataTablePropsEntry } from './DataTable';
 import { Service } from './docker-schema'
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
+import Grid2 from '@mui/material/Grid2';
 import { DockerApi } from './DockerApi';
+import MaterialTable from './MaterialTable';
+import { Link } from 'react-router-dom';
+import { MRT_ColumnDef } from 'material-react-table';
+
+interface ServiceDetails {
+  id: string
+  name: string
+  mode: string
+  replicas: string
+  image: string
+  ports?: string
+}
+
+const serviceColumns : MRT_ColumnDef<ServiceDetails>[] = [
+  {
+    accessorKey: 'id',
+    header: 'ID',
+    size: 1,
+    Cell: ({ renderedCellValue, row }) =>
+      (<Link to={"/service/" + row.original.id} >{renderedCellValue}</Link>)
+  },
+  {
+    accessorKey: 'name',
+    header: 'NAME',
+    size: 1,
+  },
+  {
+    accessorKey: 'mode',
+    header: 'MODE',
+    size: 1,
+  },
+  {
+    accessorKey: 'replicas',
+    header: 'REPLICAS',
+    size: 1,
+  },
+  {
+    accessorKey: 'image',
+    header: 'IMAGE',
+    size: 1,
+  },
+  {
+    accessorKey: 'ports',
+    header: 'PORTS',
+    size: 1,
+  },
+]
+
+
 
 interface ServicesProps {
   baseUrl: string
@@ -14,7 +61,7 @@ interface ServicesProps {
 }
 function Services(props: ServicesProps) {
 
-  const [data, setData] = useState<(string | DataTablePropsEntry)[][]>()
+  const [serviceDetails, setServiceDetails] = useState<ServiceDetails[]>([])
   const [services, setServices] = useState<Service[]>()
   const [exposedPorts, setExposedPorts] = useState<Record<string, string[]>>()
 
@@ -31,43 +78,30 @@ function Services(props: ServicesProps) {
   }, [props])
 
   useEffect(() => {
-    const newData = [] as (string | DataTablePropsEntry)[][]
-    services?.forEach((svc: Service) => {
-      newData.push(
-        [
-          svc.ID ? { link: '/service/' + svc.ID, value: svc.ID } : ''
-          , svc.Spec?.Name || ''
-          , Object.keys(svc.Spec?.Mode || [''])[0]
-          , svc.ServiceStatus?.RunningTasks + ' / ' + svc.ServiceStatus?.DesiredTasks
-          , svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
-          ,
-          (
-            svc.Endpoint?.Ports?.map((p) => {
+    setServiceDetails(
+      services?.reduce((result, current) => {
+        result.push(
+          {
+            id : current.ID || ''
+            , name: current.Spec?.Name || ''
+            , mode: Object.keys(current.Spec?.Mode || [''])[0]
+            , replicas: current.ServiceStatus?.RunningTasks + ' / ' + current.ServiceStatus?.DesiredTasks
+            , image: current.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
+            , ports: current.Endpoint?.Ports?.map((p) => {
               return p.PublishedPort + ':' + p.TargetPort
-            }).join(', ') || ''
-          )
-          + (svc.Endpoint?.Ports ? ', ' : '')
-          + (
-            exposedPorts
-            && svc.Spec?.TaskTemplate?.ContainerSpec?.Image
-            && exposedPorts[svc.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.join(', ') || ''
-          )
-        ]
-      )
-    });
-    setData(newData)
+            }).join(', ') || ''          
+          }
+        )
+        return result;
+      }, [] as ServiceDetails[]) || []
+    )
   }, [exposedPorts, services])
 
   return (<>
     <Box sx={{ flexGrow: 1 }}>
-      <Grid container >
-        <Paper>
-          <DataTable id="services" headers={
-            ['ID', 'NAME', 'MODE', 'REPLICAS', 'IMAGE', 'PORTS']
-          } rows={data}>
-          </DataTable>
-        </Paper>
-      </Grid>
+      <Grid2 container >
+        <MaterialTable id="stacks" columns={serviceColumns} data={serviceDetails} />
+      </Grid2>
     </Box>
   </>)
 

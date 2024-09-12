@@ -7,11 +7,31 @@ import { MRT_ColumnDef } from 'material-react-table';
 import { Link } from 'react-router-dom';
 import MaterialTable from './MaterialTable';
 
-interface StackData {
+interface StackDetails {
   name: string
   services: number
   networks: number
 }
+
+const stackColumns : MRT_ColumnDef<StackDetails>[] = [
+  {
+    accessorKey: 'name',
+    header: 'NAME',
+    size: 1,
+    Cell: ({ renderedCellValue, row }) =>
+      (<Link to={"/stack/" + row.original.name} >{renderedCellValue}</Link>)
+  },
+  {
+    accessorKey: 'services',
+    header: 'SERVICES',
+    size: 1,
+  },
+  {
+    accessorKey: 'networks',
+    header: 'NETWORKS',
+    size: 1,
+  },
+]
 
 interface StacksProps {
   baseUrl: string
@@ -21,7 +41,7 @@ interface StacksProps {
 }
 function Stacks(props: StacksProps) {
 
-  const [tstacks, setTStacks] = useState<StackData[]>([])
+  const [stacks, setStacks] = useState<StackDetails[]>([])
   const [services, setServices] = useState<Map<string, Service[]>>(new Map())
   const [networks, setNetworks] = useState<Map<string, Network[]>>(new Map())
 
@@ -71,41 +91,21 @@ function Stacks(props: StacksProps) {
     , [props])
 
   useEffect(() => {
-    const buildTStacks = [] as StackData[]
+    const buildStacks = [] as StackDetails[]
     services.forEach((svcs, key) => {
-      buildTStacks.push({
+      buildStacks.push({
         name: key
         , services: svcs?.length || 0
         , networks: networks?.get(key)?.length || 0
       })
     })
-    setTStacks(buildTStacks)
+    setStacks(buildStacks)
   }, [services, networks])
-
-  const columns : MRT_ColumnDef<StackData>[] = [
-      {
-        accessorKey: 'name',
-        header: 'NAME',
-        size: 1,
-        Cell: ({ renderedCellValue, row }) =>
-          (<Link to={"/stack/" + row.original.name} >{renderedCellValue}</Link>)
-      },
-      {
-        accessorKey: 'services',
-        header: 'SERVICES',
-        size: 1,
-      },
-      {
-        accessorKey: 'networks',
-        header: 'NETWORKS',
-        size: 1,
-      },
-  ]
 
   return (<>
     <Box sx={{ flexGrow: 1 }}>
       <Grid container >
-        <MaterialTable id="stacks" columns={columns} data={tstacks} />
+        <MaterialTable id="stacks" columns={stackColumns} data={stacks} />
       </Grid>
     </Box>
   </>)
