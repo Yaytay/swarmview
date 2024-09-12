@@ -1,12 +1,69 @@
-import { useState, useEffect, useMemo } from 'react';
-import { DataTablePropsEntry } from './DataTable';
+import { useState, useEffect } from 'react';
 import { Service, Task, Node } from './docker-schema'
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import { DockerApi } from './DockerApi';
-import { MaterialReactTable, MRT_ColumnDef, useMaterialReactTable } from 'material-react-table';
-import { useTheme } from '@mui/material';
+import { MRT_ColumnDef } from 'material-react-table';
+import { Grid2 } from '@mui/material';
+import MaterialTable from './MaterialTable';
+
+interface TaskDetails {
+  id: string
+  created?: string
+  image: string
+  desiredState?: string
+  currentState?: string
+  error?: string
+  memory?: string
+  ports?: string
+}
+
+const taskColumns : MRT_ColumnDef<TaskDetails>[] = [
+  {
+    accessorKey: 'id',
+    header: 'ID',
+    size: 1,
+  },
+  {
+    accessorKey: 'created',
+    header: 'CREATED',
+    size: 1,
+  },
+  {
+    accessorKey: 'image',
+    header: 'IMAGE',
+    filterVariant: 'select',
+    size: 1,
+  },
+  {
+    accessorKey: 'desiredState',
+    header: 'DESIRED STATE',
+    filterVariant: 'select',
+    size: 1,
+  },
+  {
+    accessorKey: 'currentState',
+    header: 'CURRENT STATE',
+    filterVariant: 'select',
+    size: 1,
+  },
+  {
+    accessorKey: 'error',
+    header: 'ERROR',
+    size: 1,
+  },
+  {
+    accessorKey: 'memory',
+    header: 'MEMORY',
+    filterVariant: 'select',
+    size: 1,
+  },
+  {
+    accessorKey: 'ports',
+    header: 'PORTS',
+    filterVariant: 'select',
+    size: 1,
+  },
+]
 
 interface TasksProps {
   baseUrl: string
@@ -20,7 +77,7 @@ function Tasks(props: TasksProps) {
   const [services, setServices] = useState<Map<string, Service>>(new Map<string, Service>())
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map<string, Node>())
 
-  const [data, setData] = useState<(string | string[] | number | DataTablePropsEntry)[][]>()
+  const [taskDetails, setTaskDetails] = useState<TaskDetails[]>([])
 
   useEffect(() => {
     props.docker.tasks()
@@ -30,135 +87,54 @@ function Tasks(props: TasksProps) {
 
     props.docker.services()
       .then(svcs => {
-        const buildServices = new Map<string, Service>()
-        svcs.forEach(svc => {
-          if (svc.ID) {
-            buildServices.set(svc.ID, svc)
+        setServices(svcs.reduce((result, current) => { 
+          if (current.ID) {
+            result.set(current.ID, current)
           }
-        })
-        setServices(buildServices)
+          return result
+        }, new Map<string, Service>()))
       })
 
     props.docker.nodes()
       .then(nods => {
-        const buildNodes = new Map<string, Node>()
-        nods.forEach(nod => {
-          if (nod.ID) {
-            buildNodes.set(nod.ID, nod)
+        setNodes(nods.reduce((result, current) => {
+          if (current.ID) {
+            result.set(current.ID, current)
           }
-        })
-        setNodes(buildNodes)
+          return result
+        }, new Map<string, Node>()))
       })
+    props.setTitle('Tasks')
   }, [props])
 
   useEffect(() => {
-    if (tasks && services) {
-      props.setTitle('Tasks')
-      const newData = [] as (string | string[] | number | DataTablePropsEntry)[][]
-      tasks.forEach((tsk: Task) => {
-        if (tsk.ID) {
-          newData.push(
-            [
-              { link: '/task/' + tsk.ID, value: tsk.ID }
-              , { link: '/service/' + tsk.ServiceID, value: ((tsk.ServiceID && services.get(tsk.ServiceID)?.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID) }
-              , { link: '/node/' + tsk.NodeID, value: (nodes && tsk.NodeID && nodes.get(tsk.NodeID)?.Description?.Hostname || tsk.NodeID || '') }
-              , tsk.CreatedAt || ''
-              , tsk.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
-              , tsk.DesiredState || ''
-              , tsk.Status?.State || ''
-              , tsk?.Status?.State === 'running' && tsk?.Spec?.Resources?.Limits?.MemoryBytes ? tsk?.Spec?.Resources?.Limits?.MemoryBytes / 1048576 : ''
-              , tsk.Status?.Err || ''
-              , tsk.Status?.PortStatus?.Ports?.map(portSpec => {
-                return portSpec.PublishedPort + ':' + portSpec.TargetPort
-              }) || ''
-              ,
-            ]
-          )
+    setTaskDetails(
+      tasks.reduce((result, current) => {
+        if (current.ID) {
+          result.push({
+            id: current.ID
+            , created: current.CreatedAt || ''
+            , image: current.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
+            , desiredState: current.DesiredState || ''
+            , currentState: current.Status?.State || ''
+            , error: current.Status?.Err || ''
+            , memory: String(current?.Status?.State === 'running' && current?.Spec?.Resources?.Limits?.MemoryBytes ? current?.Spec?.Resources?.Limits?.MemoryBytes / 1048576 : '')
+            , ports: current.Status?.PortStatus?.Ports?.map(portSpec => {
+              return portSpec.PublishedPort + ':' + portSpec.TargetPort
+            })?.join() || ''
+          })
         }
-      });
-      setData(newData)
-    }
+        return result
+      }, [] as TaskDetails[]
+      )
+    )
   }, [tasks, services, nodes, props])
 
-  const columns = useMemo<MRT_ColumnDef<Task>[]>(
-    () => [
-      {
-        accessorKey: 'ID', //access nested data with dot notation
-        header: 'ID',
-        size: 1,        
-      },
-      {
-        accessorKey: 'NodeID',
-        header: 'NODE',
-        size: 1,
-      },
-      {
-        accessorKey: 'CreatedAt',
-        header: 'CREATED',
-        filterVariant: 'range-slider',
-        size: 1,
-      },
-      {
-        accessorKey: 'Spec.ContainerSpec.Image',
-        header: 'IMAGE',
-        size: 1,
-      },
-      {
-        accessorKey: 'DesiredState',
-        header: 'DESIRED STATE',
-        filterVariant: 'select',
-        size: 1,
-      },
-      {
-        accessorKey: 'Status.State',
-        header: 'CURRENT STATE',
-        filterVariant: 'select',
-        size: 1,
-      },
-      {
-        accessorKey: 'Spec.Resources.Limits.MemoryBytes',
-        header: 'MEMORY',
-        filterVariant: 'range-slider',
-        size: 1,
-      },
-      {
-        accessorKey: 'Status.Err',
-        header: 'ERROR',
-        size: 1,
-      },
-      {
-        accessorKey: 'PORTS',
-        header: 'PORTS',
-        size: 1,
-      },
-    ], [])
-  const globalTheme = useTheme();
-
-  const table = useMaterialReactTable(
-    {
-      columns: columns
-      , data: tasks
-      , enablePagination: false
-      , enableFacetedValues: true
-      , enableColumnDragging: true
-      , enableColumnOrdering: true
-      , initialState: {
-        density: 'compact'
-        , columnVisibility: { 'Status.Err': false, NodeID: false }
-      }
-      , mrtTheme: {
-        baseBackgroundColor: globalTheme.palette.mode === 'light' ? '#F8F8F8' : '#000'
-      }
-      , getRowId: (originalRow) => originalRow.ID || ''
-    }
-  );
   return (<>
     <Box sx={{ flexGrow: 1 }}>
-      <Grid container sx={{ overflowX: 'auto', overflowY: 'visible' }}>
-        <Paper>
-          <MaterialReactTable table={table} />
-        </Paper>
-      </Grid>
+      <Grid2 container sx={{ overflowX: 'auto', overflowY: 'visible' }}>
+        <MaterialTable id="tasks" columns={taskColumns} data={taskDetails} />
+      </Grid2>
     </Box>
   </>)
 

@@ -72,9 +72,9 @@ function Services(props: ServicesProps) {
       })
     props.docker.services()
       .then(svcs => {
-        props.setTitle('Services')
         setServices(svcs)
       })
+    props.setTitle('Services')
   }, [props])
 
   useEffect(() => {
@@ -100,7 +100,7 @@ function Services(props: ServicesProps) {
   return (<>
     <Box sx={{ flexGrow: 1 }}>
       <Grid2 container >
-        <MaterialTable id="stacks" columns={serviceColumns} data={serviceDetails} />
+        <MaterialTable id="services" columns={serviceColumns} data={serviceDetails} />
       </Grid2>
     </Box>
   </>)
