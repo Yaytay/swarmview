@@ -14,22 +14,21 @@ const vite = await createServer({
   appType: 'custom',
 });
  
-// app.use(morgan('combined'))
+app.use(morgan('combined'))
 
 app.use(apiRouter)
 
 app.use(vite.middlewares);
  
-app.use('*', async (req, res) => {
+app.use('{/:path}', async (req, res) => {
   const url = req.originalUrl;
  
   try {
-    const template = await vite.transformIndexHtml(url, fs.readFileSync('index.html', 'utf-8'));
-    const { render } = await vite.ssrLoadModule('/src/entry-server.jsx');
- 
-    const html = template.replace(`<!--outlet-->`, render);
-    res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
+    const index = await vite.transformIndexHtml(url, fs.readFileSync('index.html', 'utf-8'));
+
+    res.status(200).set({ 'Content-Type': 'text/html' }).end(index);
   } catch (error) {
+    console.log(error)
     res.status(500).end(error.toString());
   }
 });

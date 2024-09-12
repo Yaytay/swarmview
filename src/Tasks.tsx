@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import DataTable, { DataTablePropsEntry } from './DataTable';
+import { DataTablePropsEntry } from './DataTable';
 import { Service, Task, Node } from './docker-schema'
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { DockerApi } from './DockerApi';
 import { MaterialReactTable, MRT_ColumnDef, useMaterialReactTable } from 'material-react-table';
-import { createTheme, ThemeProvider, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 
 interface TasksProps {
   baseUrl: string

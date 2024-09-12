@@ -1,4 +1,4 @@
-import Grid from "@mui/material/Grid";
+import Grid2 from "@mui/material/Grid2";
 import DataTable, { DataTableValue } from "./DataTable";
 import Section from "./Section";
 import { Check, CheckArguments } from "./checks/checks";
@@ -108,7 +108,7 @@ function ChecksUi(props: ChecksUiProps) {
   }, [] as CheckResultsCategory[])
 
   return (
-    <Grid container spacing={2} >
+    <Grid2 container spacing={2} >
       {data.map(cat => {
         return (
           <Section key={props.id + '.' + cat.category} id={props.id + '.' + cat.category} heading={cat.category} xs={12}>
@@ -127,7 +127,7 @@ function ChecksUi(props: ChecksUiProps) {
         )
       })}
       <CheckDialog check={checkDetails} onClose={() => setCheckDetails(undefined)} />
-    </Grid>
+    </Grid2>
   )
 }
 

@@ -15,7 +15,16 @@ app.get('/health', (_, res) => {
 })
 app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist'), { index: false }));
  
-app.get('*', async (_, res) => {
+app.get('{/:path}', async (_, res) => {
+  try {
+    const template = fs.readFileSync('dist/index.html', 'utf-8');
+    res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+  } catch (error) {
+    res.status(500).end(error.toString());
+  }
+});
+ 
+app.get('/', async (_, res) => {
   try {
     const template = fs.readFileSync('dist/index.html', 'utf-8');
     res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
