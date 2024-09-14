@@ -43,7 +43,7 @@ function getExportsForImage(result, url) {
       if (j.Config.ExposedPorts && Array.isArray(j.RepoDigests)) {
         j.RepoDigests.forEach(digest => {
           // console.log('At ' + url + ' for ' + digest + ' got: ', j.Config.ExposedPorts)
-          result[digest] = Object.keys(j.Config.ExposedPorts)
+          result[digest.replace(/:.*@/, "@")] = Object.keys(j.Config.ExposedPorts)
         })
       }
     })

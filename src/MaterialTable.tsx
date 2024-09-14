@@ -1,5 +1,5 @@
-import { Box, Grid, IconButton, Paper, Tooltip, useTheme } from "@mui/material";
-import { MaterialReactTable, MRT_ColumnDef, MRT_ColumnFiltersState, MRT_ColumnOrderState, MRT_DensityState, MRT_RowData, MRT_ShowHideColumnsButton, MRT_SortingState, MRT_TableInstance, MRT_ToggleDensePaddingButton, MRT_ToggleFiltersButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, MRT_VisibilityState, useMaterialReactTable } from "material-react-table"
+import { Box, IconButton, TableContainerProps, Tooltip, useTheme } from "@mui/material";
+import { MaterialReactTable, MRT_ColumnDef, MRT_ColumnFiltersState, MRT_ColumnOrderState, MRT_ColumnSizingState, MRT_DensityState, MRT_RowData, MRT_ShowHideColumnsButton, MRT_SortingState, MRT_TableInstance, MRT_ToggleDensePaddingButton, MRT_ToggleFiltersButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, MRT_VisibilityState, useMaterialReactTable } from "material-react-table"
 import { useEffect, useRef, useState } from "react";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SearchIcon from '@mui/icons-material/Search';
@@ -15,10 +15,11 @@ import DragHandleIcon from '@mui/icons-material/DragHandle';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
-interface MaterialTableState {
+export interface MaterialTableState {
   columnFilters: MRT_ColumnFiltersState
   columnOrder: MRT_ColumnOrderState  
   columnVisibility: MRT_VisibilityState
+  columnSizing: MRT_ColumnSizingState
   density: MRT_DensityState
   globalFilter?: string
   showGlobalFilter: boolean
@@ -30,7 +31,9 @@ interface MaterialTableProps<Type extends MRT_RowData> {
   id: string
   columns: MRT_ColumnDef<Type>[]
   data: Type[]
-  state?: MaterialTableState
+  defaultState?: MaterialTableState
+  virtual?: boolean
+  muiTableContainerProps?: TableContainerProps
 }
 
 function loadState(id: string) : MaterialTableState | undefined {
@@ -47,10 +50,11 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
 
   const isFirstRender = useRef(true);
 
-  const defaultState = props.state || {
+  const defaultState = props.defaultState || {
     columnFilters: []
     , columnOrder: props.columns.map((c) => c.accessorKey as string)
     , columnVisibility: {}
+    , columnSizing: {}
     , density: 'compact'
     , showColumnFilters: false
     , showGlobalFilter: false
@@ -66,8 +70,9 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
 
   useEffect(() => {
     if (!isFirstRender.current) {
+      console.log(Date.now(), 'Writing state for ' + props.id + ':', state)
       localStorage.setItem(props.id + '.state', JSON.stringify(state));
-      console.log('Written state for ' + props.id + ':', state)
+      console.log(Date.now(), 'Written state for ' + props.id + ':', state)
     } else {
       console.log(isFirstRender)
       isFirstRender.current = false;
@@ -79,7 +84,7 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
     setState(defaultState)
   }
 
-  // console.log('Creating table with', state)
+  console.log(Date.now(), 'Creating table with', state)
   const table = useMaterialReactTable(
     {
       columns: props.columns
@@ -89,6 +94,11 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
       , enableFacetedValues: true
       , enableColumnDragging: true
       , enableColumnOrdering: true
+      , enableColumnResizing: true
+      , enableRowVirtualization: props.virtual || false
+      , enableColumnVirtualization: false
+      , enableStickyHeader: true
+      , muiTableContainerProps: props.muiTableContainerProps
       , icons: {
         ContentCopy: (props: any) => <ContentCopyIcon fontSize="small" {...props} />
         , SearchIcon: (props: any) => <SearchIcon fontSize="small" {...props} />
@@ -107,6 +117,7 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
           columnFilters: state.columnFilters
         , columnOrder: state.columnOrder
         , columnVisibility: state.columnVisibility
+        , columnSizing: state.columnSizing
         , density: state.density
         , showColumnFilters: state.showColumnFilters
         , showGlobalFilter: state.showGlobalFilter
@@ -114,44 +125,50 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
       }
       , onColumnFiltersChange: (updaterOrValue => {
         const newState = {...state}
-        console.log(props.id + '.onColumnFiltersChange from', state, 'to', updaterOrValue)
+        console.log(Date.now(), props.id + '.onColumnFiltersChange from', state, 'to', updaterOrValue)
         newState.columnFilters = updaterOrValue instanceof Function ? updaterOrValue(state.columnFilters) : updaterOrValue
         setState(newState)
       })
       , onColumnVisibilityChange: (updaterOrValue => {
         const newState = {...state}
-        console.log(props.id + '.onColumnVisibilityChange from', state, 'to', updaterOrValue)
+        console.log(Date.now(), props.id + '.onColumnVisibilityChange from', state, 'to', updaterOrValue)
         newState.columnVisibility = updaterOrValue instanceof Function ? updaterOrValue(state.columnVisibility) : updaterOrValue
         setState(newState)
       })
       , onColumnOrderChange: (updaterOrValue => {
         const newState = {...state}
-        console.log(props.id + '.onColumnOrderChange from', state, 'to', updaterOrValue)
+        console.log(Date.now(), props.id + '.onColumnOrderChange from', state, 'to', updaterOrValue)
         newState.columnOrder = updaterOrValue instanceof Function ? updaterOrValue(state.columnOrder) : updaterOrValue
         newState.columnOrder = newState.columnOrder.filter(x => x ? true : false)
         setState(newState)
       })
+      , onColumnSizingChange: (updaterOrValue => {
+        const newState = {...state}
+        console.log(Date.now(), props.id + '.onColumnSizingChange from', state, 'to', updaterOrValue)
+        newState.columnSizing = updaterOrValue instanceof Function ? updaterOrValue(state.columnSizing) : updaterOrValue || {}
+        setState(newState)
+      })
       , onDensityChange: (updaterOrValue => {
         const newState = {...state}
-        console.log(props.id + '.onDensityChange from', state, 'to', updaterOrValue)
+        console.log(Date.now(), props.id + '.onDensityChange from', state, 'to', updaterOrValue)
         newState.density = updaterOrValue instanceof Function ? updaterOrValue(state.density) : updaterOrValue
         setState(newState)
       })
       , onShowColumnFiltersChange: (updaterOrValue => {
         const newState = {...state}
-        console.log(props.id + '.onShowColumnFiltersChange from', state, 'to', updaterOrValue)
+        console.log(Date.now(), props.id + '.onShowColumnFiltersChange from', state, 'to', updaterOrValue)
         newState.showColumnFilters = updaterOrValue instanceof Function ? updaterOrValue(state.showColumnFilters) : updaterOrValue
         setState(newState)
       })
       , onShowGlobalFilterChange: (updaterOrValue => {
         const newState = {...state}
-        console.log(props.id + '.onShowGlobalFilterChange from', state, 'to', updaterOrValue)
+        console.log(Date.now(), props.id + '.onShowGlobalFilterChange from', state, 'to', updaterOrValue)
         newState.showGlobalFilter = updaterOrValue instanceof Function ? updaterOrValue(state.showGlobalFilter) : updaterOrValue
         setState(newState)
       })
       , onSortingChange: (updaterOrValue => {
         const newState = {...state}
-        console.log(props.id + '.onSortingChange from', state, 'to', updaterOrValue)
+        console.log(Date.now(), props.id + '.onSortingChange from', state, 'to', updaterOrValue)
         newState.sorting = updaterOrValue instanceof Function ? updaterOrValue(state.sorting) : updaterOrValue
         setState(newState)
       })
@@ -185,15 +202,9 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
 
     }
   );
-  return (<>
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid container sx={{ overflowX: 'auto', overflowY: 'visible' }}>
-        <Paper>
-          <MaterialReactTable table={table} />
-        </Paper>
-      </Grid>
-    </Box>
-  </>)
+  // console.log(Date.now(), 'Called useMaterialReactTable', state)
+
+  return (<MaterialReactTable table={table} />)
 
 }
 

@@ -13,6 +13,7 @@
   "dependencies": {
     "@mui/system": "^6.1.0",
     "dotenv": "^16.4.5",
+    "duration-fns": "^3.0.2",
     "install": "^0.13.0",
     "material-react-table": "^3.0.1",
     "notistack": "^3.0.1",

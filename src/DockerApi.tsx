@@ -10,6 +10,9 @@ class Cache {
   services: Service[] | undefined
   tasks: Task[] | undefined
 
+  servicesById: Map<string, Service> | undefined
+  nodesById: Map<string, Service> | undefined
+
   exposedPorts: Record<string, string[]> | undefined  
 
   systems: Record<string, SystemInfo> | undefined
@@ -23,7 +26,7 @@ export interface ContainerData {
 
 export class DockerApi {
   baseUrl: string
-  cache: Cache
+  private cache: Cache
   errorCallback: (err : string) => void
 
   constructor(baseUrl: string, errorCallback: (err : string) => void) {
@@ -126,6 +129,23 @@ export class DockerApi {
     }
   }
 
+  nodesById(): Promise<Map<string, Node>> {
+    if (this.cache.nodesById !== undefined) {
+      return Promise.resolve(this.cache.nodesById)
+    } else {
+      return this.nodes()
+        .then(nods => {
+          this.cache.nodesById = nods.reduce((result, current) => {
+            if (current.ID) {
+              result.set(current.ID, current)
+            }
+            return result
+          }, new Map<string, Node>())
+          return this.cache.nodesById
+        })
+    }
+  }
+
   secret(id: string | undefined): Promise<Secret | undefined> {
     return this.secrets()
       .then(secs => {
@@ -159,6 +179,23 @@ export class DockerApi {
         })
         .catch(_ => {
           return this.cache.services = []
+        })
+    }
+  }
+
+  servicesById(): Promise<Map<string, Service>> {
+    if (this.cache.servicesById !== undefined) {
+      return Promise.resolve(this.cache.servicesById)
+    } else {
+      return this.services()
+        .then(svcs => {
+          this.cache.servicesById = svcs.reduce((result, current) => {
+            if (current.ID) {
+              result.set(current.ID, current)
+            }
+            return result
+          }, new Map<string, Service>())
+          return this.cache.servicesById
         })
     }
   }

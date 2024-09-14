@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Service, Task, Node } from './docker-schema'
-import Box from '@mui/material/Box';
 import { DockerApi } from './DockerApi';
 import { MRT_ColumnDef } from 'material-react-table';
-import { Grid2 } from '@mui/material';
-import MaterialTable from './MaterialTable';
+import MaterialTable, { MaterialTableState } from './MaterialTable';
+import { Link } from 'react-router-dom';
+import * as duration from 'duration-fns'
 
 interface TaskDetails {
   id: string
+  stack: string
+  service: string
+  serviceId: string
   created?: string
+  age: number
   image: string
   desiredState?: string
   currentState?: string
@@ -17,53 +20,86 @@ interface TaskDetails {
   ports?: string
 }
 
-const taskColumns : MRT_ColumnDef<TaskDetails>[] = [
+const taskColumns: MRT_ColumnDef<TaskDetails>[] = [
   {
     accessorKey: 'id',
     header: 'ID',
-    size: 1,
+    size: 220,
+    Cell: ({ renderedCellValue, row }) => (<Link to={"/task/" + row.original.id} >{renderedCellValue}</Link>)
+  },
+  {
+    accessorKey: 'stack',
+    header: 'STACK',
+    size: 180,
+    Cell: ({ renderedCellValue, row }) => (<Link to={"/stack/" + row.original.stack} >{renderedCellValue}</Link>)
+  },
+  {
+    accessorKey: 'service',
+    header: 'SERVICE',
+    size: 230,
+    Cell: ({ renderedCellValue, row }) => (<Link to={"/service/" + row.original.serviceId} >{renderedCellValue}</Link>)
   },
   {
     accessorKey: 'created',
     header: 'CREATED',
-    size: 1,
+    size: 180,
+  },
+  {
+    accessorKey: 'age',
+    header: 'AGE',
+    size: 180,
+    Cell: ({ row }) => (duration.toString(duration.normalize(row.original.age * 1000)))
   },
   {
     accessorKey: 'image',
     header: 'IMAGE',
     filterVariant: 'select',
-    size: 1,
+    size: 600,
   },
   {
     accessorKey: 'desiredState',
     header: 'DESIRED STATE',
     filterVariant: 'select',
-    size: 1,
+    size: 100,
   },
   {
     accessorKey: 'currentState',
     header: 'CURRENT STATE',
     filterVariant: 'select',
-    size: 1,
+    size: 100,
   },
   {
     accessorKey: 'error',
     header: 'ERROR',
-    size: 1,
+    size: 180,
   },
   {
     accessorKey: 'memory',
     header: 'MEMORY',
     filterVariant: 'select',
-    size: 1,
+    size: 180,
   },
   {
     accessorKey: 'ports',
     header: 'PORTS',
     filterVariant: 'select',
-    size: 1,
+    size: 300,
+    Cell: ({ renderedCellValue }) => <div className="text-wrap">{renderedCellValue}</div>
   },
 ]
+
+const defaultState: MaterialTableState = {
+  columnFilters: []
+  , columnOrder: taskColumns.map((c) => c.accessorKey as string)
+  , columnVisibility: { error: false, memory: false, created: false }
+  , columnSizing: {}
+  , density: 'compact'
+  , showColumnFilters: false
+  , showGlobalFilter: false
+  , sorting: []
+}
+
+const heightOffset = 128
 
 interface TasksProps {
   baseUrl: string
@@ -73,70 +109,80 @@ interface TasksProps {
 }
 function Tasks(props: TasksProps) {
 
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [services, setServices] = useState<Map<string, Service>>(new Map<string, Service>())
-  const [nodes, setNodes] = useState<Map<string, Node>>(new Map<string, Node>())
-
   const [taskDetails, setTaskDetails] = useState<TaskDetails[]>([])
+  const [maxHeight, setMaxHeight] = useState<Number>(window.innerHeight - heightOffset)
+  const [maxWidth, setMaxWidth] = useState<Number>(window.innerWidth)
 
   useEffect(() => {
-    props.docker.tasks()
-      .then(j => {
-        setTasks(j)
-      })
+      const handleResize = () => {
+        setMaxHeight(window.innerHeight - heightOffset);
+        setMaxWidth(window.innerWidth);
+      };
 
-    props.docker.services()
-      .then(svcs => {
-        setServices(svcs.reduce((result, current) => { 
-          if (current.ID) {
-            result.set(current.ID, current)
-          }
-          return result
-        }, new Map<string, Service>()))
-      })
+      window.addEventListener('resize', handleResize);
+      return () => {
+          window.removeEventListener('resize', handleResize);
+      };
+  }, []);
 
-    props.docker.nodes()
-      .then(nods => {
-        setNodes(nods.reduce((result, current) => {
-          if (current.ID) {
-            result.set(current.ID, current)
-          }
-          return result
-        }, new Map<string, Node>()))
-      })
+  useEffect(() => {
+    console.log(Date.now(), 'Getting data', props)
     props.setTitle('Tasks')
-  }, [props])
 
-  useEffect(() => {
-    setTaskDetails(
-      tasks.reduce((result, current) => {
+    Promise.all([
+      props.docker.exposedPorts()
+      , props.docker.tasks()
+      , props.docker.servicesById()
+      , props.docker.nodesById()
+    ]).then(value => {
+      const nowMs = Date.now()
+      const exposedPorts = value[0]
+      const tasks = value[1]
+      const services = value[2]
+      const nodes = value[3]
+
+      console.log(Date.now(), 'Got', tasks, services, nodes, exposedPorts)
+      const tsks = tasks.reduce((result, current) => {
         if (current.ID) {
+          const ports = (current.Status?.PortStatus?.Ports?.map(portSpec => {
+            return portSpec.PublishedPort + ':' + portSpec.TargetPort
+          }) || []).concat(
+            current.Spec?.ContainerSpec?.Image ? exposedPorts[current.Spec.ContainerSpec.Image.replace(/:.*@/, "@")] : []
+          ).filter(Boolean).join(', ')
+          const age = current.CreatedAt ? ~~((nowMs - new Date(current.CreatedAt).getTime()) / 1000) : 0
+
           result.push({
             id: current.ID
+            , stack: current.Spec?.ContainerSpec?.Labels && current.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'] || ''
+            , service: (services && current.ServiceID) ? services.get(current.ServiceID)?.Spec?.Name || '' : ''
+            , serviceId: current.ServiceID || ''
             , created: current.CreatedAt || ''
+            , age: age
             , image: current.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
             , desiredState: current.DesiredState || ''
             , currentState: current.Status?.State || ''
             , error: current.Status?.Err || ''
             , memory: String(current?.Status?.State === 'running' && current?.Spec?.Resources?.Limits?.MemoryBytes ? current?.Spec?.Resources?.Limits?.MemoryBytes / 1048576 : '')
-            , ports: current.Status?.PortStatus?.Ports?.map(portSpec => {
-              return portSpec.PublishedPort + ':' + portSpec.TargetPort
-            })?.join() || ''
+            , ports: ports
           })
         }
         return result
-      }, [] as TaskDetails[]
-      )
-    )
-  }, [tasks, services, nodes, props])
+      }, [] as TaskDetails[])
+      console.log(Date.now(), 'Set task details', tsks)
+      setTaskDetails(tsks)
+    })
+  }, [props])
 
-  return (<>
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid2 container sx={{ overflowX: 'auto', overflowY: 'visible' }}>
-        <MaterialTable id="tasks" columns={taskColumns} data={taskDetails} />
-      </Grid2>
-    </Box>
-  </>)
+  console.log(window.innerHeight)
+  return (
+    <MaterialTable id="tasks"
+      columns={taskColumns}
+      data={taskDetails}
+      defaultState={defaultState}
+      virtual={true}
+      muiTableContainerProps={{ sx: { maxHeight: maxHeight + 'px', maxWidth: maxWidth + 'px' } }}
+    />
+  )
 
 
 }

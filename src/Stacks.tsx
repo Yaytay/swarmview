@@ -18,8 +18,7 @@ const stackColumns : MRT_ColumnDef<StackDetails>[] = [
     accessorKey: 'name',
     header: 'NAME',
     size: 1,
-    Cell: ({ renderedCellValue, row }) =>
-      (<Link to={"/stack/" + row.original.name} >{renderedCellValue}</Link>)
+    Cell: ({ renderedCellValue, row }) => (<Link to={"/stack/" + row.original.name} >{renderedCellValue}</Link>)
   },
   {
     accessorKey: 'services',
