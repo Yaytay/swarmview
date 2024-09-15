@@ -16,6 +16,63 @@ const vite = await createServer({
  
 app.use(morgan('combined'))
 
+if (process.env.DOCKER_PROXY_CAPTURE_FOR_MOCK === 'true') {
+  function logResponseBody(req, res, next) {
+    if (req.path.startsWith('/docker') || req.path.startsWith('/api')) {
+
+      const origPath = req.path
+      var oldWrite = res.write,
+        oldEnd = res.end;
+
+      var chunks = [];
+
+      res.write = function (chunk) {
+        chunks.push(Buffer.copyBytesFrom(chunk));
+
+        oldWrite.apply(res, arguments);
+      };
+
+      res.end = function (chunk) {
+        if (chunk)
+          chunks.push(Buffer.copyBytesFrom(chunk));
+        
+        var body = Buffer.concat(chunks).toString('utf8');
+        const path = 'server/mock' + origPath
+        const dir = path.split('/').slice(0, -1).join('/')
+        try {
+          fs.mkdirSync(dir, {recursive: true})
+          fs.writeFileSync(path, body)
+        } catch (error) {
+          console.log(error)
+        }
+
+        oldEnd.apply(res, arguments);
+      };
+
+    }
+    next();
+  }
+  app.use(logResponseBody);
+} else if (process.env.DOCKER_PROXY_MOCK === 'true') {
+  function mockResponseBody(req, res, next) {
+    if (req.path.startsWith('/docker') || req.path.startsWith('/api')) {
+
+      const origPath = req.path
+
+      try {
+        const path = 'server/mock' + origPath
+        const body = fs.readFileSync(path)
+        res.status(200).end(body)
+      } catch (error) {
+        console.log(error)
+      }
+  } else {
+      next();
+    }
+  }
+  app.use(mockResponseBody);
+}
+
 app.use(apiRouter)
 
 app.use(vite.middlewares);

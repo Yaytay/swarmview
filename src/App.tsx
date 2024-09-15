@@ -52,7 +52,8 @@ function App() {
     enqueueSnackbar(err, { variant: 'error' })
   }
 
-  const dockerApi = useMemo(() => new DockerApi(baseUrl, apiErrorHandler), [])
+  const dockerApi = useMemo(() => new DockerApi(baseUrl, apiErrorHandler), [baseUrl])
+
   const [lastUpdate, setLastUpdate] = useState<Date>(dockerApi.lastUpdated())
 
   const theme = useMemo(() => {
