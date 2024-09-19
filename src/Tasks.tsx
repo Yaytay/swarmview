@@ -173,7 +173,6 @@ function Tasks(props: TasksProps) {
     })
   }, [props])
 
-  console.log(window.innerHeight)
   return (
     <MaterialTable id="tasks"
       columns={taskColumns}
@@ -183,7 +182,6 @@ function Tasks(props: TasksProps) {
       muiTableContainerProps={{ sx: { maxHeight: maxHeight + 'px', maxWidth: maxWidth + 'px' } }}
     />
   )
-
 
 }
 

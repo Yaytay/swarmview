@@ -99,6 +99,11 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
       , enableColumnVirtualization: false
       , enableStickyHeader: true
       , muiTableContainerProps: props.muiTableContainerProps
+      /*
+      , muiTopToolbarProps: {
+        
+      }
+      */
       , icons: {
         ContentCopy: (props: any) => <ContentCopyIcon fontSize="small" {...props} />
         , SearchIcon: (props: any) => <SearchIcon fontSize="small" {...props} />
