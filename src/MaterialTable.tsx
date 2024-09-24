@@ -1,4 +1,4 @@
-import { Box, IconButton, TableContainerProps, Tooltip, useTheme } from "@mui/material";
+import { Box, IconButton, PaperProps, TableContainerProps, Tooltip, useTheme } from "@mui/material";
 import { MaterialReactTable, MRT_ColumnDef, MRT_ColumnFiltersState, MRT_ColumnOrderState, MRT_ColumnSizingState, MRT_DensityState, MRT_RowData, MRT_ShowHideColumnsButton, MRT_SortingState, MRT_TableInstance, MRT_ToggleDensePaddingButton, MRT_ToggleFiltersButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, MRT_VisibilityState, useMaterialReactTable } from "material-react-table"
 import { useEffect, useRef, useState } from "react";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -33,7 +33,9 @@ interface MaterialTableProps<Type extends MRT_RowData> {
   data: Type[]
   defaultState?: MaterialTableState
   virtual?: boolean
+  border?: boolean
   muiTableContainerProps?: TableContainerProps
+  muiTablePaperProps?: PaperProps
 }
 
 function loadState(id: string) : MaterialTableState | undefined {
@@ -99,12 +101,8 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
       , enableColumnVirtualization: false
       , enableStickyHeader: true
       , muiTableContainerProps: props.muiTableContainerProps
-      /*
-      , muiTopToolbarProps: {
-        
-      }
-      */
-      , icons: {
+      , muiTablePaperProps: props.border ? {} : { sx: {border: 'none', boxShadow: 'none'} }
+     , icons: {
         ContentCopy: (props: any) => <ContentCopyIcon fontSize="small" {...props} />
         , SearchIcon: (props: any) => <SearchIcon fontSize="small" {...props} />
         , FilterListIcon: (props: any) => <FilterListIcon fontSize="small" {...props} />

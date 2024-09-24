@@ -6,6 +6,7 @@ import { Network, Service, Task, Node } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
 import { DockerApi } from './DockerApi';
+import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
 
 interface StackUiProps {
   baseUrl: string
@@ -25,14 +26,36 @@ function StackUi(props: StackUiProps) {
   const [tasks, setTasks] = useState<Map<string, Map<string, Task[]>>>(new Map())
   const [exposedPorts, setExposedPorts] = useState<Record<string, string[]>>()
 
+  const [serviceDetails, setServiceDetails] = useState<ServiceDetails[]>([])
+
   const [stackServices, setStackServices] = useState<DataTableValue[][]>([])
-  const [stackServiceHeaders, setStackServiceHeaders] = useState<string[]>([])
   const [stackTasks, setStackTasks] = useState<DataTableValue[][]>([])
   const [stackTaskHeaders, setStackTaskHeaders] = useState<string[]>([])
   const [stackNetworks, setStackNetworks] = useState<DataTableValue[][]>([])
   const [stackNetworkHeaders, setStackNetworkHeaders] = useState<string[]>([])
 
   useEffect(() => {
+    Promise.all([
+      props.docker.services()
+      , props.docker.exposedPorts()
+    ]).then(value => {
+      const services = value[0]
+      const exposedPorts = value[1]
+  
+      setServiceDetails(
+        services?.reduce((result, current) => {
+          const labels = current.Spec?.Labels
+          if (labels && id === labels['com.docker.stack.namespace']) {
+            result.push(
+              createServiceDetails(current, exposedPorts)
+            )
+          }
+          return result;
+        }, [] as ServiceDetails[])
+      )
+    })
+  
+  
     props.docker.services()
       .then(j => {
         const baseServices = j as Service[]
@@ -43,7 +66,6 @@ function StackUi(props: StackUiProps) {
           }
         })
         setServices(buildServices)
-        setStackServiceHeaders(['ID', 'NAME', 'MODE', 'REPLICAS', 'IMAGE', 'PORTS'])
         setStackServices(baseServices.reduce((acc, svc) => {
           const labels = svc.Spec?.Labels
           if (labels) {
@@ -217,8 +239,7 @@ function StackUi(props: StackUiProps) {
           {
             stackServices &&
             <Section id="stack.services" heading="Services" xs={12}>
-              <DataTable id="stack.services.table" headers={stackServiceHeaders} rows={stackServices}>
-              </DataTable>
+              <ServicesTable id="stack.services" services={serviceDetails} />
             </Section>
           }
           {
