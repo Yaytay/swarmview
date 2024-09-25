@@ -56,16 +56,16 @@ const serviceColumns: MRT_ColumnDef<ServiceDetails>[] = [
   },
 ]
 
-interface ServicesProps {
+interface ServicesTableProps {
   id: string
   services: ServiceDetails[]
   border?: boolean
   maxSize?: Dimensions
 }
-function ServicesTable(props: ServicesProps) {
+function ServicesTable(props: ServicesTableProps) {
   return (
     <MaterialTable
-      id="services"
+      id={props.id}
       columns={serviceColumns}
       data={props.services}
       border={props.border}
