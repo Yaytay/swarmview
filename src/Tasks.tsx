@@ -4,6 +4,7 @@ import { MRT_ColumnDef } from 'material-react-table';
 import MaterialTable, { MaterialTableState } from './MaterialTable';
 import { Link } from 'react-router-dom';
 import * as duration from 'duration-fns'
+import { Dimensions } from './app-types';
 
 interface TaskDetails {
   id: string
@@ -99,31 +100,16 @@ const defaultState: MaterialTableState = {
   , sorting: []
 }
 
-const heightOffset = 128
-
 interface TasksProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
   refresh: Date
+  maxSize: Dimensions
 }
 function Tasks(props: TasksProps) {
 
   const [taskDetails, setTaskDetails] = useState<TaskDetails[]>([])
-  const [maxHeight, setMaxHeight] = useState<Number>(window.innerHeight - heightOffset)
-  const [maxWidth, setMaxWidth] = useState<Number>(window.innerWidth)
-
-  useEffect(() => {
-      const handleResize = () => {
-        setMaxHeight(window.innerHeight - heightOffset);
-        setMaxWidth(window.innerWidth);
-      };
-
-      window.addEventListener('resize', handleResize);
-      return () => {
-          window.removeEventListener('resize', handleResize);
-      };
-  }, []);
 
   useEffect(() => {
     console.log(Date.now(), 'Getting data', props)
@@ -179,7 +165,7 @@ function Tasks(props: TasksProps) {
       data={taskDetails}
       defaultState={defaultState}
       virtual={true}
-      muiTableContainerProps={{ sx: { maxHeight: maxHeight + 'px', maxWidth: maxWidth + 'px' } }}
+      muiTableContainerProps={ props.maxSize ? { sx: { maxHeight: props.maxSize.height + 'px', maxWidth: props.maxSize.width + 'px' } } : {}}
     />
   )
 

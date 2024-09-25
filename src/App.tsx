@@ -3,7 +3,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter, Link, Routes, Route, Navigate } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 
 import ServiceUi from './Service'
 import NetworkUi from './Network'
@@ -36,12 +36,17 @@ import Stack from '@mui/material/Stack';
 import { PaletteMode } from '@mui/material';
 import { DockerApi } from './DockerApi';
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
+import { Dimensions } from './app-types';
+
+const heightOffset = 128
+const widthOffset = 180
 
 function App() {
 
   const baseUrl = ''
 
   const [title, setTitle] = useState('Swarm View')
+  const [maxSize, setMaxSize] = useState<Dimensions>({ height: window.innerHeight - heightOffset, width: window.innerWidth - widthOffset })
 
   const [mode, setMode] = useState<PaletteMode>(() => {
     const storedValue = localStorage.getItem('theme')
@@ -55,6 +60,19 @@ function App() {
   const dockerApi = useMemo(() => new DockerApi(baseUrl, apiErrorHandler), [baseUrl])
 
   const [lastUpdate, setLastUpdate] = useState<Date>(dockerApi.lastUpdated())
+
+  useEffect(() => {
+    const handleResize = () => {
+      const sz = { height: window.innerHeight - heightOffset, width: window.innerWidth - widthOffset }
+      console.log('Recording max size as', sz)
+      setMaxSize(sz)
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const theme = useMemo(() => {
     const thm = (mode === 'light' ?
@@ -140,9 +158,9 @@ function App() {
               <Route path='/task/:id' element={<TaskUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route path='/secret/:id' element={<SecretUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route path='/config/:id' element={<ConfigUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
-              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/services' element={<Services baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} maxSize={maxSize} />}></Route>
               <Route index path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
-              <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} maxSize={maxSize} />}></Route>
               <Route index path='/nodes' element={<Nodes baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route index path='/networks' element={<Networks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route index path='/secrets' element={<Secrets baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
@@ -150,7 +168,7 @@ function App() {
               <Route path="*" element={<Navigate to="/services" replace={true} />} />
             </Routes>
           </Box>
-          <SnackbarProvider  autoHideDuration={10000} />
+          <SnackbarProvider autoHideDuration={10000} />
         </Box>
       </BrowserRouter>
     </ThemeProvider>

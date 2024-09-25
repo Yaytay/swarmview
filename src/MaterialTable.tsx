@@ -64,6 +64,8 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
   }
   const [state, setState] = useState<MaterialTableState>(loadState(props.id) || defaultState)
 
+  console.log('props', props)
+
   function copy(table : MRT_TableInstance<Type>) {
     const header = table.getVisibleLeafColumns().map(c => c.columnDef.header).join('\t')
     const body = table.getRowModel().flatRows.map(row => row.getVisibleCells().map(c => c.renderValue()).join('\t')).join('\n')

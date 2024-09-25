@@ -1,9 +1,9 @@
 import Box from '@mui/material/Box';
-import Grid2 from '@mui/material/Grid2';
 import MaterialTable from '../MaterialTable';
 import { Link } from 'react-router-dom';
 import { MRT_ColumnDef } from 'material-react-table';
 import { Service } from '../docker-schema';
+import { Dimensions } from '../app-types';
 
 export interface ServiceDetails {
   id: string
@@ -14,7 +14,7 @@ export interface ServiceDetails {
   ports?: string
 }
 
-const serviceColumns : MRT_ColumnDef<ServiceDetails>[] = [
+const serviceColumns: MRT_ColumnDef<ServiceDetails>[] = [
   {
     accessorKey: 'id',
     header: 'ID',
@@ -59,15 +59,20 @@ const serviceColumns : MRT_ColumnDef<ServiceDetails>[] = [
 interface ServicesProps {
   id: string
   services: ServiceDetails[]
+  border?: boolean
+  maxSize?: Dimensions
 }
 function ServicesTable(props: ServicesProps) {
-  return (<>
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid2 container >
-        <MaterialTable id="services" columns={serviceColumns} data={props.services} border={false} />
-      </Grid2>
-    </Box>
-  </>)
+  return (
+    <MaterialTable
+      id="services"
+      columns={serviceColumns}
+      data={props.services}
+      border={props.border}
+      virtual={false}
+      muiTableContainerProps={ props.maxSize ? { sx: { maxHeight: props.maxSize.height + 'px', maxWidth: props.maxSize.width + 'px' } } : {}}
+    />
+  )
 }
 
 export function createServiceDetails(svc: Service, exposedPorts: Record<string, string[]>): ServiceDetails {
