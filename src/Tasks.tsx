@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { DockerApi } from './DockerApi';
 import { Dimensions } from './app-types';
-import TasksTable, { createTaskDetails, TaskDetails } from './tables/TasksTable';
+import TasksTable, { createTaskDetails, processTaskDetailsSubRows, TaskDetails } from './tables/TasksTable';
 
 interface TasksProps {
   baseUrl: string
@@ -32,15 +32,15 @@ function Tasks(props: TasksProps) {
           result.push(
             createTaskDetails(current, servicesById, exposedPorts, nowMs)
           )
-        }
+        }        
         return result
       }, [] as TaskDetails[])
-      setTaskDetails(tsks)
+      setTaskDetails(processTaskDetailsSubRows(tsks))
     })
   }, [props])
 
   return (
-    <TasksTable id="services" tasks={taskDetails} border={true} maxSize={props.maxSize} />
+    <TasksTable id="tasks" tasks={taskDetails} border={true} maxSize={props.maxSize} />
   )
 
 }

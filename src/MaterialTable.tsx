@@ -34,6 +34,7 @@ interface MaterialTableProps<Type extends MRT_RowData> {
   defaultState?: MaterialTableState
   virtual?: boolean
   border?: boolean
+  subrows?: boolean
   muiTableContainerProps?: TableContainerProps
   muiTablePaperProps?: PaperProps
 }
@@ -102,9 +103,17 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
       , enableRowVirtualization: props.virtual || false
       , enableColumnVirtualization: false
       , enableStickyHeader: true
+      , enableExpanding: props.subrows || false
+      , filterFromLeafRows: true
       , muiTableContainerProps: props.muiTableContainerProps
       , muiTablePaperProps: props.border ? {} : { sx: {border: 'none', boxShadow: 'none'} }
-     , icons: {
+      , displayColumnDefOptions: {
+        'mrt-row-expand': {
+          enableResizing: true, //allow resizing
+          size: 50, //make the expand column wider
+        },
+      }
+      , icons: {
         ContentCopy: (props: any) => <ContentCopyIcon fontSize="small" {...props} />
         , SearchIcon: (props: any) => <SearchIcon fontSize="small" {...props} />
         , FilterListIcon: (props: any) => <FilterListIcon fontSize="small" {...props} />
@@ -203,8 +212,6 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
           </Tooltip>
         </Box>
       )
-      , getRowId: (originalRow) => originalRow.ID || ''
-
     }
   );
   // console.log(Date.now(), 'Called useMaterialReactTable', state)
