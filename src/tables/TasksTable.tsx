@@ -3,7 +3,7 @@ import MaterialTable, { MaterialTableState } from '../MaterialTable';
 import { Link } from 'react-router-dom';
 import * as duration from 'duration-fns'
 import { Dimensions } from '../app-types';
-import { Service, Task } from '../docker-schema';
+import { Service, Task, Node } from '../docker-schema';
 
 export interface TaskDetails {
   id: string
@@ -11,6 +11,8 @@ export interface TaskDetails {
   stack: string
   service: string
   serviceId: string
+  node: string
+  nodeId: string
   created?: string
   age: number
   image: string
@@ -46,6 +48,12 @@ const taskColumns: MRT_ColumnDef<TaskDetails>[] = [
     header: 'SERVICE',
     size: 230,
     Cell: ({ renderedCellValue, row }) => (<Link to={"/service/" + row.original.serviceId} >{renderedCellValue}</Link>)
+  },
+  {
+    accessorKey: 'node',
+    header: 'NODE',
+    size: 230,
+    Cell: ({ renderedCellValue, row }) => (<Link to={"/node/" + row.original.serviceId} >{renderedCellValue}</Link>)
   },
   {
     accessorKey: 'created',
@@ -128,7 +136,7 @@ function TasksTable(props: TasksTableProps) {
   )
 }
 
-export function createTaskDetails(task: Task, servicesById: Map<string, Service>, exposedPorts: Record<string, string[]>, nowMs: number): TaskDetails {
+export function createTaskDetails(task: Task, servicesById: Map<string, Service>, nodesById: Map<string, Node>, exposedPorts: Record<string, string[]>, nowMs: number): TaskDetails {
   const ports = (task.Status?.PortStatus?.Ports?.map(portSpec => {
     return portSpec.PublishedPort + ':' + portSpec.TargetPort
   }) || []).concat(
@@ -140,12 +148,16 @@ export function createTaskDetails(task: Task, servicesById: Map<string, Service>
   const service = (servicesById && task.ServiceID) ? servicesById.get(task.ServiceID)?.Spec?.Name || '' : ''
   const name = service + '.' + (task.Slot || task.NodeID)
 
+  const node = (nodesById && task.NodeID) ? nodesById.get(task.NodeID)?.Description?.Hostname || '' : ''
+
   return {
     id: task.ID || ''
     , name: name
     , stack: stack
     , service: service
     , serviceId: task.ServiceID || ''
+    , node: node
+    , nodeId: task.NodeID || ''
     , created: task.CreatedAt || ''
     , age: age
     , image: task.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
@@ -165,7 +177,6 @@ export function processTaskDetailsSubRows(input: TaskDetails[]) : TaskDetails[] 
     }
     return result
   })
-  console.log('sorted', sorted)
   const result = sorted.reduce((result, current) => {
     if (result.length === 0) {
       result.push(current)
@@ -182,7 +193,6 @@ export function processTaskDetailsSubRows(input: TaskDetails[]) : TaskDetails[] 
 
     return result
   }, [] as TaskDetails[])
-  console.log('result', result)
   return result
 }
 

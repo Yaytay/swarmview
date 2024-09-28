@@ -21,16 +21,18 @@ function Tasks(props: TasksProps) {
       props.docker.exposedPorts()
       , props.docker.tasks()
       , props.docker.servicesById()
+      , props.docker.nodesById()
     ]).then(value => {
       const nowMs = Date.now()
       const exposedPorts = value[0]
       const tasks = value[1]
       const servicesById = value[2]
+      const nodesById = value[3]
 
       const tsks = tasks.reduce((result, current) => {
         if (current.ID) {
           result.push(
-            createTaskDetails(current, servicesById, exposedPorts, nowMs)
+            createTaskDetails(current, servicesById, nodesById, exposedPorts, nowMs)
           )
         }        
         return result
