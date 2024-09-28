@@ -34,9 +34,9 @@ function Services(props: ServicesProps) {
     })
   }, [props])
 
-  return (<>
+  return (
     <ServicesTable id="services" services={serviceDetails} border={true} maxSize={props.maxSize} />
-  </>)
+  )
 
 
 }
