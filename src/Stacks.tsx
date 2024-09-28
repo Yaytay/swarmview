@@ -1,114 +1,68 @@
 import { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import { Network, Service } from './docker-schema';
 import { DockerApi } from './DockerApi';
-import { MRT_ColumnDef } from 'material-react-table';
-import { Link } from 'react-router-dom';
-import MaterialTable from './MaterialTable';
-
-interface StackDetails {
-  name: string
-  services: number
-  networks: number
-}
-
-const stackColumns : MRT_ColumnDef<StackDetails>[] = [
-  {
-    accessorKey: 'name',
-    header: 'NAME',
-    size: 1,
-    Cell: ({ renderedCellValue, row }) => (<Link to={"/stack/" + row.original.name} >{renderedCellValue}</Link>)
-  },
-  {
-    accessorKey: 'services',
-    header: 'SERVICES',
-    size: 1,
-  },
-  {
-    accessorKey: 'networks',
-    header: 'NETWORKS',
-    size: 1,
-  },
-]
+import StacksTable, { StackDetails } from './tables/StacksTable';
+import { Dimensions } from './app-types';
 
 interface StacksProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
   refresh: Date
+  maxSize: Dimensions
 }
 function Stacks(props: StacksProps) {
 
   const [stacks, setStacks] = useState<StackDetails[]>([])
-  const [services, setServices] = useState<Map<string, Service[]>>(new Map())
-  const [networks, setNetworks] = useState<Map<string, Network[]>>(new Map())
 
   useEffect(() => {
-    props.docker.services()
-      .then(j => {
-        props.setTitle('Stacks')
-        const baseServices = j as Service[]
-        const buildServices = new Map<string, Service[]>()
-        baseServices.forEach(svc => {
-          const labels = svc.Spec?.Labels
-          if (labels) {
-            const namespace = labels['com.docker.stack.namespace']
-            if (namespace) {
-              const current = buildServices.get(namespace)
-              if (current) {
-                current.push(svc)
-              } else {
-                buildServices.set(namespace, [svc])
-              }
-            }
-          }
-        })
-        setServices(buildServices)
-      })
-    props.docker.networks()
-      .then(j => {
-        const baseNetworks = j as Network[]
-        const buildNetworks = new Map<string, Network[]>()
-        baseNetworks.forEach(net => {
-          const labels = net.Labels
-          if (labels) {
-            const namespace = labels['com.docker.stack.namespace']
-            if (namespace) {
-              const current = buildNetworks.get(namespace)
-              if (current) {
-                current.push(net)
-              } else {
-                buildNetworks.set(namespace, [net])
-              }
-            }
-          }
-        })
-        setNetworks(buildNetworks)
-      })
-  }
-    , [props])
+    props.setTitle('Stacks')
 
-  useEffect(() => {
-    const buildStacks = [] as StackDetails[]
-    services.forEach((svcs, key) => {
-      buildStacks.push({
-        name: key
-        , services: svcs?.length || 0
-        , networks: networks?.get(key)?.length || 0
-      })
+    Promise.all([
+      props.docker.services()
+      , props.docker.networks()
+    ]).then(value => {
+      const services = value[0]
+      const networks = value[1]
+
+      const stks1 = services.reduce((result, current) => {
+        const labels = current.Spec?.Labels
+        if (labels) {
+          const namespace = labels['com.docker.stack.namespace']
+          if (namespace) {
+            const sd = result.get(namespace)
+            if (sd) {
+              sd.services++
+            } else {
+              result.set(namespace, {name: namespace, services: 1, networks: 0})
+            }
+          }
+        }        
+        return result
+      }, new Map<string, StackDetails>())
+
+      const stks2 = networks.reduce((result, current) => {
+        const labels = current.Labels
+        if (labels) {
+          const namespace = labels['com.docker.stack.namespace']
+          if (namespace) {
+            const sd = result.get(namespace)
+            if (sd) {
+              sd.networks++
+            } else {
+              result.set(namespace, {name: namespace, services: 0, networks: 1})
+            }
+          }
+        }        
+        return result
+      }, stks1)
+
+      setStacks(Array.from(stks2.values()))
     })
-    setStacks(buildStacks)
-  }, [services, networks])
+  }, [props])
 
-  return (<>
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid container >
-        <MaterialTable id="stacks" columns={stackColumns} data={stacks} />
-      </Grid>
-    </Box>
-  </>)
-
+  return (
+    <StacksTable id="stacks" stacks={stacks} border={true} maxSize={props.maxSize} />
+  )
 
 }
 
