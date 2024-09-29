@@ -1,86 +1,47 @@
 import { useState, useEffect } from 'react';
-import DataTable, { DataTablePropsEntry } from './DataTable';
-import { Config, Service } from './docker-schema'
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import { DockerApi } from './DockerApi';
+import { Dimensions } from './app-types';
+import ConfigsTable, { buildServicesByConfig, ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
 
 interface ConfigsProps {
   baseUrl: string
   setTitle: (title: string) => void
   docker: DockerApi
   refresh: Date
+  maxSize: Dimensions
 }
 function Configs(props: ConfigsProps) {
 
-  const [configs, setConfigs] = useState<Config[]>([])
-  const [services, setServices] = useState<Map<string, Service[]>>(new Map())
-  const [data, setData] = useState<(string | DataTablePropsEntry | DataTablePropsEntry[])[][]>()
+  const [configs, setConfigs] = useState<ConfigDetails[]>([])
 
   useEffect(() => {
+    props.setTitle('Configs')
 
-    props.docker.configs()
-      .then(cfgs => {
-        props.setTitle('Configs')
-        if (cfgs) {
-          setConfigs(cfgs)
+    Promise.all([
+      props.docker.configs()
+      , props.docker.services()
+    ]).then(value => {
+      const configs = value[0]
+      const services = value[1]
+
+      const servicesByConfig = buildServicesByConfig(services)
+      const nowMs = Date.now()
+
+      setConfigs(
+        configs.reduce((result, current) => {
+          if (current.ID) {
+            result.push(createConfigDetails(current, servicesByConfig, nowMs))
+          }
+          return result
         }
-      })
-    props.docker.services()
-      .then(svcs => {
-        const buildServices: Map<string, Service[]> = new Map()
-        svcs.forEach((svc: Service) => {
-          svc.Spec?.TaskTemplate?.ContainerSpec?.Configs?.forEach(svcCnf => {
-            if (svcCnf.ConfigID) {
-              let svcConfigs = buildServices.get(svcCnf.ConfigID)
-              if (!svcConfigs) {
-                svcConfigs = []
-                buildServices.set(svcCnf.ConfigID, svcConfigs)
-              }
-              svcConfigs.push(svc)
-            }
-          })
-        });
-        setServices(buildServices)
-      })
+          , [] as ConfigDetails[])
+      )
+    })
   }, [props.refresh])
 
-  useEffect(() => {
-    const newData = [] as (string | DataTablePropsEntry | DataTablePropsEntry[])[][]
-    configs.forEach((cnf: Config) => {
-      if (cnf.ID) {
-        const cnfSvcs = services?.get(cnf.ID)?.map(svc => {
-          return { link: '/service/' + svc.ID, value: svc.Spec?.Name || svc.ID || '' }
-        })
-
-        newData.push(
-          [
-            { link: '/config/' + cnf.ID, value: cnf.ID }
-            , cnf.Spec?.Name || ''
-            , cnf.CreatedAt || ''
-            , cnfSvcs || ''
-          ]
-        )
-      }
-    });
-    setData(newData)
-  }, [configs, services])
-
-return (<>
-  <Box sx={{ flexGrow: 1 }}>
-    <Grid container >
-      <Paper>
-        <DataTable id="configs" headers={
-          ['ID', 'NAME', 'CREATED', 'SERVICES']
-        } rows={data}>
-        </DataTable>
-      </Paper>
-    </Grid>
-  </Box>
-</>)
-
-
+  return (
+    <ConfigsTable id="configs" configs={configs} border={true} maxSize={props.maxSize} />
+  )
 }
 
 export default Configs;
