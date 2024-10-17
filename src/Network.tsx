@@ -3,14 +3,16 @@ import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Network, Service } from './docker-schema';
+import { Network } from './docker-schema';
 import Section from './Section'
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import { DockerApi } from './DockerApi';
 import KeyValueTable from './KeyValueTable';
+import LabelsTable, { createLabelDetails, LabelDetails } from './tables/LabelsTable';
+import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
+import IpamConfigsTable, { createIpamConfigDetails, IpamConfigDetails } from './tables/IpamConfigsTable';
 
 
 interface NetworkProps {
@@ -24,65 +26,63 @@ type NetworkUiParams = {
 };
 function NetworkUi(props: NetworkProps) {
 
-  const [network, setNetwork] = useState<Network | null>(null)
+  const [network, setNetwork] = useState<Network | undefined>()
   const [tab, setTab] = useState(0)
 
   const { id } = useParams<NetworkUiParams>();
 
-  const [services, setServices] = useState<Service[]>([])
-  const [labels, setLabels] = useState<(string | number | DataTablePropsEntry)[][]>([])
-  const [networkServices, setNetworkServices] = useState<DataTableValue[][]>([])
+  const [labelDetails, setLabelDetails] = useState<LabelDetails[]>([])
+  const [serviceDetails, setServiceDetails] = useState<ServiceDetails[]>([])
+  const [ipamDetails, setIpamDetails] = useState<IpamConfigDetails[]>([])
 
   useEffect(() => {
-    props.docker.networks()
-      .then(nets => {
-        console.log('Networks: ', nets)
-        const net = nets.find(net => { return net.Id === id })
-        if (net) {
-          setNetwork(net)
-        } 
-      })
+    Promise.all([
+      props.docker.networks()
+      , props.docker.services()
+      , props.docker.exposedPorts()
+    ]).then(value => {
+      const nets = value[0]
+      const services = value[1]
+      const exposedPorts = value[2]
 
-    props.docker.services()
-      .then(j => {
-        setServices(j)
-      })
-  }
-    , [props.refresh, id])
+      const net = nets.find(net => { return net.Id === id })
+      setNetwork(net)
+      props.setTitle('Network: ' + net?.Name)
 
-  useEffect(() => {
-    props.setTitle('Network: ' + network?.Name)
+      if (net && services) {
+        setServiceDetails(services.reduce((result, current) => {
 
-    const buildLabels = [] as (string | number | DataTablePropsEntry)[][]
-    if (network?.Labels) {
-      const record = network.Labels
-      Object.keys(record).forEach(key => {
-        if (record[key]) {
-          buildLabels.push([key, record[key]])
-        }
-      })
-    }
-    setLabels(buildLabels)
+          current.Spec?.TaskTemplate?.Networks?.forEach(svcNet => {
+            if (svcNet?.Target == id && current.ID) {
+              result.push(createServiceDetails(current, exposedPorts))
+            }
+          })
 
-    const buildNetworkServices: DataTableValue[][] = []
-    services.forEach(svc => {
-      svc.Spec?.TaskTemplate?.Networks?.forEach(svcNet => {
-        console.log(svcNet)
-        if (svcNet?.Target == id && svc.ID) {
-          buildNetworkServices.push(
-            [
-              { link: '/service/' + svc.ID, value: svc.ID }
-              , svc.Spec?.Name
-              , svcNet.Aliases
-              , JSON.stringify(svcNet.DriverOpts)
-            ]
-          )
-        }
-      })
+          return result
+        }, [] as ServiceDetails[])
+        )
+      }
+
+      if (net?.Labels) {
+        const record = net.Labels
+        setLabelDetails(Object.keys(net?.Labels).reduce((result, current) => {
+          result.push(createLabelDetails(current, record[current]))
+          return result
+        }, [] as LabelDetails[]))
+      } else {
+        setLabelDetails([])
+      }
+      if (net?.IPAM?.Config) {
+        setIpamDetails(net.IPAM.Config.reduce((result, current) => {
+          result.push(createIpamConfigDetails(current))
+          return result
+        }, [] as IpamConfigDetails[]))
+      } else {
+        setIpamDetails([])
+      }
     })
-    setNetworkServices(buildNetworkServices)
-
-  }, [network, services, props, id])
+  }
+    , [props, id])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -92,7 +92,7 @@ function NetworkUi(props: NetworkProps) {
     return <></>
   } else {
     return (
-      <Box sx={{ width: '100%'}} >
+      <Box sx={{ width: '100%' }} >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="basic tabs example">
             <Tab label="Details" />
@@ -100,81 +100,54 @@ function NetworkUi(props: NetworkProps) {
           </Tabs>
         </Box>
         {
-      tab === 0 &&
-      <Box>
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2}>
-            <Section id="network.overview" heading="Overview" >
-              <KeyValueTable id="network.overview.table" kvTable={true} rows={
-                [
-                  ['ID', network.Id || '']
-                  , ['Created', network.Created || '']
-                  , ['Scope', network?.Scope || ' ']
-                  , ['Driver', network?.Driver || ' ']
-                  , ['IPv6', String(network?.EnableIPv6)]
-                  , ['Internal', String(network?.Internal)]
-                  , ['Attachable', String(network?.Attachable)]
-                  , ['Ingress', String(network?.Ingress)]
-                  , ['Stack', network?.Labels && network?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + network?.Labels['com.docker.stack.namespace'], value: network?.Labels['com.docker.stack.namespace'] } : '' ]
-                ]
-              }>
-              </KeyValueTable>
-            </Section>
-            <Section id="network.ipam" heading="IPAM" xs={6} >
-            <KeyValueTable id="network.ipam.table" kvTable={true} sx={{ width: '20em' }} rows={
-                [
-                  ['Driver', network?.IPAM?.Driver]
-                  , ['Options', JSON.stringify(network?.IPAM?.Options)]
-                ]
-              }>
-              </KeyValueTable>
-              <h3>IPAM Config</h3>
-              <DataTable id="network.ipamconfig.table" 
-                headers={['Subnet', 'IP Range', 'Gateway', 'Auxiliary Addresses']}
-                rows={
-                  network?.IPAM?.Config?.map(c => {
-                    return [
-                      c.Subnet
-                      , c.IPRange
-                      , c.Gateway
-                      , JSON.stringify(c.AuxiliaryAddresses)
+          tab === 0 &&
+          <Box>
+            <Box sx={{ flexGrow: 1 }}>
+              <Grid container spacing={2}>
+                <Section id="network.overview" heading="Overview" >
+                  <KeyValueTable id="network.overview.table" kvTable={true} rows={
+                    [
+                      ['ID', network.Id || '']
+                      , ['Created', network.Created || '']
+                      , ['Scope', network?.Scope || ' ']
+                      , ['Driver', network?.Driver || ' ']
+                      , ['IPv6', String(network?.EnableIPv6)]
+                      , ['Internal', String(network?.Internal)]
+                      , ['Attachable', String(network?.Attachable)]
+                      , ['Ingress', String(network?.Ingress)]
+                      , ['Stack', network?.Labels && network?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + network?.Labels['com.docker.stack.namespace'], value: network?.Labels['com.docker.stack.namespace'] } : '']
                     ]
-                  })
-                }>
-              </DataTable>
-            </Section>
-            <Section id="network.labels" heading="Labels" >
-              <DataTable id="network.labels.table" headers={
-                [
-                  'Label'
-                  , 'Value'
-                ]
-              } rows={labels}
-              >
-              </DataTable>
-            </Section>
+                  }>
+                  </KeyValueTable>
+                </Section>
+                <Section id="network.ipam" heading="IPAM" xs={6} >
+                  <KeyValueTable id="network.ipam.table" kvTable={true} sx={{ width: '20em' }} rows={
+                    [
+                      ['Driver', network?.IPAM?.Driver]
+                      , ['Options', JSON.stringify(network?.IPAM?.Options)]
+                    ]
+                  }>
+                  </KeyValueTable>
+                  <h3>IPAM Config</h3>
+                  <IpamConfigsTable id="network.ipamconfig.table" ipams={ipamDetails} />
+                </Section>
+                <Section id="network.labels" heading="Labels" >
+                  <LabelsTable id="network.labels.table" labels={labelDetails} />
+                </Section>
 
-            <Section id="network.services" heading="Services" xs={12} >
-              <DataTable id="network.services.table" headers={
-                [
-                  'ID'
-                  , 'Name'
-                  , 'Aliases'
-                ]
-              } rows={networkServices}
-              >
-              </DataTable>
-            </Section>
-          </Grid>
-        </Box>
-      </Box>
-    }
-    {
-      tab === 1 &&
-      <Box>
-        <JSONPretty data={network} />
-      </Box>
-    }
+                <Section id="network.services" heading="Services" xs={12} >
+                  <ServicesTable id="network.services.table" services={serviceDetails} />
+                </Section>
+              </Grid>
+            </Box>
+          </Box>
+        }
+        {
+          tab === 1 &&
+          <Box>
+            <JSONPretty data={network} />
+          </Box>
+        }
       </Box >
     )
   }
