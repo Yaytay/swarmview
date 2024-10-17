@@ -3,13 +3,14 @@ import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Secret, Service } from './docker-schema';
+import { Secret } from './docker-schema';
 import Section from './Section'
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import DataTable, { DataTableValue } from './DataTable';
 import { DockerApi } from './DockerApi';
+import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
+import KeyValueTable from './KeyValueTable';
 
 
 interface SecretProps {
@@ -25,52 +26,40 @@ function SecretUi(props: SecretProps) {
 
   const { id } = useParams<SecretUiParams>();
 
-  const [secret, setSecret] = useState<Secret | null>(null)
+  const [secret, setSecret] = useState<Secret | undefined>()
   const [tab, setTab] = useState(0)
 
-  const [services, setServices] = useState<Service[]>([])
-  const [secretServices, setSecretServices] = useState<DataTableValue[][]>([])
+  const [serviceDetails, setServiceDetails] = useState<ServiceDetails[]>([])
 
   useEffect(() => {
-    props.docker.secret(id)
-      .then(sec => {
-        if (sec) {
-          setSecret(sec)
-        }
-      })
-    props.docker.services()
-      .then(j => {
-        const svcs = j as Service[]
-        const buildServices = svcs.filter(svc => {
-          return svc.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.find(sec => sec.SecretID === id)
-        })
-        setServices(buildServices)
-      })
+    Promise.all([
+      props.docker.secret(id)
+      , props.docker.services()
+      , props.docker.exposedPorts()
+    ]).then(value => {
+      const conf = value[0]
+      const services = value[1]
+      const exposedPorts = value[2]
+
+      props.setTitle('Secret: ' + (secret?.Spec?.Name || secret?.ID || id))
+      setSecret(conf)
+
+      if (conf && services) {
+        setServiceDetails(services.reduce((result, current) => {
+
+          current.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.forEach(con => {
+            if (con.SecretID === id) {
+              result.push(createServiceDetails(current, exposedPorts))
+            }
+          })
+  
+          return result
+        }, [] as ServiceDetails[])
+        )
+      }
+    })
+
   }, [props, id])
-
-  useEffect(() => {
-    props.setTitle('Secret: ' + (secret?.Spec?.Name || secret?.ID))
-
-    if (secret && services) {
-      const secSvcs: DataTableValue[][] = []
-      services.forEach(svc => {
-        svc.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.forEach(sec => {
-          if (sec.SecretID === id) {
-            secSvcs.push(
-              [
-                { link: '/service/' + svc.ID, value: svc.Spec?.Name || svc.ID || '' }
-                , sec.SecretName
-                , sec.File?.Name
-                , sec.File?.UID + ':' + sec.File?.GID
-              ]
-            )
-          }
-        })
-      })
-      setSecretServices(secSvcs)
-    }
-
-  }, [secret, services, id, props])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -93,26 +82,21 @@ function SecretUi(props: SecretProps) {
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 <Section id="secret.overview" heading="Overview" >
-                  <DataTable id="secret.overview.table" kvTable={true} rows={
+                  <KeyValueTable id="secret.overview.table" kvTable={true} rows={
                     [
                       ['ID', secret.ID || '']
                       , ['Created', secret.CreatedAt]
                       , ['Updated', secret.UpdatedAt]
                     ]
                   }>
-                  </DataTable>
+                  </KeyValueTable>
                 </Section>
                 {
-                  services &&
+                  serviceDetails &&
                   <Section id="secret.services" heading="Services" xs={12}>
-                    <DataTable
-                      id="secret.services.table"
-                      headers={['SERVICE', 'SECRET NAME', 'MOUNTPOINT', 'UID:GID']}
-                      rows={secretServices}
-                    />
+                    <ServicesTable id="secret.services.table" services={serviceDetails} />
                   </Section>
                 }
-
               </Grid>
             </Box>
           </Box>
