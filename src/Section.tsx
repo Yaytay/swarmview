@@ -1,11 +1,9 @@
-import './Section.css'
-
 import { ReactNode, useState } from 'react'
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import { SxProps, Theme } from '@mui/material/styles';
 
 interface SectionProps {
@@ -29,17 +27,17 @@ function Section(props: SectionProps) {
     };
 
   return (
-    <Grid item xs={props.xs} sx={[...(Array.isArray(props.sx) ? props.sx : [props.sx])]}>
-      <Accordion expanded={expanded} onChange={handleChange()} className='section' sx={{ width: '100%' }}>
+    <Grid size={{ xs: props.xs }} sx={[...(Array.isArray(props.sx) ? props.sx : [props.sx])]}>
+      <Accordion expanded={expanded} onChange={handleChange()} className='section' sx={{ width: '100%' }} slotProps={{ heading: { component: 'div' } }} >
         {
           props.heading &&
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1-content"
-            id="panel1-header"
+            id={props.id + 'panel1-header'}
           >
             <h2>
-              {props.heading}
+            {props.heading}
             </h2>
           </AccordionSummary>
         }

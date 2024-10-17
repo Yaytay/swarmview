@@ -3,13 +3,14 @@ import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Config, Service } from './docker-schema';
+import { Config } from './docker-schema';
 import Section from './Section'
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import DataTable, { DataTableValue } from './DataTable';
 import { DockerApi } from './DockerApi';
+import KeyValueTable from './KeyValueTable';
+import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
 
 
 interface ConfigProps {
@@ -25,54 +26,40 @@ function ConfigUi(props: ConfigProps) {
 
   const { id } = useParams<ConfigUiParams>();
 
-  const [config, setConfig] = useState<Config | null>(null)
+  const [config, setConfig] = useState<Config | undefined>()
   const [tab, setTab] = useState(0)
 
-  const [services, setServices] = useState<Service[]>([])
-  const [configServices, setConfigServices] = useState<DataTableValue[][]>([])
+  const [serviceDetails, setServiceDetails] = useState<ServiceDetails[]>([])
 
   useEffect(() => {
+    Promise.all([
+      props.docker.config(id)
+      , props.docker.services()
+      , props.docker.exposedPorts()
+    ]).then(value => {
+      const conf = value[0]
+      const services = value[1]
+      const exposedPorts = value[2]
 
-    props.docker.config(id)
-      .then(conf => {
-        if (conf) {
-          setConfig(conf)
-        }
-      })
+      props.setTitle('Config: ' + (config?.Spec?.Name || config?.ID || id))
+      setConfig(conf)
 
-    props.docker.services()
-      .then(svcs => {
-        const buildServices = svcs.filter(svc => {
-          return svc.Spec?.TaskTemplate?.ContainerSpec?.Configs?.find(con => con.ConfigID === id)
-        })
-        setServices(buildServices)
-      })
+      if (conf && services) {
+        setServiceDetails(services.reduce((result, current) => {
 
-  }, [props.refresh, id])
+          current.Spec?.TaskTemplate?.ContainerSpec?.Configs?.forEach(con => {
+            if (con.ConfigID === id) {
+              result.push(createServiceDetails(current, exposedPorts))
+            }
+          })
+  
+          return result
+        }, [] as ServiceDetails[])
+        )
+      }
+    })
 
-  useEffect(() => {
-    props.setTitle('Config: ' + (config?.Spec?.Name || config?.ID))
-
-    if (config && services) {
-      const conSvcs: DataTableValue[][] = []
-      services.forEach(svc => {
-        svc.Spec?.TaskTemplate?.ContainerSpec?.Configs?.forEach(con => {
-          if (con.ConfigID === id) {
-            conSvcs.push(
-              [
-                { link: '/service/' + svc.ID, value: svc.Spec?.Name || svc.ID || '' }
-                , con.ConfigName
-                , con.File?.Name
-                , con.File?.UID + ':' + con.File?.GID
-              ]
-            )
-          }
-        })
-      })
-      setConfigServices(conSvcs)
-    }
-
-  }, [config, services, props, id])
+  }, [props, id])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -95,23 +82,19 @@ function ConfigUi(props: ConfigProps) {
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 <Section id="config.overview" heading="Overview" >
-                  <DataTable id="config.overview.table" kvTable={true} rows={
+                  <KeyValueTable id="config.overview.table" kvTable={true} rows={
                     [
                       ['ID', config.ID || '']
                       , ['Created', config.CreatedAt]
                       , ['Updated', config.UpdatedAt]
                     ]
                   }>
-                  </DataTable>
+                  </KeyValueTable>
                 </Section>
                 {
-                  services &&
+                  serviceDetails &&
                   <Section id="config.services" heading="Services" xs={12}>
-                    <DataTable
-                      id="config.services.table"
-                      headers={['SERVICE', 'CONFIG NAME', 'MOUNTPOINT', 'UID:GID']}
-                      rows={configServices}
-                    />
+                    <ServicesTable id="config.services.table" services={serviceDetails} />
                   </Section>
                 }
                 <Section id="config.value" heading="Value" xs={12}>

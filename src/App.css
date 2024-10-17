@@ -89,3 +89,13 @@ a.navlink :hover {
 .text-wrap { 
   white-space: normal; 
 }
+
+div.MuiAccordionSummary-content h2 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+div.MuiAccordionSummary-content {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
