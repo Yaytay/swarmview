@@ -88,12 +88,12 @@ function NodeUi(props: NodeProps) {
       }
 
       if (node?.Description?.Engine?.Plugins) {
-        setLabelDetails(node.Description.Engine.Plugins.reduce((result, current) => {
+        setPluginDetails(node.Description.Engine.Plugins.reduce((result, current) => {
           if (current.Type || current.Name) {
             result.push(createPluginDetails(current.Type || '', current.Name || ''))
           }
           return result
-        }, [] as LabelDetails[]))
+        }, [] as PluginDetails[]))
       } else {
         setPluginDetails([])
       }
