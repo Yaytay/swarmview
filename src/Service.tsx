@@ -3,16 +3,21 @@ import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Service, Network, Task, Secret, Config } from './docker-schema';
+import { Service } from './docker-schema';
 import Section from './Section'
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import DataTable, { DataTablePropsEntry, DataTableValue } from './DataTable';
 import VisNetwork, { GraphData, Node, Edge } from './VisNetwork';
 import LogsView from './LogsView';
 import { DockerApi } from './DockerApi';
 import KeyValueTable from './KeyValueTable';
+import LabelsTable, { createLabelDetails, LabelDetails } from './tables/LabelsTable';
+import TasksTable, { createTaskDetails, TaskDetails } from './tables/TasksTable';
+import SecretsTable, { buildServicesBySecret, createSecretDetails, SecretDetails } from './tables/SecretsTable';
+import ConfigsTable, { buildServicesByConfig, ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
+import NetworksTable, { createNetworkDetails, NetworkDetails } from './tables/NetworksTable';
+import SimpleTable from './SimpleTable';
 
 interface ServiceProps {
   baseUrl: string
@@ -27,129 +32,149 @@ function ServiceUi(props: ServiceProps) {
 
   const { id } = useParams<ServiceUiParams>();
 
-  const [service, setService] = useState<Service | null>(null)
+  const [service, setService] = useState<Service | undefined>()
   const [tab, setTab] = useState(0)
 
-  const [labels, setLabels] = useState<(string | number | DataTablePropsEntry)[][]>([])
-  const [mounts, setMounts] = useState<(string | undefined)[][]>([])
-  const [resources, setResources] = useState<(string | number | null)[][]>([])
-  const [services, setServices] = useState<Service[]>([])
-  const [networks, setNetworks] = useState<Network[]>([])
-  const [secrets, setSecrets] = useState<Secret[]>([])
-  const [configs, setConfigs] = useState<Config[]>([])
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [networksData, setNetworksData] = useState<(DataTableValue)[][]>([])
+  const [labelDetails, setLabelDetails] = useState<LabelDetails[]>([])
+  const [networkDetails, setNetworkDetails] = useState<NetworkDetails[]>([])
+  const [configDetails, setConfigDetails] = useState<ConfigDetails[]>([])
+  const [secretDetails, setSecretDetails] = useState<SecretDetails[]>([])
+  const [taskDetails, setTaskDetails] = useState<TaskDetails[]>([])
+  
+  const [mounts, setMounts] = useState<(string | undefined)[][]>([]) 
+  const [resources, setResources] = useState<(string | number | null)[][]>([]) 
+  const [ports, setPorts] = useState<(string | number | null | undefined)[][]>([]) 
+
+
   const [reachGraph, setReachGraph] = useState<GraphData>({})
-  const [ports, setPorts] = useState<(DataTableValue)[][]>([])
-  const [svcConfigs, setSvcConfigs] = useState<DataTableValue[][]>([])
-  const [svcSecrets, setSvcSecrets] = useState<DataTableValue[][]>([])
-  const [exposedPorts, setExposedPorts] = useState<Record<string, string[]>>()
-
-  const [svcTasks, setSvcTasks] = useState<DataTableValue[][]>([])
-  const [svcTaskHeaders, setSvcTaskHeaders] = useState<string[]>([])
 
   useEffect(() => {
-    props.docker.tasks()
-      .then(j => {
-        setTasks(j)
-      })
-    props.docker.networks()
-      .then(j => {
-        setNetworks(j as Network[])
-      })
-    props.docker.secrets()
-      .then(j => {
-        setSecrets(j)
-      })
-    props.docker.configs()
-      .then(j => {
-        setConfigs(j)
-      })
-    props.docker.exposedPorts()
-      .then(ports => {
-        setExposedPorts(ports)
-      })
-    props.docker.services()
-      .then(j => {
-        setServices(j)
-        const buildService = (j as Service[]).find(svc => { return svc.ID === id })
-        console.log(buildService)
-        if (!buildService) {
-          console.log('Service ' + id + ' not found in ', j)
-        } else {
-          setService(buildService)
-          props.setTitle('Service: ' + buildService.Spec?.Name)
-          const buildLabels = [] as (string | number | DataTablePropsEntry)[][]
-          if (buildService?.Spec?.Labels) {
-            const record = buildService?.Spec?.Labels
-            Object.keys(record).forEach(key => {
-              if (record[key]) {
-                buildLabels.push([key, record[key], 'Service'])
-              }
-            })
-          }
-          if (buildService?.Spec?.TaskTemplate?.ContainerSpec?.Labels) {
-            const record = buildService?.Spec?.TaskTemplate?.ContainerSpec?.Labels
-            Object.keys(record).forEach(key => {
-              if (record[key]) {
-                buildLabels.push([key, record[key], 'Container'])
-              }
-            })
-          }
-          setLabels(buildLabels)
+    Promise.all([
+      props.docker.services()
+      , props.docker.tasks()
+      , props.docker.networks()
+      , props.docker.configs()
+      , props.docker.secrets()
+      , props.docker.exposedPorts()
+      , props.docker.nodesById()
+    ]).then(value => {
+      const services = value[0]
+      const tasks = value[1]
+      const networks = value[2]
+      const configs = value[3]
+      const secrets = value[4]
+      const exposedPorts = value[5]
+      const nodesById = value[6]
 
-          let buildMounts = [] as (string | undefined)[][]
-          if (buildService?.Spec?.TaskTemplate?.ContainerSpec?.Mounts) {
-            buildMounts = buildService.Spec.TaskTemplate.ContainerSpec.Mounts.map(mount => {
-              return [
-                mount.Type
-                , mount.Target
-                , mount.Source
-                , mount.ReadOnly ? 'true' : 'false'
-              ]
-            })
-            setMounts(buildMounts)
-          }
+      // This repetition of docker.servicesById() avoids a race condition where that hits the network twice
+      const servicesById = services.reduce((result, current) => {
+        if (current.ID) {
+          result.set(current.ID, current)
         }
-      })
-  }
-    , [props, id])
+        return result
+      }, new Map<string, Service>())
 
-  useEffect(() => {
-    if (service?.Spec?.TaskTemplate?.Networks) {
 
-      const buildNetworks = service.Spec.TaskTemplate.Networks.reduce<(DataTableValue)[][]>((accumulator, svcNet) => {
-        const net = networks?.find(n => n.Id === svcNet.Target)
-        if (net && svcNet.Target) {
-          const item = [
-            { link: '/network/' + svcNet.Target, value: svcNet.Target }
-            , net?.Name
-            , svcNet.Aliases
-            , JSON.stringify(net?.Options)
-            , service.Endpoint?.VirtualIPs?.reduce((acc, val) => {
-              if (val.NetworkID == net.Id && val.Addr) {
-                acc.push(val.Addr)
-              }
-              return acc
-            }, [] as string[]).join(', ')
-          ]
-          accumulator.push(item)
+      const svc = services.find(svc => { return svc.ID === id })
+      setService(svc)
+      props.setTitle('Service: ' + (svc?.Spec?.Name || id))
+
+      let labels = [] as LabelDetails[]
+      if (svc?.Spec?.Labels) {
+        const record = svc.Spec.Labels
+        labels = labels.concat(Object.keys(record).reduce((result, current) => {
+          result.push(createLabelDetails('Service', current, record[current]))
+          return result
+        }, [] as LabelDetails[]))
+      }
+      if (svc?.Spec?.TaskTemplate?.ContainerSpec?.Labels) {
+        const record = svc?.Spec?.TaskTemplate?.ContainerSpec?.Labels
+        labels = labels.concat(Object.keys(record).reduce((result, current) => {
+          result.push(createLabelDetails('Container', current, record[current]))
+          return result
+        }, [] as LabelDetails[]))
+      }
+      setLabelDetails(labels)
+
+      if (service?.Spec?.TaskTemplate?.Networks) {
+        setNetworkDetails(service?.Spec?.TaskTemplate?.Networks.reduce((result, current) => {
+          if (current.Target) {
+            const net = networks.find(n => n.Id = current.Target)
+            if (net) {
+              result.push(createNetworkDetails(net))
+            }
+          }
+          return result
+        }, [] as NetworkDetails[]))
+      } else {
+        setNetworkDetails([])
+      }
+
+      const nowMs = Date.now()
+      
+      const servicesByConfig = buildServicesByConfig(services)
+      setConfigDetails(configs.reduce((result, current) => {
+        svc?.Spec?.TaskTemplate?.ContainerSpec?.Configs?.forEach(svcCon => {
+          if (svcCon.ConfigID === current.ID) {
+            result.push(createConfigDetails(current, servicesByConfig, nowMs))
+          }
+        })
+        return result
+      }, [] as ConfigDetails[]))
+
+      const servicesBySecret = buildServicesBySecret(services)
+      setSecretDetails(secrets.reduce((result, current) => {
+        svc?.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.forEach(svcCon => {
+          if (svcCon.SecretID === current.ID) {
+            result.push(createSecretDetails(current, servicesBySecret, nowMs))
+          }
+        })
+        return result
+      }, [] as ConfigDetails[]))
+
+      setTaskDetails(tasks.reduce((result, current) => {
+        if (current.ServiceID === id && current.ID) {
+          result.push(createTaskDetails(current, servicesById, nodesById, exposedPorts, nowMs))
+
         }
-        return accumulator
-      }, [])
+        return result
+      }, [] as TaskDetails[]))
 
-      setNetworksData(buildNetworks)
+      setMounts(svc?.Spec?.TaskTemplate?.ContainerSpec?.Mounts?.map(mount => [ mount.Type, mount.Target, mount.Source, mount.ReadOnly ? 'true' : 'false' ]) || [])
 
-      if (services && networks) {
+      const buildResources = [] as (string | number | null)[][]
+      if (service?.Spec?.TaskTemplate?.Resources) {
+        const res = service.Spec.TaskTemplate.Resources
+        buildResources.push(['Limit Memory', (res.Limits?.MemoryBytes ? String(res.Limits?.MemoryBytes / 1048576) + 'MB' : null)])
+        buildResources.push(['Limit CPUs', (res.Limits?.NanoCPUs ? res.Limits?.NanoCPUs / 1000000000 : null)])
+        buildResources.push(['Limit PIDs', res.Limits?.Pids ?? null])
+        buildResources.push(['Reserve Memory', (res.Reservations?.MemoryBytes ? String(res.Reservations?.MemoryBytes / 1048576) + 'MB' : null)])
+        buildResources.push(['Reserve CPUs', (res.Reservations?.NanoCPUs ? res.Reservations?.NanoCPUs / 1000000000 : null)])
+      }
+      service?.Spec?.TaskTemplate?.ContainerSpec?.Ulimits?.forEach(ulimit => {
+        buildResources.push(['ULimit: ' + ulimit.Name, ulimit.Soft + ' : ' + ulimit.Hard])
+      })      
+      setResources(buildResources)
+
+      let ports = svc?.Endpoint?.Ports?.map(p => [String(p.Protocol), p.TargetPort, p.PublishedPort, p.PublishMode]) || []
+      if (svc?.Spec?.TaskTemplate?.ContainerSpec?.Image) {
+        const ep = exposedPorts[svc.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]
+        if (ep) {
+          ports = ports?.concat(ep.map(p => [p.replace(/^[^/]*\//, ''), p.replace(/\/.*$/, ''), '', '']))
+        }
+      }
+      setPorts(ports)
+
+      if (services && networks && svc) {
         const nodes : Node[] = []
         const edges : Edge[] = []
 
         nodes.push({
-          id: service.ID
-          , label: service.Spec?.Name || service.ID
+          id: svc.ID
+          , label: svc.Spec?.Name || svc.ID
           , group: 'base'
         })
-        service?.Spec?.TaskTemplate?.Networks.forEach(net => {
+        svc?.Spec?.TaskTemplate?.Networks?.forEach(net => {
           const netName = networks.find(n => n.Id == net.Target)?.Name || net?.Target
           nodes.push({
             id: net.Target
@@ -158,12 +183,12 @@ function ServiceUi(props: ServiceProps) {
             , group: netName
           })
           edges.push({
-            from: service.ID
+            from: svc.ID
             , to: net.Target
             , 
           })
           services.forEach(svc => {
-            if (svc.ID !== service.ID) {
+            if (svc.ID !== svc.ID) {
               const svcnet = svc.Spec?.TaskTemplate?.Networks?.find(n => n.Target == net.Target)
               if (svcnet) {
                 nodes.push({
@@ -179,118 +204,11 @@ function ServiceUi(props: ServiceProps) {
             }
           })
         })
-
         setReachGraph({nodes: nodes, edges: edges})
       }
-    }
-
-
-
-    const buildPorts = [] as (DataTableValue)[][]
-    service?.Endpoint?.Ports?.forEach(p => {
-      buildPorts.push([
-        p.Protocol
-        , p.TargetPort
-        , p.PublishedPort
-        , p.PublishMode
-      ])
-
     })
-    if (exposedPorts && service?.Spec?.TaskTemplate?.ContainerSpec?.Image) {
-      exposedPorts[service.Spec.TaskTemplate.ContainerSpec.Image.replace(/:.*@/, '@')]?.forEach(p => {
-        buildPorts.push([
-          p.replace(/^[^/]*\//, '')
-          , p.replace(/\/.*$/, '')
-          , ''
-          , ''
-        ])
-      })
-
-    }
-
-    setPorts(buildPorts)
-
-    const buildResources = [] as (string | number | null)[][]
-    if (service?.Spec?.TaskTemplate?.Resources) {
-      const res = service.Spec.TaskTemplate.Resources
-      buildResources.push(['Limit Memory', (res.Limits?.MemoryBytes ? String(res.Limits?.MemoryBytes / 1048576) + 'MB' : null)])
-      buildResources.push(['Limit CPUs', (res.Limits?.NanoCPUs ? res.Limits?.NanoCPUs / 1000000000 : null)])
-      buildResources.push(['Limit PIDs', res.Limits?.Pids ?? null])
-      buildResources.push(['Reserve Memory', (res.Reservations?.MemoryBytes ? String(res.Reservations?.MemoryBytes / 1048576) + 'MB' : null)])
-      buildResources.push(['Reserve CPUs', (res.Reservations?.NanoCPUs ? res.Reservations?.NanoCPUs / 1000000000 : null)])
-    }
-    service?.Spec?.TaskTemplate?.ContainerSpec?.Ulimits?.forEach(ulimit => {
-      buildResources.push(['ULimit: ' + ulimit.Name, ulimit.Soft + ' : ' + ulimit.Hard])
-    })
-    setResources(buildResources)
-
-    if (service && tasks) {
-      setSvcTaskHeaders(['ID', 'NAME', 'NODE', 'CREATED', 'IMAGE', 'DESIRED STATE', 'CURRENT STATE', 'ERROR', 'PORTS'])
-      const buildStackTasks: DataTableValue[][] = []
-      const nodeTasks = tasks.filter(tsk => tsk.ServiceID === id)
-      nodeTasks.sort((l, r) => {
-        return (l.CreatedAt ?? '') > (r.CreatedAt ?? '') ? -1 : 1
-      })
-      nodeTasks.forEach((tsk) => {
-        if (tsk.ID) {
-          buildStackTasks.push(
-            [
-              { link: '/task/' + tsk.ID, value: tsk.ID }
-              , ((tsk.ServiceID && service.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID)
-              , { link: '/node/' + tsk.NodeID, value: tsk.NodeID || '' }
-              , tsk.CreatedAt
-              , tsk?.Spec?.ContainerSpec?.Image?.replace(/@.*/, '')
-              , tsk?.DesiredState
-              , tsk?.Status?.State
-              , tsk?.Status?.Err
-              , tsk?.Status?.PortStatus?.Ports?.map(portSpec => {
-                return portSpec.PublishedPort + ':' + portSpec.TargetPort
-              })
-              ,
-            ]
-          )
-        }
-      })
-      setSvcTasks(buildStackTasks)
-    }
-
-    if (service && configs) {
-      const svcCons: DataTableValue[][] = []
-      configs.forEach(con => {
-        service.Spec?.TaskTemplate?.ContainerSpec?.Configs?.forEach(svcCon => {
-          if (svcCon.ConfigID === con.ID) {
-            svcCons.push(
-              [
-                { link: '/config/' + con.ID, value: con.Spec?.Name || con.ID || '' }
-                , svcCon.File?.Name
-                , svcCon.File?.UID + ':' + svcCon.File?.GID
-              ]
-            )
-          }
-        })
-      })
-      setSvcConfigs(svcCons)
-    }
-
-    if (service && secrets) {
-      const svcSecs: DataTableValue[][] = []
-      secrets.forEach(sec => {
-        service.Spec?.TaskTemplate?.ContainerSpec?.Secrets?.forEach(svcSec => {
-          if (svcSec.SecretID === sec.ID) {
-            svcSecs.push(
-              [
-                { link: '/secret/' + sec.ID, value: sec.Spec?.Name || sec.ID || '' }
-                , svcSec.File?.Name
-                , svcSec.File?.UID + ':' + svcSec.File?.GID
-              ]
-            )
-          }
-        })
-      })
-      setSvcSecrets(svcSecs)
-    }
-
-  }, [service, networks, tasks, secrets, configs, id, services, exposedPorts])
+  }
+    , [props, id])
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
@@ -365,23 +283,14 @@ function ServiceUi(props: ServiceProps) {
                   </KeyValueTable>
                 </Section>
                 <Section id="service.status" heading="Status" >
-                  <DataTable id="service.status.table" headers={
+                  <KeyValueTable id="service.status.table" kvTable={true} rows={
                     [
-                      'Running Tasks'
-                      , 'Desired Tasks'
-                      , 'Completed Tasks'
+                      ['Running Tasks', service.ServiceStatus?.RunningTasks]
+                      , ['Desired Takss', service.ServiceStatus?.DesiredTasks]
+                      , ['Completed Tasks', service.ServiceStatus?.CompletedTasks]
                     ]
-                  }
-                    rows={
-                      [
-                        [
-                          service.ServiceStatus?.RunningTasks || ''
-                          , service.ServiceStatus?.RunningTasks || ''
-                          , service.ServiceStatus?.RunningTasks || ''
-                        ]
-                      ]
-                    }>
-                  </DataTable>
+                  }>
+                  </KeyValueTable>
                 </Section>
                 <Section id="service.mounts" heading="Mounts" >
                   <KeyValueTable id="service.mounts.spec" kvTable={true} sx={{ width: '20em' }} rows={
@@ -391,7 +300,7 @@ function ServiceUi(props: ServiceProps) {
                   }>
                   </KeyValueTable>
                   <br />
-                  <DataTable id="service.mounts.list" headers={
+                  <SimpleTable id="service.mounts.list" headers={
                     [
                       'Type'
                       , 'Target'
@@ -400,10 +309,10 @@ function ServiceUi(props: ServiceProps) {
                     ]
                   } rows={mounts}
                   >
-                  </DataTable>
+                  </SimpleTable>
                 </Section>
                 <Section id="service.ports" heading="Ports" >
-                  <DataTable id="service.ports.list" headers={
+                  <SimpleTable id="service.ports.list" headers={
                     [
                       'Type'
                       , 'Target'
@@ -412,33 +321,15 @@ function ServiceUi(props: ServiceProps) {
                     ]
                   } rows={ports}
                   >
-                  </DataTable>
+                  </SimpleTable>
                 </Section>
 
                 <Section id="service.labels" heading="Labels" >
-                  <DataTable id="service.labels.table" headers={
-                    [
-                      'Label'
-                      , 'Value'
-                      , 'Source'
-                    ]
-                  } rows={labels}
-                  >
-                  </DataTable>
+                  <LabelsTable id="service.labels.table" labels={labelDetails} />
                 </Section>
 
                 <Section id="service.networks" heading="Networks" xs={12} >
-                  <DataTable id="service.networks.table" headers={
-                    [
-                      'ID'
-                      , 'Name'
-                      , 'Aliases'
-                      , 'Options'
-                      , 'Address'
-                    ]
-                  } rows={networksData}
-                  >
-                  </DataTable>
+                  <NetworksTable id="service.networks.table" networks={networkDetails} />
                 </Section>
 
                 <Section id="service.reach" heading="Reach" xs={12} >
@@ -449,35 +340,17 @@ function ServiceUi(props: ServiceProps) {
                   />
                 </Section>
 
-                {
-                  svcConfigs &&
                   <Section id="service.configs" heading="Configs" xs={12}>
-                    <DataTable
-                      id="service.configs.table"
-                      headers={['CONFIG', 'MOUNTPOINT', 'UID:GID']}
-                      rows={svcConfigs}
-                    />
+                    <ConfigsTable id="service.configs.table" configs={configDetails} />
                   </Section>
-                }
 
-                {
-                  svcSecrets &&
                   <Section id="service.secrets" heading="Secrets" xs={12}>
-                    <DataTable
-                      id="service.secrets.table"
-                      headers={['SECRET', 'MOUNTPOINT', 'UID:GID']}
-                      rows={svcSecrets}
-                    />
+                    <SecretsTable id="service.secrets.table" secrets={secretDetails} />
                   </Section>
-                }
 
-                {
-                  svcTasks &&
                   <Section id="service.tasks" heading="Tasks" xs={12}>
-                    <DataTable id="service.tasks.table" headers={svcTaskHeaders} rows={svcTasks}>
-                    </DataTable>
+                    <TasksTable id="service.tasks.table" tasks={taskDetails} />
                   </Section>
-                }
 
               </Grid>
             </Box>

@@ -75,20 +75,22 @@ function ServicesTable(props: ServicesTableProps) {
   )
 }
 
-export function createServiceDetails(svc: Service, exposedPorts: Record<string, string[]>): ServiceDetails {
-  const ports = (svc.Endpoint?.Ports?.map(portSpec => {
+function createPortsDetail(svc: Service, exposedPorts: Record<string, string[]>): string[] {
+  return (svc.Endpoint?.Ports?.map(portSpec => {
     return portSpec.PublishedPort + ':' + portSpec.TargetPort
   }) || []).concat(
     svc.Spec?.TaskTemplate?.ContainerSpec?.Image ? exposedPorts[svc.Spec.TaskTemplate?.ContainerSpec.Image.replace(/:.*@/, "@")] : []
-  ).filter(Boolean).join(', ')
+  ).filter(Boolean)
+}
 
+export function createServiceDetails(svc: Service, exposedPorts: Record<string, string[]>): ServiceDetails {
   return {
     id: svc.ID || '',
     name: svc.Spec?.Name || '',
     mode: Object.keys(svc.Spec?.Mode || [''])[0],
     replicas: svc.ServiceStatus?.RunningTasks + ' / ' + svc.ServiceStatus?.DesiredTasks,
     image: svc.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || '',
-    ports: ports
+    ports: createPortsDetail(svc, exposedPorts).join(', ')
   };
 }
 

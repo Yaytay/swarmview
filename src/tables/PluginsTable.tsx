@@ -2,16 +2,20 @@ import MaterialTable, { MaterialTableState } from '../MaterialTable';
 import { MRT_ColumnDef } from 'material-react-table';
 import { Dimensions } from '../app-types';
 
-export interface LabelDetails {
+export interface PluginDetails {
   id: string
-  source?: string
+  type: string
   name: string
-  value?: string
 }
-const labelColumns: MRT_ColumnDef<LabelDetails>[] = [
+const pluginColumns: MRT_ColumnDef<PluginDetails>[] = [
   {
     accessorKey: 'id',
     header: 'ID',
+    size: 220,
+  },
+  {
+    accessorKey: 'type',
+    header: 'TYPE',
     size: 220,
   },
   {
@@ -19,21 +23,11 @@ const labelColumns: MRT_ColumnDef<LabelDetails>[] = [
     header: 'NAME',
     size: 220,
   },
-  {
-    accessorKey: 'value',
-    header: 'VALUE',
-    size: 220,
-  },
-  {
-    accessorKey: 'source',
-    header: 'SOURCE',
-    size: 220,
-  },
 ]
 
 const defaultState: MaterialTableState = {
   columnFilters: []
-  , columnOrder: labelColumns.map((c) => c.accessorKey as string)
+  , columnOrder: pluginColumns.map((c) => c.accessorKey as string)
   , columnVisibility: { id: false }
   , columnSizing: {}
   , density: 'compact'
@@ -42,18 +36,18 @@ const defaultState: MaterialTableState = {
   , sorting: []
 }
 
-interface LabelsTableProps {
+interface PluginsTableProps {
   id: string
-  labels: LabelDetails[]
+  plugins: PluginDetails[]
   border?: boolean
   maxSize?: Dimensions
 }
-function LabelsTable(props: LabelsTableProps) {
+function PluginsTable(props: PluginsTableProps) {
   return (
     <MaterialTable
       id={props.id}
-      columns={labelColumns}
-      data={props.labels}
+      columns={pluginColumns}
+      data={props.plugins}
       border={props.border}
       defaultState={defaultState}
       virtual={false}
@@ -62,13 +56,12 @@ function LabelsTable(props: LabelsTableProps) {
   )
 }
 
-export function createLabelDetails(source: string, name: string, value?: string): LabelDetails {
+export function createPluginDetails(type: string, name: string): PluginDetails {
   return {
-    id: (source || '') + '#' + name
+    id: type + '#' + name
+    , type: type
     , name: name
-    , source: source
-    , value: value
   }
 }
 
-export default LabelsTable;
+export default PluginsTable;

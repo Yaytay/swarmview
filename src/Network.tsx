@@ -65,7 +65,7 @@ function NetworkUi(props: NetworkProps) {
 
       if (net?.Labels) {
         const record = net.Labels
-        setLabelDetails(Object.keys(net?.Labels).reduce((result, current) => {
+        setLabelDetails(Object.keys(record).reduce((result, current) => {
           result.push(createLabelDetails(current, record[current]))
           return result
         }, [] as LabelDetails[]))
