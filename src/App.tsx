@@ -163,8 +163,8 @@ function App() {
               <Route index path='/tasks' element={<Tasks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} maxSize={maxSize} />}></Route>
               <Route index path='/nodes' element={<Nodes baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route index path='/networks' element={<Networks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
-              <Route index path='/secrets' element={<Secrets baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
-              <Route index path='/configs' element={<Configs baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
+              <Route index path='/secrets' element={<Secrets baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} maxSize={maxSize} />}></Route>
+              <Route index path='/configs' element={<Configs baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} maxSize={maxSize} />}></Route>
               <Route path="*" element={<Navigate to="/services" replace={true} />} />
             </Routes>
           </Box>

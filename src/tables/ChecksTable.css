@@ -1,0 +1,10 @@
+div.fail {
+  background-color: red;
+}
+
+div.error {
+  background-color: chocolate;
+}
+div.warn {
+  background-color: yellow;
+}

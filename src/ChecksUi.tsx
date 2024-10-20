@@ -1,14 +1,13 @@
-import Grid2 from "@mui/material/Grid2";
-import DataTable, { DataTableValue } from "./DataTable";
+import Grid from "@mui/material/Grid2";
 import Section from "./Section";
-import { Check, CheckArguments } from "./checks/checks";
-import Tooltip from "@mui/material/Tooltip";
+import { Check, CheckArguments, State } from "./checks/checks";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import Box from "@mui/system/Box";
 import Link from "@mui/material/Link";
+import ChecksTable, { CheckDetails, createCheckDetails } from "./tables/ChecksTable";
 
 interface ChecksUiProps {
   id: string
@@ -17,14 +16,14 @@ interface ChecksUiProps {
 }
 class CheckResultsCategory {
   category: string
-  data: DataTableValue[][]
+  data: CheckDetails[]
 
-  constructor(category: string, row: DataTableValue[]) {
+  constructor(category: string, row: CheckDetails) {
     this.category = category
     this.data = [row]
   }
 
-  add(row: DataTableValue[]) {
+  add(row: CheckDetails) {
     this.data.push(row)
   }
 }
@@ -82,52 +81,36 @@ function ChecksUi(props: ChecksUiProps) {
 
   const [checkDetails, setCheckDetails] = useState<Check | undefined>()
 
-  const headers = ['ID', 'CHECK', 'RESULT', 'THRESHOLD', 'VALUE', 'MESSAGE']
-
   function evaluate(check: Check, args: CheckArguments) {
     try {
       const result = check.evaluate(args)
-      return [check.id
-        , { children: (<Tooltip placement="bottom-start" title={check.description}><Typography onClick={() => setCheckDetails(check)}>{check.title}</Typography></Tooltip>), value: check.title }
-        , result.state, result.threshold, result.value, result.message]
+      return createCheckDetails(check, result)
     } catch (ex) {
-      return [check.id
-        , { children: (<Tooltip placement="bottom-start" title={check.description}><span>{check.title}</span></Tooltip>), value: check.title }
-        , 'error', null, null, String(ex)]
+      return createCheckDetails(check, {state: State.error, message: String(ex)})
     }
   }
 
   const data = props.checks.reduce((acc, check) => {
-    const row = evaluate(check, props.args)
+    const details = evaluate(check, props.args)
     if (acc.length === 0 || acc[acc.length - 1].category !== check.category) {
-      acc.push(new CheckResultsCategory(check.category, row))
+      acc.push(new CheckResultsCategory(check.category, details))
     } else {
-      acc[acc.length - 1].add(row)
+      acc[acc.length - 1].add(details)
     }
     return acc
   }, [] as CheckResultsCategory[])
 
   return (
-    <Grid2 container spacing={2} >
+    <Grid container spacing={2} >
       {data.map(cat => {
         return (
           <Section key={props.id + '.' + cat.category} id={props.id + '.' + cat.category} heading={cat.category} xs={12}>
-            <DataTable id={props.id + ".table"} headers={headers} rows={cat.data} rowStyle={r => {
-              switch (r[2]) {
-                case 'fail':
-                  return { background: 'red' }
-                case 'error':
-                  return { background: 'darkred' }
-                case 'warning':
-                  return { background: 'yellow' }
-              }
-            }} >
-            </DataTable>
+            <ChecksTable id={props.id + ".table"} checks={cat.data} />
           </Section>
         )
       })}
       <CheckDialog check={checkDetails} onClose={() => setCheckDetails(undefined)} />
-    </Grid2>
+    </Grid>
   )
 }
 
