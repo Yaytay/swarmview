@@ -1,5 +1,5 @@
-import { Box, IconButton, PaperProps, TableContainerProps, Tooltip, useTheme } from "@mui/material";
-import { MaterialReactTable, MRT_ColumnDef, MRT_ColumnFiltersState, MRT_ColumnOrderState, MRT_ColumnSizingState, MRT_DensityState, MRT_RowData, MRT_ShowHideColumnsButton, MRT_SortingState, MRT_TableInstance, MRT_ToggleDensePaddingButton, MRT_ToggleFiltersButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, MRT_VisibilityState, useMaterialReactTable } from "material-react-table"
+import { Box, IconButton, PaperProps, TableContainerProps, TableRowProps, Tooltip, useTheme } from "@mui/material";
+import { MaterialReactTable, MRT_ColumnDef, MRT_ColumnFiltersState, MRT_ColumnOrderState, MRT_ColumnSizingState, MRT_DensityState, MRT_Row, MRT_RowData, MRT_ShowHideColumnsButton, MRT_SortingState, MRT_TableInstance, MRT_ToggleDensePaddingButton, MRT_ToggleFiltersButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, MRT_VisibilityState, useMaterialReactTable } from "material-react-table"
 import { useEffect, useRef, useState } from "react";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SearchIcon from '@mui/icons-material/Search';
@@ -17,7 +17,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 export interface MaterialTableState {
   columnFilters: MRT_ColumnFiltersState
-  columnOrder: MRT_ColumnOrderState  
+  columnOrder: MRT_ColumnOrderState
   columnVisibility: MRT_VisibilityState
   columnSizing: MRT_ColumnSizingState
   density: MRT_DensityState
@@ -37,9 +37,15 @@ interface MaterialTableProps<Type extends MRT_RowData> {
   subrows?: boolean
   muiTableContainerProps?: TableContainerProps
   muiTablePaperProps?: PaperProps
+  muiTableBodyRowProps?: ((props: {
+    isDetailPanel?: boolean;
+    row: MRT_Row<Type>;
+    staticRowIndex: number;
+    table: MRT_TableInstance<Type>;
+  }) => TableRowProps) | TableRowProps
 }
 
-function loadState(id: string) : MaterialTableState | undefined {
+function loadState(id: string): MaterialTableState | undefined {
   const tableState = localStorage.getItem(id + '.state')
 
   if (tableState) {
@@ -67,7 +73,7 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
 
   console.log('props', props)
 
-  function copy(table : MRT_TableInstance<Type>) {
+  function copy(table: MRT_TableInstance<Type>) {
     const header = table.getVisibleLeafColumns().map(c => c.columnDef.header).join('\t')
     const body = table.getRowModel().flatRows.map(row => row.getVisibleCells().map(c => c.renderValue()).join('\t')).join('\n')
     navigator.clipboard.writeText(header + '\n' + body);
@@ -83,7 +89,7 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
       isFirstRender.current = false;
     }
   }, [state]);
-    
+
   function resetState() {
     console.log('Resetting state for ' + props.id + ':', state)
     setState(defaultState)
@@ -106,7 +112,8 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
       , enableExpanding: props.subrows || false
       , filterFromLeafRows: true
       , muiTableContainerProps: props.muiTableContainerProps
-      , muiTablePaperProps: props.border ? {} : { sx: {border: 'none', boxShadow: 'none'} }
+      , muiTableBodyRowProps: props.muiTableBodyRowProps
+      , muiTablePaperProps: props.border ? {} : { sx: { border: 'none', boxShadow: 'none' } }
       , displayColumnDefOptions: {
         'mrt-row-expand': {
           enableResizing: true, //allow resizing
@@ -128,7 +135,7 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
         , ArrowDownwardIcon: (props: any) => <ArrowDownwardIcon fontSize="small" {...props} />
       }
       , state: {
-          columnFilters: state.columnFilters
+        columnFilters: state.columnFilters
         , columnOrder: state.columnOrder
         , columnVisibility: state.columnVisibility
         , columnSizing: state.columnSizing
@@ -138,57 +145,57 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
         , sorting: state.sorting
       }
       , onColumnFiltersChange: (updaterOrValue => {
-        const newState = {...state}
+        const newState = { ...state }
         console.log(Date.now(), props.id + '.onColumnFiltersChange from', state, 'to', updaterOrValue)
         newState.columnFilters = updaterOrValue instanceof Function ? updaterOrValue(state.columnFilters) : updaterOrValue
         setState(newState)
       })
       , onColumnVisibilityChange: (updaterOrValue => {
-        const newState = {...state}
+        const newState = { ...state }
         console.log(Date.now(), props.id + '.onColumnVisibilityChange from', state, 'to', updaterOrValue)
         newState.columnVisibility = updaterOrValue instanceof Function ? updaterOrValue(state.columnVisibility) : updaterOrValue
         setState(newState)
       })
       , onColumnOrderChange: (updaterOrValue => {
-        const newState = {...state}
+        const newState = { ...state }
         console.log(Date.now(), props.id + '.onColumnOrderChange from', state, 'to', updaterOrValue)
         newState.columnOrder = updaterOrValue instanceof Function ? updaterOrValue(state.columnOrder) : updaterOrValue
         newState.columnOrder = newState.columnOrder.filter(x => x ? true : false)
         setState(newState)
       })
       , onColumnSizingChange: (updaterOrValue => {
-        const newState = {...state}
+        const newState = { ...state }
         console.log(Date.now(), props.id + '.onColumnSizingChange from', state, 'to', updaterOrValue)
         newState.columnSizing = updaterOrValue instanceof Function ? updaterOrValue(state.columnSizing) : updaterOrValue || {}
         setState(newState)
       })
       , onDensityChange: (updaterOrValue => {
-        const newState = {...state}
+        const newState = { ...state }
         console.log(Date.now(), props.id + '.onDensityChange from', state, 'to', updaterOrValue)
         newState.density = updaterOrValue instanceof Function ? updaterOrValue(state.density) : updaterOrValue
         setState(newState)
       })
       , onShowColumnFiltersChange: (updaterOrValue => {
-        const newState = {...state}
+        const newState = { ...state }
         console.log(Date.now(), props.id + '.onShowColumnFiltersChange from', state, 'to', updaterOrValue)
         newState.showColumnFilters = updaterOrValue instanceof Function ? updaterOrValue(state.showColumnFilters) : updaterOrValue
         setState(newState)
       })
       , onShowGlobalFilterChange: (updaterOrValue => {
-        const newState = {...state}
+        const newState = { ...state }
         console.log(Date.now(), props.id + '.onShowGlobalFilterChange from', state, 'to', updaterOrValue)
         newState.showGlobalFilter = updaterOrValue instanceof Function ? updaterOrValue(state.showGlobalFilter) : updaterOrValue
         setState(newState)
       })
       , onSortingChange: (updaterOrValue => {
-        const newState = {...state}
+        const newState = { ...state }
         console.log(Date.now(), props.id + '.onSortingChange from', state, 'to', updaterOrValue)
         newState.sorting = updaterOrValue instanceof Function ? updaterOrValue(state.sorting) : updaterOrValue
         setState(newState)
       })
       , mrtTheme: {
         baseBackgroundColor: globalTheme.palette.mode === 'light' ? '#F8F8F8' : '#000'
-        , 
+        ,
       }
       , renderBottomToolbar: () => (
         <></>
@@ -196,7 +203,7 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
       , renderToolbarInternalActions: ({ table }) => (
         <Box>
           <Tooltip title="Copy current data to clipboard">
-            <IconButton onClick={() => copy(table)} sx={{ borderRadius: '10%', border: '' }} >  
+            <IconButton onClick={() => copy(table)} sx={{ borderRadius: '10%', border: '' }} >
               <ContentCopyIcon fontSize='small' />
             </IconButton>
           </Tooltip>
@@ -206,7 +213,7 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
           <MRT_ToggleDensePaddingButton table={table} sx={{ borderRadius: '10%' }} />
           <MRT_ToggleFullScreenButton table={table} sx={{ borderRadius: '10%' }} />
           <Tooltip title="Reset table layout">
-            <IconButton onClick={() => resetState()} sx={{ borderRadius: '10%' }} >  
+            <IconButton onClick={() => resetState()} sx={{ borderRadius: '10%' }} >
               <SettingsBackupRestoreIcon fontSize='small' />
             </IconButton>
           </Tooltip>

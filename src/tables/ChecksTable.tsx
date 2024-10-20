@@ -1,8 +1,7 @@
-import './ChecksTable.css'
 import MaterialTable from '../MaterialTable';
 import { MRT_ColumnDef } from 'material-react-table';
 import { Dimensions } from '../app-types';
-import { Check, CheckResult } from '../checks/checks';
+import { Check, CheckResult, State } from '../checks/checks';
 import { Tooltip } from '@mui/material';
 
 export interface CheckDetails {
@@ -19,37 +18,32 @@ const checkColumns: MRT_ColumnDef<CheckDetails>[] = [
     accessorKey: 'id',
     header: 'ID',
     size: 220,
-    Cell: ({ renderedCellValue, row }) => (<div className={row.original.result}>{renderedCellValue}</div>)
   },
   {
     accessorKey: 'check',
     header: 'CHECK',
     size: 220,
-    Cell: ({ renderedCellValue, row }) => (<div className={row.original.result}><Tooltip placement="bottom-start" title={row.original.description}><span>{renderedCellValue}</span></Tooltip></div>)
+    Cell: ({ renderedCellValue, row }) => (<Tooltip placement="bottom-start" title={row.original.description}><span>{renderedCellValue}</span></Tooltip>)
   },
   {
     accessorKey: 'result',
     header: 'RESULT',
     size: 220,
-    Cell: ({ renderedCellValue, row }) => (<div className={row.original.result}>{renderedCellValue}</div>),
   },
   {
     accessorKey: 'value',
     header: 'VALUE',
     size: 100,
-    Cell: ({ renderedCellValue, row }) => (<div className={row.original.result}>{renderedCellValue}</div>),
   },
   {
     accessorKey: 'threshold',
     header: 'THRESOLD',
     size: 100,
-    Cell: ({ renderedCellValue, row }) => (<div className={row.original.result}>{renderedCellValue}</div>),
   },
   {
     accessorKey: 'message',
     header: 'MESSAGE',
     size: 400,
-    Cell: ({ renderedCellValue, row }) => (<div className={row.original.result}>{renderedCellValue}</div>),
   },
 ]
 
@@ -68,6 +62,18 @@ function ChecksTable(props: ChecksTableProps) {
       border={props.border}
       virtual={false}
       muiTableContainerProps={ props.maxSize ? { sx: { maxHeight: props.maxSize.height + 'px', maxWidth: props.maxSize.width + 'px' } } : {}}
+      muiTableBodyRowProps={ ({row}) => {
+        switch(row.original.result) {
+          case State.error:
+            return { sx: { backgroundColor: 'chocolate' } }
+          case State.warning:
+            return { sx: { backgroundColor: 'yellow' } }
+          case State.fail:
+            return { sx: { backgroundColor: 'red' } }
+          default:
+            return {}
+        }
+       } }
     />
   )
 }
