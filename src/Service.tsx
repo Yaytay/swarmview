@@ -12,7 +12,7 @@ import VisNetwork, { GraphData, Node, Edge } from './VisNetwork';
 import LogsView from './LogsView';
 import { DockerApi } from './DockerApi';
 import KeyValueTable from './KeyValueTable';
-import LabelsTable, { createLabelDetails, LabelDetails } from './tables/LabelsTable';
+import LabelsTable, { createLabels, LabelDetails } from './tables/LabelsTable';
 import TasksTable, { createTaskDetails, TaskDetails } from './tables/TasksTable';
 import SecretsTable, { buildServicesBySecret, createSecretDetails, SecretDetails } from './tables/SecretsTable';
 import ConfigsTable, { buildServicesByConfig, ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
@@ -80,20 +80,8 @@ function ServiceUi(props: ServiceProps) {
       props.setTitle('Service: ' + (svc?.Spec?.Name || id))
 
       let labels = [] as LabelDetails[]
-      if (svc?.Spec?.Labels) {
-        const record = svc.Spec.Labels
-        labels = labels.concat(Object.keys(record).reduce((result, current) => {
-          result.push(createLabelDetails('Service', current, record[current]))
-          return result
-        }, [] as LabelDetails[]))
-      }
-      if (svc?.Spec?.TaskTemplate?.ContainerSpec?.Labels) {
-        const record = svc?.Spec?.TaskTemplate?.ContainerSpec?.Labels
-        labels = labels.concat(Object.keys(record).reduce((result, current) => {
-          result.push(createLabelDetails('Container', current, record[current]))
-          return result
-        }, [] as LabelDetails[]))
-      }
+      labels = createLabels(labels, svc?.Spec?.Labels, 'Service');
+      labels = createLabels(labels, svc?.Spec?.TaskTemplate?.ContainerSpec?.Labels, 'Container');
       setLabelDetails(labels)
 
       if (service?.Spec?.TaskTemplate?.Networks) {
@@ -188,7 +176,7 @@ function ServiceUi(props: ServiceProps) {
             , 
           })
           services.forEach(svc => {
-            if (svc.ID !== svc.ID) {
+            if (svc.ID !== service?.ID) {
               const svcnet = svc.Spec?.TaskTemplate?.Networks?.find(n => n.Target == net.Target)
               if (svcnet) {
                 nodes.push({
@@ -205,6 +193,8 @@ function ServiceUi(props: ServiceProps) {
           })
         })
         setReachGraph({nodes: nodes, edges: edges})
+      } else {
+        setReachGraph({})
       }
     })
   }

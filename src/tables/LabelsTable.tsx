@@ -57,7 +57,7 @@ function LabelsTable(props: LabelsTableProps) {
       border={props.border}
       defaultState={defaultState}
       virtual={false}
-      muiTableContainerProps={ props.maxSize ? { sx: { maxHeight: props.maxSize.height + 'px', maxWidth: props.maxSize.width + 'px' } } : {}}
+      muiTableContainerProps={props.maxSize ? { sx: { maxHeight: props.maxSize.height + 'px', maxWidth: props.maxSize.width + 'px' } } : {}}
     />
   )
 }
@@ -69,6 +69,16 @@ export function createLabelDetails(source: string, name: string, value?: string)
     , source: source
     , value: value
   }
+}
+
+export function createLabels(labels: LabelDetails[], record: Record<string, string> | undefined, source: string) {
+  if (record) {
+    labels = labels.concat(Object.keys(record).reduce((result, current) => {
+      result.push(createLabelDetails(source, current, record[current]));
+      return result;
+    }, [] as LabelDetails[]));
+  }
+  return labels;
 }
 
 export default LabelsTable;

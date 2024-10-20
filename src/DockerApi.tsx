@@ -11,7 +11,8 @@ class Cache {
   tasks: Task[] | undefined
 
   servicesById: Map<string, Service> | undefined
-  nodesById: Map<string, Service> | undefined
+  networksById: Map<string, Network> | undefined
+  nodesById: Map<string, Node> | undefined
 
   exposedPorts: Record<string, string[]> | undefined  
 
@@ -110,6 +111,23 @@ export class DockerApi {
         })
         .catch(_ => {
           return this.cache.networks = []
+        })
+    }
+  }
+
+  networksById(): Promise<Map<string, Network>> {
+    if (this.cache.networksById !== undefined) {
+      return Promise.resolve(this.cache.networksById)
+    } else {
+      return this.networks()
+        .then(nets => {
+          this.cache.networksById = nets.reduce((result, current) => {
+            if (current.Id) {
+              result.set(current.Id, current)
+            }
+            return result
+          }, new Map<string, Network>())
+          return this.cache.networksById
         })
     }
   }

@@ -148,7 +148,7 @@ export function createTaskDetails(task: Task, servicesById: Map<string, Service>
   const service = (servicesById && task.ServiceID) ? servicesById.get(task.ServiceID)?.Spec?.Name || '' : ''
   const name = service + '.' + (task.Slot || task.NodeID)
 
-  const node = (nodesById && task.NodeID) ? nodesById.get(task.NodeID)?.Description?.Hostname || '' : ''
+  const node = (nodesById && task.NodeID) ? nodesById.get(task.NodeID)?.Description?.Hostname || task.NodeID : task.NodeID || ''
 
   return {
     id: task.ID || ''
