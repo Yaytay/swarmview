@@ -112,6 +112,7 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
       , enableExpanding: props.subrows || false
       , filterFromLeafRows: true
       , muiTableContainerProps: props.muiTableContainerProps
+      , muiTopToolbarProps: { sx: { paddingTop: '0px', paddingBottom: '0px' } }
       , muiTableBodyRowProps: props.muiTableBodyRowProps
       , muiTablePaperProps: props.border ? {} : { sx: { border: 'none', boxShadow: 'none' } }
       , displayColumnDefOptions: {

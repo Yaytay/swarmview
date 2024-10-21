@@ -12,7 +12,7 @@ import NodeChecks from './NodeChecks';
 import { DockerApi } from './DockerApi';
 import KeyValueTable from './KeyValueTable';
 import LabelsTable, { createLabelDetails, LabelDetails } from './tables/LabelsTable';
-import TasksTable, { createTaskDetails, TaskDetails } from './tables/TasksTable';
+import TasksTable, { createTaskDetails, processTaskDetailsSubRows, TaskDetails } from './tables/TasksTable';
 import PluginsTable, { createPluginDetails, PluginDetails } from './tables/PluginsTable';
 
 
@@ -69,12 +69,14 @@ function NodeUi(props: NodeProps) {
       const nowMs = Date.now()
 
       setTaskDetails(
-        tasks.reduce((result, current) => {
-          if (current.NodeID === id) {
-            result.push(createTaskDetails(current, servicesById, nodesById, exposedPorts, nowMs))
-          }
-          return result
-        }, [] as TaskDetails[])
+        processTaskDetailsSubRows(
+          tasks.reduce((result, current) => {
+            if (current.NodeID === id) {
+              result.push(createTaskDetails(current, servicesById, nodesById, exposedPorts, nowMs))
+            }
+            return result
+          }, [] as TaskDetails[])
+        )
       )
 
       if (node?.Spec?.Labels) {

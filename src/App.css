@@ -90,6 +90,11 @@ a.navlink :hover {
   white-space: normal; 
 }
 
+
+div.MuiAccordionDetails-root {
+  padding-top: 0px;
+}
+
 div.MuiAccordionSummary-content h2 {
   margin-top: 0;
   margin-bottom: 0;
@@ -98,4 +103,9 @@ div.MuiAccordionSummary-content h2 {
 div.MuiAccordionSummary-content {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
+}
+
+div.MuiButtonBase-root.MuiAccordionSummary-root {
+  min-height: 24px !important;
+  padding-top: 4px;
 }
