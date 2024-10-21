@@ -74,6 +74,9 @@ if (process.env.DOCKER_PROXY_CAPTURE_FOR_MOCK === 'true') {
 }
 
 app.use(apiRouter)
+app.get('/health', (_, res) => {
+  res.send('up')
+})
 
 app.use(vite.middlewares);
  
