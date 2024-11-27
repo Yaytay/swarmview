@@ -16,7 +16,7 @@ import LabelsTable, { createLabels, LabelDetails } from './tables/LabelsTable';
 import TasksTable, { createTaskDetails, TaskDetails } from './tables/TasksTable';
 import SecretsTable, { buildServicesBySecret, createSecretDetails, SecretDetails } from './tables/SecretsTable';
 import ConfigsTable, { buildServicesByConfig, ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
-import NetworksTable, { createNetworkDetails, NetworkDetails } from './tables/NetworksTable';
+import NetworkAttachmentsTable, { createNetworkAttachmentDetails, NetworkAttachmentDetails } from './tables/NetworkAttachmentsTable';
 import SimpleTable from './SimpleTable';
 
 interface ServiceProps {
@@ -36,7 +36,7 @@ function ServiceUi(props: ServiceProps) {
   const [tab, setTab] = useState(0)
 
   const [labelDetails, setLabelDetails] = useState<LabelDetails[]>([])
-  const [networkDetails, setNetworkDetails] = useState<NetworkDetails[]>([])
+  const [networkDetails, setNetworkDetails] = useState<NetworkAttachmentDetails[]>([])
   const [configDetails, setConfigDetails] = useState<ConfigDetails[]>([])
   const [secretDetails, setSecretDetails] = useState<SecretDetails[]>([])
   const [taskDetails, setTaskDetails] = useState<TaskDetails[]>([])
@@ -89,11 +89,11 @@ function ServiceUi(props: ServiceProps) {
           if (current.Target) {
             const net = networks.find(n => n.Id = current.Target)
             if (net) {
-              result.push(createNetworkDetails(net))
+              result.push(createNetworkAttachmentDetails(net, service?.Spec?.Networks?.find(nac => nac.Target == current.Target)))
             }
           }
           return result
-        }, [] as NetworkDetails[]))
+        }, [] as NetworkAttachmentDetails[]))
       } else {
         setNetworkDetails([])
       }
@@ -319,7 +319,7 @@ function ServiceUi(props: ServiceProps) {
                 </Section>
 
                 <Section id="service.networks" heading="Networks" xs={12} >
-                  <NetworksTable id="service.networks.table" networks={networkDetails} />
+                  <NetworkAttachmentsTable id="service.networks.table" networks={networkDetails} />
                 </Section>
 
                 <Section id="service.reach" heading="Reach" xs={12} >

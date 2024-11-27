@@ -13,7 +13,7 @@ import { DockerApi } from './DockerApi';
 import KeyValueTable from './KeyValueTable';
 import SimpleTable from './SimpleTable';
 import LabelsTable, { LabelDetails, createLabels } from './tables/LabelsTable';
-import NetworksTable, { createNetworkDetails, NetworkDetails } from './tables/NetworksTable';
+import NetworkAttachmentsTable, { createNetworkAttachmentDetails, NetworkAttachmentDetails } from './tables/NetworkAttachmentsTable';
 import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
 
 interface TaskUiProps {
@@ -30,7 +30,7 @@ function TaskUi(props: TaskUiProps) {
 
   const [labelDetails, setLabelDetails] = useState<LabelDetails[]>([])
   const [serviceDetails, setServiceDetails] = useState<ServiceDetails[]>([])
-  const [networkDetails, setNetworkDetails] = useState<NetworkDetails[]>([])
+  const [networkDetails, setNetworkDetails] = useState<NetworkAttachmentDetails[]>([])
 
   const [task, setTask] = useState<Task | undefined>()
 
@@ -70,18 +70,25 @@ function TaskUi(props: TaskUiProps) {
       labels = createLabels(labels, task?.Labels, 'Task');
       labels = createLabels(labels, task?.Spec?.ContainerSpec?.Labels, 'Container');
       setLabelDetails(labels)
+
+      const service = task?.ServiceID ? servicesById.get(task?.ServiceID) : undefined
       
       setNetworkDetails(task?.Spec?.Networks?.reduce((result, current) => {
         if (current.Target) {
-          const net = networksById.get(current.Target)
+          const net = networksById.get(current.Target)          
           if (net) {
-            result.push(createNetworkDetails(net))
+            result.push(
+              createNetworkAttachmentDetails(
+                net
+                , service?.Spec?.Networks?.find(nac => nac.Target === current.Target)
+                , Object.entries(container?.NetworkSettings?.Networks || {})?.find(entry => entry[1].NetworkID === current.Target)?.[1]
+              )
+            )
           }
         }
         return result
-      }, [] as NetworkDetails[]) || [])
+      }, [] as NetworkAttachmentDetails[]) || [])
 
-      const service = task?.ServiceID ? servicesById.get(task?.ServiceID) : undefined
       if (service) {
         setServiceDetails([createServiceDetails(service, exposedPorts)])
       }
@@ -281,7 +288,7 @@ function TaskUi(props: TaskUiProps) {
                 </Section>
 
                 <Section id="task.networks" heading="Networks" xs={12} >
-                  <NetworksTable id="task.networks.table" networks={networkDetails} />
+                  <NetworkAttachmentsTable id="task.networks.table" networks={networkDetails} />
                 </Section>
 
                 <Section id="tasks.reach" heading="Reach" xs={12} >
