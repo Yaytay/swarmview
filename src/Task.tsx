@@ -81,7 +81,6 @@ function TaskUi(props: TaskUiProps) {
               createNetworkAttachmentDetails(
                 net
                 , service?.Spec?.Networks?.find(nac => nac.Target === current.Target)
-                , Object.entries(container?.NetworkSettings?.Networks || {})?.find(entry => entry[1].NetworkID === current.Target)?.[1]
               )
             )
           }
@@ -164,6 +163,22 @@ function TaskUi(props: TaskUiProps) {
           setContainer(value[0].container)
           setTop(value[0].top)
           setSystem(value[1])
+
+          setNetworkDetails(task?.Spec?.Networks?.reduce((result, current) => {
+            if (current.Target) {
+              const net = networksById.get(current.Target)          
+              if (net) {
+                result.push(
+                  createNetworkAttachmentDetails(
+                    net
+                    , service?.Spec?.Networks?.find(nac => nac.Target === current.Target)
+                    , Object.entries(container?.NetworkSettings?.Networks || {})?.find(entry => entry[1].NetworkID === current.Target)?.[1]
+                  )
+                )
+              }
+            }
+            return result
+          }, [] as NetworkAttachmentDetails[]) || [])    
         })
       }
     })
