@@ -80,7 +80,8 @@ app.get('/health', (_, res) => {
 
 app.use(vite.middlewares);
  
-app.use('{/:path}', async (req, res) => {
+app.use('/', async (req, res) => {
+  console.log('Getting root path from ' + req.url)
   const url = req.originalUrl;
  
   try {
