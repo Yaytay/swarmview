@@ -11,7 +11,7 @@ import Tab from '@mui/material/Tab';
 import VisNetwork, { GraphData, Node, Edge } from './VisNetwork';
 import LogsView from './LogsView';
 import { DockerApi } from './DockerApi';
-import KeyValueTable from './KeyValueTable';
+import KeyValueTable, { KeyValueTablePropsEntry, KeyValueTableValue } from './KeyValueTable';
 import LabelsTable, { createLabels, LabelDetails } from './tables/LabelsTable';
 import TasksTable, { createTaskDetails, TaskDetails } from './tables/TasksTable';
 import SecretsTable, { buildServicesBySecret, createSecretDetails, SecretDetails } from './tables/SecretsTable';
@@ -227,6 +227,32 @@ function ServiceUi(props: ServiceProps) {
   if (!service) {
     return <></>
   } else {
+    const overviewKVs = [
+      ['ID', service.ID || '']
+      , ['Image', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ' ']
+      , ['Hash', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/.*@/, '') || ' ']
+      , ['Created', service.CreatedAt || '']
+      , ['Updated', service.UpdatedAt || '']
+      , ['Stack', service?.Spec?.Labels && service?.Spec?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + service?.Spec?.Labels['com.docker.stack.namespace'], value: service?.Spec?.Labels['com.docker.stack.namespace'] } : '']
+    ] as KeyValueTableValue[][]
+    if (service?.Spec?.Labels) {
+      const labelRe = /traefik.http.routers.[^.]+.rule/
+      const hostRe = /Host\(`([^`]+)`\)/gi
+      const result = [] as KeyValueTablePropsEntry[]
+      Object.entries(service?.Spec?.Labels).forEach(e => {
+        if (labelRe.test(e[0])) {
+          let match
+          while(match = hostRe.exec(e[1])) {
+            const proto = match[1].includes('.lb.') ? 'http://' : 'https://'
+            result.push({link: proto + match[1], value: proto + match[1] })
+          }
+        }
+      })
+      if (result.length > 0) {
+        overviewKVs.push(['Ingress', result])
+      }
+    }
+  
     return (
       <Box sx={{ width: '100%', height: '100%'}} >
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -242,16 +268,7 @@ function ServiceUi(props: ServiceProps) {
             <Box sx={{ flexGrow: 1 }}>
               <Grid container spacing={2}>
                 <Section id="service.overview" heading="Overview" >
-                  <KeyValueTable id="service.overview.table" kvTable={true} rows={
-                    [
-                      ['ID', service.ID || '']
-                      , ['Image', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/@.*/, '') || ' ']
-                      , ['Hash', service?.Spec?.TaskTemplate?.ContainerSpec?.Image?.replace(/.*@/, '') || ' ']
-                      , ['Created', service.CreatedAt || '']
-                      , ['Updated', service.UpdatedAt || '']
-                      , ['Stack', service?.Spec?.Labels && service?.Spec?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + service?.Spec?.Labels['com.docker.stack.namespace'], value: service?.Spec?.Labels['com.docker.stack.namespace'] } : '']
-                    ]
-                  }>
+                  <KeyValueTable id="service.overview.table" kvTable={true} rows={overviewKVs}>
                   </KeyValueTable>
                 </Section>
                 <Section id="service.execution" heading="Execution" xs={6} >

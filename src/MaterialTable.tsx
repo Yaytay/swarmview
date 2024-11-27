@@ -71,8 +71,6 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
   }
   const [state, setState] = useState<MaterialTableState>(loadState(props.id) || defaultState)
 
-  console.log('props', props)
-
   function copy(table: MRT_TableInstance<Type>) {
     const header = table.getVisibleLeafColumns().map(c => c.columnDef.header).join('\t')
     const body = table.getRowModel().flatRows.map(row => row.getVisibleCells().map(c => c.renderValue()).join('\t')).join('\n')
@@ -81,11 +79,8 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
 
   useEffect(() => {
     if (!isFirstRender.current) {
-      console.log(Date.now(), 'Writing state for ' + props.id + ':', state)
       localStorage.setItem(props.id + '.state', JSON.stringify(state));
-      console.log(Date.now(), 'Written state for ' + props.id + ':', state)
     } else {
-      console.log(isFirstRender)
       isFirstRender.current = false;
     }
   }, [state]);
@@ -95,7 +90,6 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
     setState(defaultState)
   }
 
-  console.log(Date.now(), 'Creating table with', state)
   const table = useMaterialReactTable(
     {
       columns: props.columns
