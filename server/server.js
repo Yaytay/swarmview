@@ -8,15 +8,15 @@ import apiRouter from './apiRouter.js';
  
 const app = express();
  
-app.use(morgan('combined'))
-app.use(apiRouter)
 app.get('/health', (_, res) => {
   res.send('up')
 })
+app.use(morgan('combined'))
+app.use(apiRouter)
 app.use(express.static(path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'dist'), { index: false }));
  
 /*
-app.get('{/:path}', async (req, res) => {
+app.get('/:path()}', async (req, res) => {
   try {
     console.log('Getting path ' + req.params['path'] + ' from ' + req.query.path)
     const template = fs.readFileSync('dist/index.html', 'utf-8');
@@ -26,10 +26,9 @@ app.get('{/:path}', async (req, res) => {
   }
 });
 */
-
-app.get('/', async (req, res) => {
+app.use(/.*/, async (req, res) => {
   try {
-    console.log('Getting root path from ' + req.url)
+    console.log('Getting from ' + req.originalUrl)
     const template = fs.readFileSync('dist/index.html', 'utf-8');
     res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
   } catch (error) {
