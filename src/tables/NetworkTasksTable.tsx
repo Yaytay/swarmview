@@ -3,9 +3,10 @@ import MaterialTable, { MaterialTableState } from '../MaterialTable';
 import { Link } from 'react-router-dom';
 import * as duration from 'duration-fns'
 import { Dimensions } from '../app-types';
-import { Service, Task, Node } from '../docker-schema';
+import { Service, Task, Node, Network } from '../docker-schema';
+import { ContainerData } from '../DockerApi';
 
-export interface TaskDetails {
+export interface NetworkTaskDetails {
   id: string
   name: string
   stack: string
@@ -15,22 +16,12 @@ export interface TaskDetails {
   nodeId: string
   created?: string
   age: number
-  image: string
-  desiredState?: string
-  currentState?: string
-  error?: string
-  memory?: string
+  aliases: string
+  address: string
   ports?: string
-  subRows?: TaskDetails[]
 }
 
-const taskColumns: MRT_ColumnDef<TaskDetails>[] = [
-  {
-    accessorKey: 'id',
-    header: 'ID',
-    size: 220,
-    Cell: ({ renderedCellValue, row }) => (<Link to={"/task/" + row.original.id} >{renderedCellValue}</Link>)
-  },
+const taskColumns: MRT_ColumnDef<NetworkTaskDetails>[] = [
   {
     accessorKey: 'name',
     header: 'NAME',
@@ -67,33 +58,14 @@ const taskColumns: MRT_ColumnDef<TaskDetails>[] = [
     Cell: ({ row }) => (duration.toString(duration.normalize(row.original.age * 1000)))
   },
   {
-    accessorKey: 'image',
-    header: 'IMAGE',
-    filterVariant: 'select',
+    accessorKey: 'aliases',
+    header: 'ALIASES',
     size: 600,
   },
   {
-    accessorKey: 'desiredState',
-    header: 'DESIRED STATE',
-    filterVariant: 'select',
+    accessorKey: 'address',
+    header: 'ADDRESS',
     size: 100,
-  },
-  {
-    accessorKey: 'currentState',
-    header: 'CURRENT STATE',
-    filterVariant: 'select',
-    size: 100,
-  },
-  {
-    accessorKey: 'error',
-    header: 'ERROR',
-    size: 180,
-  },
-  {
-    accessorKey: 'memory',
-    header: 'MEMORY',
-    filterVariant: 'select',
-    size: 180,
   },
   {
     accessorKey: 'ports',
@@ -115,13 +87,13 @@ const defaultState: MaterialTableState = {
   , sorting: []
 }
 
-interface TasksTableProps {
+interface NetworkTasksTableProps {
   id: string
-  tasks: TaskDetails[]
+  tasks: NetworkTaskDetails[]
   border?: boolean
   maxSize?: Dimensions
 }
-function TasksTable(props: TasksTableProps) {
+function NetworkTasksTable(props: NetworkTasksTableProps) {
   return (
     <MaterialTable
       id={props.id}
@@ -130,13 +102,19 @@ function TasksTable(props: TasksTableProps) {
       border={props.border}
       virtual={true}
       defaultState={defaultState}
-      subrows={true}
       muiTableContainerProps={props.maxSize ? { sx: { maxHeight: props.maxSize.height + 'px', maxWidth: props.maxSize.width + 'px' } } : {}}
     />
   )
 }
 
-export function createTaskDetails(task: Task, servicesById: Map<string, Service>, nodesById: Map<string, Node>, exposedPorts: Record<string, string[]>, nowMs: number): TaskDetails {
+export function createNetworkTaskDetails(net: Network
+  , task: Task
+  , servicesById: Map<string, Service>
+  , nodesById: Map<string, Node>
+  , exposedPorts: Record<string, string[]>
+  , containers: ContainerData[]
+  , nowMs: number
+): NetworkTaskDetails {
   const ports = (task.Status?.PortStatus?.Ports?.map(portSpec => {
     return portSpec.PublishedPort + ':' + portSpec.TargetPort
   }) || []).concat(
@@ -150,6 +128,8 @@ export function createTaskDetails(task: Task, servicesById: Map<string, Service>
 
   const node = (nodesById && task.NodeID) ? nodesById.get(task.NodeID)?.Description?.Hostname || task.NodeID : task.NodeID || ''
 
+  const ctr = containers?.find(ctr => ctr.container?.Config?.Labels?.['com.docker.swarm.task.id'] === task.ID)
+
   return {
     id: task.ID || ''
     , name: name
@@ -160,40 +140,13 @@ export function createTaskDetails(task: Task, servicesById: Map<string, Service>
     , nodeId: task.NodeID || ''
     , created: task.CreatedAt || ''
     , age: age
-    , image: task.Spec?.ContainerSpec?.Image?.replace(/@.*/, '') || ''
-    , desiredState: task.DesiredState || ''
-    , currentState: task.Status?.State || ''
-    , error: task.Status?.Err || ''
-    , memory: String(task?.Status?.State === 'running' && task?.Spec?.Resources?.Limits?.MemoryBytes ? task?.Spec?.Resources?.Limits?.MemoryBytes / 1048576 : '')
     , ports: ports
+    , aliases: ([] as string[])
+        .concat(ctr?.container?.NetworkSettings?.Networks?.[net?.Name || '']?.Aliases || [])
+        .concat(ctr?.container?.NetworkSettings?.Networks?.[net?.Name || '']?.DNSNames || [])
+        .join(', ')
+    , address: ctr?.container?.NetworkSettings?.Networks?.[net?.Name || '']?.IPAddress ||''
   }
 }
 
-export function processTaskDetailsSubRows(input: TaskDetails[]) : TaskDetails[] {
-  const sorted = input.sort((a, b) => {
-    let result = a.name.localeCompare(b.name)
-    if (result === 0) {
-      result = a.age - b.age
-    }
-    return result
-  })
-  const result = sorted.reduce((result, current) => {
-    if (result.length === 0) {
-      result.push(current)
-    } else {
-      const last = result[result.length - 1]
-      if (last.name !== current.name) {
-        result.push(current)
-      } else if (!last.subRows) {
-        last.subRows = [current]
-      } else {
-        last.subRows.push(current)
-      }
-    }
-
-    return result
-  }, [] as TaskDetails[])
-  return result
-}
-
-export default TasksTable;
+export default NetworkTasksTable;

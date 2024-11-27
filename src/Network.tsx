@@ -3,16 +3,17 @@ import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Network } from './docker-schema';
+import { Network, Service } from './docker-schema';
 import Section from './Section'
 import Grid from '@mui/material/Grid2';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { DockerApi } from './DockerApi';
+import { ContainerData, DockerApi } from './DockerApi';
 import KeyValueTable from './KeyValueTable';
 import LabelsTable, { createLabelDetails, LabelDetails } from './tables/LabelsTable';
 import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
 import IpamConfigsTable, { createIpamConfigDetails, IpamConfigDetails } from './tables/IpamConfigsTable';
+import NetworkTasksTable, { createNetworkTaskDetails, NetworkTaskDetails } from './tables/NetworkTasksTable';
 
 
 interface NetworkProps {
@@ -35,15 +36,27 @@ function NetworkUi(props: NetworkProps) {
   const [serviceDetails, setServiceDetails] = useState<ServiceDetails[]>([])
   const [ipamDetails, setIpamDetails] = useState<IpamConfigDetails[]>([])
 
+  const [taskDetails, setTaskDetails] = useState<NetworkTaskDetails[]>([])
+
   useEffect(() => {
     Promise.all([
       props.docker.networks()
       , props.docker.services()
       , props.docker.exposedPorts()
+      , props.docker.nodesById()
     ]).then(value => {
       const nets = value[0]
       const services = value[1]
       const exposedPorts = value[2]
+      const nodesById = value[3]
+
+      // This repetition of docker.servicesById() avoids a race condition where that hits the network twice
+      const servicesById = services.reduce((result, current) => {
+        if (current.ID) {
+          result.set(current.ID, current)
+        }
+        return result
+      }, new Map<string, Service>())
 
       const net = nets.find(net => { return net.Id === id })
       setNetwork(net)
@@ -80,6 +93,46 @@ function NetworkUi(props: NetworkProps) {
       } else {
         setIpamDetails([])
       }
+
+      if (net) {
+        props.docker.tasks()
+          .then(tsks => {
+            return tsks.filter(tsk => { 
+              return tsk.Status?.State == 'running'
+                  && tsk.Spec?.Networks
+                  && tsk.Spec?.Networks?.findIndex(tsknet => tsknet.Target === id ) >= 0
+            })
+          })
+          .then(tsks => {
+            console.log('Tasks for this network: ', tsks)
+            const ctrPromises = [] as Promise<ContainerData>[]
+            tsks.forEach(tsk => {
+              if (tsk.NodeID && tsk.ID) {
+                ctrPromises.push(props.docker.container(tsk.NodeID, tsk.ID))
+              }
+            })
+            Promise.all(ctrPromises)
+              .then(ctrs => {
+                const nowMs = Date.now()
+                setTaskDetails(
+                  tsks.reduce((result, current) => {
+                    result.push(
+                      createNetworkTaskDetails(
+                        net
+                        , current
+                        , servicesById
+                        , nodesById
+                        , exposedPorts
+                        , ctrs
+                        , nowMs
+                      )
+                    )
+                    return result
+                  }, [] as NetworkTaskDetails[])
+                )
+              })
+          })
+        }
     })
   }
     , [props, id])
@@ -137,6 +190,10 @@ function NetworkUi(props: NetworkProps) {
 
                 <Section id="network.services" heading="Services" xs={12} >
                   <ServicesTable id="network.services.table" services={serviceDetails} />
+                </Section>
+
+                <Section id="network.tasks" heading="Tasks" xs={12} >
+                  <NetworkTasksTable id="network.tasks.table" tasks={taskDetails} />
                 </Section>
               </Grid>
             </Box>

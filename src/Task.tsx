@@ -60,9 +60,11 @@ function TaskUi(props: TaskUiProps) {
       const nodesById = value[3]
       const exposedPorts = value[4]
 
-      const task = tasks.find(tsk => { return tsk.ID === id })
-      setTask(task)
-      props.setTitle('Task: ' + (task ? ((task.ServiceID && servicesById.get(task.ServiceID)?.Spec?.Name) ?? task.ServiceID) + '.' + (task.Slot ? task.Slot : task.NodeID) : id))
+      const tsk = tasks.find(tsk => { return tsk.ID === id })
+      setTask(tsk)
+      const title = 'Task: ' + (tsk ? ((tsk.ServiceID && servicesById.get(tsk.ServiceID)?.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID) : id)
+      console.log(title)
+      props.setTitle(title)
       setNodes(nodesById)
 
 
@@ -155,7 +157,7 @@ function TaskUi(props: TaskUiProps) {
       })      
       setResources(buildResources)
 
-      if (task && task.ID && task.NodeID) {
+      if (task && task.ID && task.NodeID && (task.Status?.State == 'running')) {
         Promise.all([
           props.docker.container(task.NodeID, task.ID)
           , props.docker.system(task.NodeID)
