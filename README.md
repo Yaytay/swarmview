@@ -1,30 +1,21 @@
-# React + TypeScript + Vite
+# SwarmView
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SwarmView is the best (if your requirements are the same as mine) UI for seeing what is going on in your Docker Swarms.
 
-Currently, two official plugins are available:
+SwarmView is a relatively thin layer over the Docker API, with a few clever tricks to present more useful information.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+A few things that SwarmView will never do:
 
-## Expanding the ESLint configuration
+- There is no authentication or other security provided by SwarmView.
+  SwarmView is designed to be run behind some other authentication mechanism - typically this would be something like oauth-proxy or a reverse proxy that supports OAuth.
+- SwarmView does not permit you to change anything.
+  I expect you to handle all of your deployment aspects via GitOps, so there is no need for SwarmView to provide that functionality.
+  This also means that I do not currently consider authorisation (though that isn't guaranteed for the future, it may become possible to restrict access if people think that would be useful).
+- SwarmView does not require any priviliged access.
+  I am horrified by the level of access required by some Swarm management tools, SwarmView just requires access to the Docker API.
+  Furthermore, all access to the Docker API is through (wollomatic/socket-proxy)[https://github.com/wollomatic/socket-proxy] which ensures that only GET requests can be issued.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-- Configure the top-level `parserOptions` property like this:
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+
