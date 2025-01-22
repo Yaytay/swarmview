@@ -77,7 +77,7 @@ function ServicesTable(props: ServicesTableProps) {
 
 function createPortsDetail(svc: Service, exposedPorts: Record<string, string[]>): string[] {
   return (svc.Endpoint?.Ports?.map(portSpec => {
-    return portSpec.PublishedPort + ':' + portSpec.TargetPort
+    return (portSpec.PublishedPort ? portSpec.PublishedPort + ':' : '') + portSpec.TargetPort
   }) || []).concat(
     svc.Spec?.TaskTemplate?.ContainerSpec?.Image ? exposedPorts[svc.Spec.TaskTemplate?.ContainerSpec.Image.replace(/:.*@/, "@")] : []
   ).filter(Boolean)

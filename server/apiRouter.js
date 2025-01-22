@@ -12,16 +12,21 @@ if (!process.env.DOCKER_PROXY_ENDPOINT) {
 
 const service = process.env.DOCKER_PROXY_SERVICE
 const service_port = process.env.DOCKER_PROXY_SERVICE_PORT || '2375'
+const workers_service = process.env.DOCKER_PROXY_WORKERS_SERVICE
+const workers_service_port = process.env.DOCKER_PROXY_WORKERS_SERVICE_PORT || '2375'
 const service_redirect = JSON.parse(process.env.DOCKER_PROXY_SERVICE_REDIRECT || '{}')
 
 if (!process.env.DOCKER_PROXY_SERVICE) {
   console.log('Set the environment variable DOCKER_PROXY_SERVICE to enable dynamic discovery of docker services.\n'
     + 'This is only used for functionality that requires access to all nodes (such as port exposure).\n'
     + 'This can only work when running inside a swarm.\n'
+    + 'If only some of the nodes in the swarm are managers set DOCKER_PROXY_SERVICE to the manager service\n'
+    + 'and DOCKER_PROXY_WORKERS_SERVICE to the workers service.\n'
   )
 }
 
 const serviceProxiesUrl = 'http://' + endpoint + '/v1.45/tasks?filters={%22name%22:[%22' + service + '%22],%22desired-state%22:[%22running%22]}'
+const workersServiceProxiesUrl = workers_service ? 'http://' + endpoint + '/v1.45/tasks?filters={%22name%22:[%22' + workers_service + '%22],%22desired-state%22:[%22running%22]}' : null
 
 router.use('/docker', proxy(endpoint, {
   filter: (req) => {
@@ -42,9 +47,10 @@ function getExportsForImage(result, url) {
     .then(j => {
       if (j.Config.ExposedPorts && Array.isArray(j.RepoDigests)) {
         j.RepoDigests.forEach(digest => {
-          // console.log('At ' + url + ' for ' + digest + ' got: ', j.Config.ExposedPorts)
-          result[digest.replace(/:.*@/, "@")] = Object.keys(j.Config.ExposedPorts)
+          console.log('At ' + url + ' for ' + digest + ' got: ', j.Config.ExposedPorts)
+          result[digest.replace(/:.*@/, "@")] = Object.keys(j.Config.ExposedPorts)          
         })
+
       }
     })
     .catch(ex => {
@@ -111,8 +117,17 @@ function getContainerDetails(host, taskid) {
     })
 }
 
+function redirectServiceUrl(dockerProxyHost) {
+  if (service_redirect && service_redirect[dockerProxyHost]) {
+    console.log('Using ' + service_redirect[dockerProxyHost] + ' instead of ' + dockerProxyHost)
+    return service_redirect[dockerProxyHost]
+  } else {
+    return dockerProxyHost
+  }
+}
+
 // Get all the exports known to any of the hosts running the docker proxy
-function getExportsFromAllDockerProxies(result, url) {
+function getExportsFromAllDockerProxies(result, url, svc, port) {
   return fetch(url)
     .then(r => r.json())
     .then(j => {
@@ -120,11 +135,7 @@ function getExportsFromAllDockerProxies(result, url) {
       if (Array.isArray(j)) {
         j.forEach(tsk => {
           if (tsk.ID && tsk.NodeID && tsk.Status.State === 'running') {
-            let dockerProxyHost = service + '.' + tsk.NodeID + '.' + tsk.ID + ':' + service_port
-            if (service_redirect && service_redirect[dockerProxyHost]) {
-              console.log('Using ' + service_redirect[dockerProxyHost] + ' instead of ' + dockerProxyHost)
-              dockerProxyHost = service_redirect[dockerProxyHost]
-            }
+            let dockerProxyHost = redirectServiceUrl(svc + '.' + tsk.NodeID + '.' + tsk.ID + ':' + port)
             promises.push(getExportsForKnownImages(result, dockerProxyHost))
           }
         })
@@ -142,7 +153,12 @@ router.use('/api/exposed', (_, res) => {
   }
 
   const result = {}
-  getExportsFromAllDockerProxies(result, serviceProxiesUrl)
+  const promises = []
+  promises.push(getExportsFromAllDockerProxies(result, serviceProxiesUrl, service, service_port))
+  if (workersServiceProxiesUrl) {
+    promises.push(getExportsFromAllDockerProxies(result, workersServiceProxiesUrl, workers_service, workers_service_port))
+  }
+  Promise.all(promises)
     .then(() => {
       res.send(JSON.stringify(result))
     })
@@ -169,35 +185,45 @@ class HttpError extends Error {
 
 // Return a promise containing the URL to use for a given node
 // The result cannot be (easily) cached because the proxy URL may change for a given node
-function getUrlForNode(nodeid) {
+function getDockerApiUrlForNode(nodeid) {
   if (!service) {
     return Promise.reject(new HttpError(404, 'Not configured for node-based data'))
   }
-  return fetch(serviceProxiesUrl)
+  const promises = []
+  serviceProxiesUrl && promises.push(getDockerApiUrlForNodeForGivenProxyUrl(nodeid, serviceProxiesUrl, service, service_port))
+  workersServiceProxiesUrl && promises.push(getDockerApiUrlForNodeForGivenProxyUrl(nodeid, workersServiceProxiesUrl, workers_service, workers_service_port));
+
+  return Promise.all(promises)
+      .then(results => results.find(Boolean))
+      .then(url => {
+        console.log('Found', url)
+        return url;
+      })
+      .catch(error => {
+        throw new HttpError(404, 'Cannot find proxy service for node ' + nodeid);
+      })
+}
+
+function getDockerApiUrlForNodeForGivenProxyUrl(nodeid, proxyUrl, proxyServiceName, proxyServicePort) {
+  console.log(proxyUrl)
+  return fetch(proxyUrl)
     .then(r => r.json())
     .then(j => {
       if (Array.isArray(j)) {
         const tsk = j.filter(tsk => tsk.NodeID === nodeid && tsk.Status.State === 'running').pop()
         if (tsk) {
-          let dockerProxyHost = service + '.' + tsk.NodeID + '.' + tsk.ID + ':' + service_port
-          //console.log(dockerProxyHost)
-          //console.log(service_redirect)
-          if (service_redirect && service_redirect[dockerProxyHost]) {
-            console.log('Using ' + service_redirect[dockerProxyHost] + ' instead of ' + dockerProxyHost)
-            dockerProxyHost = service_redirect[dockerProxyHost]
-          }
-          return dockerProxyHost
+          return redirectServiceUrl(proxyServiceName + '.' + tsk.NodeID + '.' + tsk.ID + ':' + proxyServicePort)
         } else {
-          throw new HttpError(404, 'Cannot find proxy service for ' + nodeid)
+          console.log('Cannot find proxy service for', nodeid, 'at', proxyUrl)
         }
       } else {
-        throw new HttpError(404, 'Cannot process proxy services')
+        console.log('Cannot process proxy services at', proxyUrl)
       }
     })
 }
 
 router.use('/api/system/:nodeid', (req, res) => {
-  return getUrlForNode(req.params.nodeid)
+  return getDockerApiUrlForNode(req.params.nodeid)
     .then(dockerProxyHost => getSystemInfo(dockerProxyHost))
     .then(j => res.status(200).send(j))
     .catch(ex => {
@@ -211,7 +237,7 @@ router.use('/api/system/:nodeid', (req, res) => {
 })
 
 router.use('/api/container/:nodeid/:taskid', (req, res) => {
-  return getUrlForNode(req.params.nodeid)
+  return getDockerApiUrlForNode(req.params.nodeid)
     .then(dockerProxyHost => getContainerDetails(dockerProxyHost, req.params.taskid))
     .then(j => res.status(200).send(j))
     .catch(ex => {
