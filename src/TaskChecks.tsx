@@ -10,6 +10,11 @@ import { cis_5_4_kernelCapabilities } from "./checks/task-checks/cis/5.4-kernel-
 import { cis_5_5_noPrivileges } from "./checks/task-checks/cis/5.5-no-privileged";
 import { cis_5_6_sensitiveDirectories } from "./checks/task-checks/cis/5.6-sensitive-directories";
 import { cis_5_7_noSsh } from "./checks/task-checks/cis/5.7-no-ssh";
+import { cis_5_8_noPrivilegedPorts } from "./checks/task-checks/cis/5.8-no-privileged-host-ports";
+import { cis_5_9_onlyExposeNeededPorts } from "./checks/task-checks/cis/5.9-only-expose-needed-ports";
+import { cis_5_10_dontUseHostNetworking } from "./checks/task-checks/cis/5.10-dont-user-host-networking";
+import { cis_5_11_limitMemory } from "./checks/task-checks/cis/5.11-limit-memory";
+import { cis_5_12_limitCpu } from "./checks/task-checks/cis/5.12-limit-cpu";
 
 interface TaskChecksProps {
   task: Task
@@ -26,6 +31,11 @@ function TaskChecks(props: TaskChecksProps) {
     , cis_5_5_noPrivileges
     , cis_5_6_sensitiveDirectories
     , cis_5_7_noSsh
+    , cis_5_8_noPrivilegedPorts
+    , cis_5_9_onlyExposeNeededPorts
+    , cis_5_10_dontUseHostNetworking
+    , cis_5_11_limitMemory
+    , cis_5_12_limitCpu
     , other_1_0_0_taskRestartPolicy
     , other_1_0_1_taskRestartPolicyLimit
     , other_1_0_2_taskRestartPolicyDelay

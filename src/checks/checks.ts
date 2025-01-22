@@ -17,6 +17,7 @@ export interface CheckArguments {
 
 export enum State {
   pass = 'pass'
+  , info = 'info'
   , fail = 'fail'
   , warning = 'warning'
   , error = 'error'
