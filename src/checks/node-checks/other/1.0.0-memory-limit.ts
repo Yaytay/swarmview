@@ -4,7 +4,7 @@ export const nodeMemorylimit : Check = {
   category: "Other"
   , id: "1.0.0"
   , title: 'Node memory limit'
-  , description: "Does this node have mode memory than the limit of the tasks running on it?"
+  , description: "Does this node have more memory than the limit of the tasks running on it?"
   , remediation: "Increase the memory of the node, increase the number of nodes, or reduce the memory limit of the tasks"
   , remediationImpact: "Increased cost or load on VM hosts; insufficient memory available to tasks"
   , reference: ''
