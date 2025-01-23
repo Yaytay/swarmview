@@ -175,7 +175,7 @@ export interface Mount {
      * Make the mount non-recursively read-only, but still leave the mount recursive
      * (unless NonRecursive is set to `true` in conjunction).
      *
-     * Addded in v1.44, before that version all read-only mounts were
+     * Added in v1.44, before that version all read-only mounts were
      * non-recursive by default. To match the previous behaviour this
      * will default to `true` for clients on versions prior to v1.44.
      * @default false
@@ -218,6 +218,14 @@ export interface Mount {
     SizeBytes?: number;
     /** The permission mode for the tmpfs mount in an integer. */
     Mode?: number;
+    /**
+     * The options to be passed to the tmpfs mount. An array of arrays.
+     * Flag options should be provided as 1-length arrays. Other types
+     * should be provided as as 2-length arrays, where the first item is
+     * the key and the second the value.
+     * @example [["noexec"]]
+     */
+    Options?: string[][];
   };
 }
 
@@ -817,7 +825,7 @@ export type HostConfig = Resources & {
   /** Runtime to use with this container. */
   Runtime?: string;
   /** Isolation technology of the container. (Windows only) */
-  Isolation?: "default" | "process" | "hyperv";
+  Isolation?: "default" | "process" | "hyperv" | "";
   /**
    * The list of paths to be masked inside the container (this overrides
    * the default set of paths).
@@ -969,7 +977,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always empty and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always empty. It must not be used, and will be removed in API v1.48.
    * @example ""
    */
   Hostname?: string;
@@ -978,7 +987,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always empty and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always empty. It must not be used, and will be removed in API v1.48.
    * @example ""
    */
   Domainname?: string;
@@ -992,7 +1002,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always false and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always false. It must not be used, and will be removed in API v1.48.
    * @default false
    * @example false
    */
@@ -1002,7 +1013,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always false and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always false. It must not be used, and will be removed in API v1.48.
    * @default false
    * @example false
    */
@@ -1012,7 +1024,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always false and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always false. It must not be used, and will be removed in API v1.48.
    * @default false
    * @example false
    */
@@ -1029,7 +1042,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always false and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always false. It must not be used, and will be removed in API v1.48.
    * @default false
    * @example false
    */
@@ -1039,7 +1053,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always false and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always false. It must not be used, and will be removed in API v1.48.
    * @default false
    * @example false
    */
@@ -1049,7 +1064,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always false and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always false. It must not be used, and will be removed in API v1.48.
    * @default false
    * @example false
    */
@@ -1080,7 +1096,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always empty and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always empty. It must not be used, and will be removed in API v1.48.
    * @default ""
    * @example ""
    */
@@ -1110,7 +1127,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always omitted and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always omitted. It must not be used, and will be removed in API v1.48.
    * @default false
    * @example false
    */
@@ -1120,7 +1138,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Deprecated**: this field is deprecated in API v1.44 and up. It is always omitted.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always omitted. It must not be used, and will be removed in API v1.48.
    * @default ""
    * @example ""
    */
@@ -1145,7 +1164,8 @@ export interface ImageConfig {
    *
    * <p><br /></p>
    *
-   * > **Note**: this field is always omitted and must not be used.
+   * > **Deprecated**: this field is not part of the image specification and is
+   * > always omitted. It must not be used, and will be removed in API v1.48.
    * @default 10
    */
   StopTimeout?: number | null;
@@ -1371,7 +1391,7 @@ export interface PortBinding {
  * Information about the storage driver used to store the container's and
  * image's filesystem.
  */
-export interface GraphDriverData {
+export interface DriverData {
   /**
    * Name of the storage driver.
    * @example "overlay2"
@@ -1482,7 +1502,7 @@ export interface ImageInspect {
    * The version of Docker that was used to build the image.
    *
    * Depending on how the image was created, this field may be empty.
-   * @example "20.10.7"
+   * @example "27.0.1"
    */
   DockerVersion: string;
   /**
@@ -1535,7 +1555,7 @@ export interface ImageInspect {
    * Information about the storage driver used to store the container's and
    * image's filesystem.
    */
-  GraphDriver?: GraphDriverData;
+  GraphDriver?: DriverData;
   /** Information about the image's RootFS, including the layer IDs. */
   RootFS?: {
     /** @example "layers" */
@@ -1606,7 +1626,7 @@ export interface ImageSummary {
   RepoDigests: string[];
   /**
    * Date and time at which the image was created as a Unix timestamp
-   * (number of seconds sinds EPOCH).
+   * (number of seconds since EPOCH).
    * @example "1644009612"
    */
   Created: number;
@@ -1648,6 +1668,15 @@ export interface ImageSummary {
    * @example 2
    */
   Containers: number;
+  /**
+   * Manifests is a list of manifests available in this image.
+   * It provides a more detailed view of the platform-specific image manifests
+   * or other image-attached data like build attestations.
+   *
+   * WARNING: This is experimental and may change at any time without any backward
+   * compatibility.
+   */
+  Manifests: ImageManifestSummary[];
 }
 
 /** @example {"username":"hannibal","password":"xxxx","serveraddress":"https://index.docker.io/v1/"} */
@@ -1820,6 +1849,11 @@ export interface Network {
    */
   Driver?: string;
   /**
+   * Whether the network was created with IPv4 enabled.
+   * @example true
+   */
+  EnableIPv4?: boolean;
+  /**
    * Whether the network was created with IPv6 enabled.
    * @example false
    */
@@ -1833,7 +1867,7 @@ export interface Network {
    */
   Internal?: boolean;
   /**
-   * Wheter a global / swarm scope network is manually attachable by regular
+   * Whether a global / swarm scope network is manually attachable by regular
    * containers from workers in swarm mode.
    * @default false
    * @example false
@@ -1951,6 +1985,23 @@ export interface PeerInfo {
    * @example "10.133.77.91"
    */
   IP?: string;
+}
+
+/**
+ * NetworkCreateResponse
+ * OK response to NetworkCreate operation
+ */
+export interface NetworkCreateResponse {
+  /**
+   * The ID of the created network.
+   * @example "b5c4fc71e8022147cd25de22b22173de4e3b170134117172eb595cb91b4e7e5d"
+   */
+  Id: string;
+  /**
+   * Warnings encountered when creating the container
+   * @example ""
+   */
+  Warning: string;
 }
 
 export interface BuildInfo {
@@ -2090,6 +2141,12 @@ export interface EndpointSettings {
   /** @example ["server_x","server_y"] */
   Aliases?: string[];
   /**
+   * DriverOpts is a mapping of driver options and values. These options
+   * are passed directly to the driver and are driver specific.
+   * @example {"com.example.some-label":"some-value","com.example.some-other-label":"some-other-value"}
+   */
+  DriverOpts?: Record<string, string>;
+  /**
    * Unique ID of the network.
    * @example "08754567f1f40222263eab4102e1c733ae697e8e354aa9cd6e18d7402835292a"
    */
@@ -2130,12 +2187,6 @@ export interface EndpointSettings {
    * @example 64
    */
   GlobalIPv6PrefixLen?: number;
-  /**
-   * DriverOpts is a mapping of driver options and values. These options
-   * are passed directly to the driver and are driver specific.
-   * @example {"com.example.some-label":"some-value","com.example.some-other-label":"some-other-value"}
-   */
-  DriverOpts?: Record<string, string>;
   /**
    * List of all DNS names an endpoint has on a specific network. This
    * list is based on the container name, network aliases, container short
@@ -2676,7 +2727,7 @@ export interface SwarmSpec {
        */
       Name?: string;
       /**
-       * Driver-specific options for the selectd log driver, specified
+       * Driver-specific options for the selected log driver, specified
        * as key/value pairs.
        * @example {"max-file":"10","max-size":"100m"}
        */
@@ -2981,6 +3032,13 @@ export interface TaskSpec {
       SecretName?: string;
     }[];
     /**
+     * An integer value containing the score given to the container in
+     * order to tune OOM killer preferences.
+     * @format int64
+     * @example 0
+     */
+    OomScoreAdj?: number;
+    /**
      * Configs contains references to zero or more configs that will be
      * exposed to the service.
      */
@@ -3031,7 +3089,7 @@ export interface TaskSpec {
      * Isolation technology of the containers running the service.
      * (Windows only)
      */
-    Isolation?: "default" | "process" | "hyperv";
+    Isolation?: "default" | "process" | "hyperv" | "";
     /**
      * Run an init inside the container that forwards signals and reaps
      * processes. This field is omitted if empty, and the default (as
@@ -3138,7 +3196,7 @@ export interface TaskSpec {
      * `node.platform.os`   | Node operating system          | `node.platform.os==windows`
      * `node.platform.arch` | Node architecture              | `node.platform.arch==x86_64`
      * `node.labels`        | User-defined node labels       | `node.labels.security==high`
-     * `engine.labels`      | Docker Engine's labels         | `engine.labels.operatingsystem==ubuntu-14.04`
+     * `engine.labels`      | Docker Engine's labels         | `engine.labels.operatingsystem==ubuntu-24.04`
      *
      * `engine.labels` apply to Docker Engine labels like operating system,
      * drivers, etc. Swarm administrators add `node.labels` for operational
@@ -3611,6 +3669,8 @@ export interface ContainerSummary {
   Status?: string;
   HostConfig?: {
     NetworkMode?: string;
+    /** Arbitrary key-value metadata attached to container */
+    Annotations?: Record<string, string>;
   };
   /** A summary of the container's network settings */
   NetworkSettings?: {
@@ -3853,7 +3913,7 @@ export interface SystemVersion {
     Name: string;
     /**
      * Version of the component
-     * @example "19.03.12"
+     * @example "27.0.1"
      */
     Version: string;
     /**
@@ -3868,17 +3928,17 @@ export interface SystemVersion {
   }[];
   /**
    * The version of the daemon
-   * @example "19.03.12"
+   * @example "27.0.1"
    */
   Version?: string;
   /**
    * The default (and highest) API version that is supported by the daemon
-   * @example "1.40"
+   * @example "1.47"
    */
   ApiVersion?: string;
   /**
    * The minimum API version that is supported by the daemon
-   * @example "1.12"
+   * @example "1.24"
    */
   MinAPIVersion?: string;
   /**
@@ -3889,7 +3949,7 @@ export interface SystemVersion {
   /**
    * The version Go used to compile the daemon, and the version of the Go
    * runtime in use.
-   * @example "go1.13.14"
+   * @example "go1.21.13"
    */
   GoVersion?: string;
   /**
@@ -3906,7 +3966,7 @@ export interface SystemVersion {
    * The kernel version (`uname -r`) that the daemon is running on.
    *
    * This field is omitted when empty.
-   * @example "4.19.76-linuxkit"
+   * @example "6.8.0-31-generic"
    */
   KernelVersion?: string;
   /**
@@ -4116,13 +4176,13 @@ export interface SystemInfo {
    * On Linux, this information obtained from `uname`. On Windows this
    * information is queried from the <kbd>HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\</kbd>
    * registry value, for example _"10.0 14393 (14393.1198.amd64fre.rs1_release_sec.170427-1353)"_.
-   * @example "4.9.38-moby"
+   * @example "6.8.0-31-generic"
    */
   KernelVersion?: string;
   /**
-   * Name of the host's operating system, for example: "Ubuntu 16.04.2 LTS"
+   * Name of the host's operating system, for example: "Ubuntu 24.04 LTS"
    * or "Windows Server 2016 Datacenter"
-   * @example "Alpine Linux v3.5"
+   * @example "Ubuntu 24.04 LTS"
    */
   OperatingSystem?: string;
   /**
@@ -4133,7 +4193,7 @@ export interface SystemInfo {
    * > **Note**: The information returned in this field, including its
    * > very existence, and the formatting of values, should not be considered
    * > stable, and may change without notice.
-   * @example "16.04"
+   * @example "24.04"
    */
   OSVersion?: string;
   /**
@@ -4236,7 +4296,7 @@ export interface SystemInfo {
   ExperimentalBuild?: boolean;
   /**
    * Version string of the daemon.
-   * @example "24.0.2"
+   * @example "27.0.1"
    */
   ServerVersion?: string;
   /**
@@ -4283,7 +4343,7 @@ export interface SystemInfo {
    * This option is currently not used on other platforms.
    * @default "default"
    */
-  Isolation?: "default" | "hyperv" | "process";
+  Isolation?: "default" | "hyperv" | "process" | "";
   /**
    * Name and, optional, path of the `docker-init` binary.
    *
@@ -4353,7 +4413,7 @@ export interface SystemInfo {
    * issues related to the daemon configuration.
    *
    * These messages can be printed by the client as information to the user.
-   * @example ["WARNING: No memory limit support","WARNING: bridge-nf-call-iptables is disabled","WARNING: bridge-nf-call-ip6tables is disabled"]
+   * @example ["WARNING: No memory limit support"]
    */
   Warnings?: string[];
   /**
@@ -4371,7 +4431,62 @@ export interface SystemInfo {
    * @example ["/etc/cdi","/var/run/cdi"]
    */
   CDISpecDirs?: string[];
+  /**
+   * Information for connecting to the containerd instance that is used by the daemon.
+   * This is included for debugging purposes only.
+   */
+  Containerd?: ContainerdInfo;
 }
+
+/**
+ * Information for connecting to the containerd instance that is used by the daemon.
+ * This is included for debugging purposes only.
+ */
+export type ContainerdInfo = {
+  /**
+   * The address of the containerd socket.
+   * @example "/run/containerd/containerd.sock"
+   */
+  Address?: string;
+  /**
+   * The namespaces that the daemon uses for running containers and
+   * plugins in containerd. These namespaces can be configured in the
+   * daemon configuration, and are considered to be used exclusively
+   * by the daemon, Tampering with the containerd instance may cause
+   * unexpected behavior.
+   *
+   * As these namespaces are considered to be exclusively accessed
+   * by the daemon, it is not recommended to change these values,
+   * or to change them to a value that is used by other systems,
+   * such as cri-containerd.
+   */
+  Namespaces?: {
+    /**
+     * The default containerd namespace used for containers managed
+     * by the daemon.
+     *
+     * The default namespace for containers is "moby", but will be
+     * suffixed with the `<uid>.<gid>` of the remapped `root` if
+     * user-namespaces are enabled and the containerd image-store
+     * is used.
+     * @default "moby"
+     * @example "moby"
+     */
+    Containers?: string;
+    /**
+     * The default containerd namespace used for plugins managed by
+     * the daemon.
+     *
+     * The default namespace for plugins is "plugins.moby", but will be
+     * suffixed with the `<uid>.<gid>` of the remapped `root` if
+     * user-namespaces are enabled and the containerd image-store
+     * is used.
+     * @default "plugins.moby"
+     * @example "plugins.moby"
+     */
+    Plugins?: string;
+  };
+} | null;
 
 /**
  * Available plugins per type.
@@ -5009,411 +5124,3380 @@ export interface ClusterVolumeSpec {
  */
 export type Topology = Record<string, string>;
 
-export type ContainerListData = ContainerSummary[];
-
-export type ContainerCreateData = ContainerCreateResponse;
-
-/** ContainerInspectResponse */
-export interface ContainerInspectData {
-  /** The ID of the container */
-  Id?: string;
-  /** The time the container was created */
-  Created?: string;
-  /** The path to the command being run */
-  Path?: string;
-  /** The arguments to the command being run */
-  Args?: string[];
+/** ImageManifestSummary represents a summary of an image manifest. */
+export interface ImageManifestSummary {
   /**
-   * ContainerState stores container's running state. It's part of ContainerJSONBase
-   * and will be returned by the "inspect" command.
+   * ID is the content-addressable ID of an image and is the same as the
+   * digest of the image manifest.
+   * @example "sha256:95869fbcf224d947ace8d61d0e931d49e31bb7fc67fffbbe9c3198c33aa8e93f"
    */
-  State?: ContainerState;
-  /** The container's image ID */
-  Image?: string;
-  ResolvConfPath?: string;
-  HostnamePath?: string;
-  HostsPath?: string;
-  LogPath?: string;
-  Name?: string;
-  RestartCount?: number;
-  Driver?: string;
-  Platform?: string;
-  MountLabel?: string;
-  ProcessLabel?: string;
-  AppArmorProfile?: string;
-  /** IDs of exec instances that are running in the container. */
-  ExecIDs?: string[] | null;
-  /** Container configuration that depends on the host we are running on */
-  HostConfig?: HostConfig;
+  ID: string;
   /**
-   * Information about the storage driver used to store the container's and
-   * image's filesystem.
+   * A descriptor struct containing digest, media type, and size, as defined in
+   * the [OCI Content Descriptors Specification](https://github.com/opencontainers/image-spec/blob/v1.0.1/descriptor.md).
    */
-  GraphDriver?: GraphDriverData;
+  Descriptor: OCIDescriptor;
   /**
-   * The size of files that have been created or changed by this
-   * container.
-   * @format int64
+   * Indicates whether all the child content (image config, layers) is fully available locally.
+   * @example true
    */
-  SizeRw?: number;
+  Available: boolean;
+  Size: {
+    /**
+     * Total is the total size (in bytes) of all the locally present
+     * data (both distributable and non-distributable) that's related to
+     * this manifest and its children.
+     * This equal to the sum of [Content] size AND all the sizes in the
+     * [Size] struct present in the Kind-specific data struct.
+     * For example, for an image kind (Kind == "image")
+     * this would include the size of the image content and unpacked
+     * image snapshots ([Size.Content] + [ImageData.Size.Unpacked]).
+     * @format int64
+     * @example 8213251
+     */
+    Total: number;
+    /**
+     * Content is the size (in bytes) of all the locally present
+     * content in the content store (e.g. image config, layers)
+     * referenced by this manifest and its children.
+     * This only includes blobs in the content store.
+     * @format int64
+     * @example 3987495
+     */
+    Content: number;
+  };
   /**
-   * The total size of all the files in this container.
-   * @format int64
-   */
-  SizeRootFs?: number;
-  Mounts?: MountPoint[];
-  /** Configuration for a container that is portable between hosts. */
-  Config?: ContainerConfig;
-  /** NetworkSettings exposes the network settings in the API */
-  NetworkSettings?: NetworkSettings;
-}
-
-/**
- * ContainerTopResponse
- * OK response to ContainerTop operation
- */
-export interface ContainerTopData {
-  /** The ps column titles */
-  Titles?: string[];
-  /**
-   * Each process running in the container, where each is process
-   * is an array of values corresponding to the titles.
-   */
-  Processes?: string[][];
-}
-
-/** @format binary */
-export type ContainerLogsData = File;
-
-export type ContainerChangesData = FilesystemChange[];
-
-export type ContainerExportData = any;
-
-export type ContainerStatsData = object;
-
-export type ContainerResizeData = any;
-
-export type ContainerStartData = any;
-
-export type ContainerStopData = any;
-
-export type ContainerRestartData = any;
-
-export type ContainerKillData = any;
-
-/**
- * ContainerUpdateResponse
- * OK response to ContainerUpdate operation
- */
-export interface ContainerUpdateData {
-  Warnings?: string[];
-}
-
-export type ContainerRenameData = any;
-
-export type ContainerPauseData = any;
-
-export type ContainerUnpauseData = any;
-
-export type ContainerAttachData = any;
-
-export type ContainerAttachWebsocketData = any;
-
-export type ContainerWaitData = ContainerWaitResponse;
-
-export type ContainerDeleteData = any;
-
-export type ContainerArchiveInfoData = any;
-
-export type ContainerArchiveData = any;
-
-export type PutContainerArchiveData = any;
-
-/** ContainerPruneResponse */
-export interface ContainerPruneData {
-  /** Container IDs that were deleted */
-  ContainersDeleted?: string[];
-  /**
-   * Disk space reclaimed in bytes
-   * @format int64
-   */
-  SpaceReclaimed?: number;
-}
-
-export type ImageListData = ImageSummary[];
-
-export type ImageBuildData = any;
-
-/** BuildPruneResponse */
-export interface BuildPruneData {
-  CachesDeleted?: string[];
-  /**
-   * Disk space reclaimed in bytes
-   * @format int64
-   */
-  SpaceReclaimed?: number;
-}
-
-export type ImageCreateData = any;
-
-export type ImageInspectData = ImageInspect;
-
-export type ImageHistoryData = {
-  Id: string;
-  /** @format int64 */
-  Created: number;
-  CreatedBy: string;
-  Tags: string[];
-  /** @format int64 */
-  Size: number;
-  Comment: string;
-}[];
-
-export type ImagePushData = any;
-
-export type ImageTagData = any;
-
-export type ImageDeleteData = ImageDeleteResponseItem[];
-
-export type ImageSearchData = {
-  description?: string;
-  is_official?: boolean;
-  /**
-   * Whether this repository has automated builds enabled.
+   * The kind of the manifest.
    *
-   * <p><br /></p>
-   *
-   * > **Deprecated**: This field is deprecated and will always be "false".
-   * @example false
+   * kind         | description
+   * -------------|-----------------------------------------------------------
+   * image        | Image manifest that can be used to start a container.
+   * attestation  | Attestation manifest produced by the Buildkit builder for a specific image manifest.
+   * @example "image"
    */
-  is_automated?: boolean;
-  name?: string;
-  star_count?: number;
-}[];
-
-/** ImagePruneResponse */
-export interface ImagePruneData {
-  /** Images that were deleted */
-  ImagesDeleted?: ImageDeleteResponseItem[];
+  Kind: "image" | "attestation" | "unknown";
   /**
-   * Disk space reclaimed in bytes
-   * @format int64
+   * The image data for the image manifest.
+   * This field is only populated when Kind is "image".
    */
-  SpaceReclaimed?: number;
-}
-
-/** SystemAuthResponse */
-export interface SystemAuthData {
-  /** The status of the authentication */
-  Status: string;
-  /** An opaque token used to authenticate a user after a successful login */
-  IdentityToken: string;
-}
-
-export type SystemInfoData = SystemInfo;
-
-export type SystemVersionData = SystemVersion;
-
-/** @example "OK" */
-export type SystemPingData = string;
-
-/** @example "(empty)" */
-export type SystemPingHeadData = string;
-
-export type ImageCommitData = IdResponse;
-
-export type SystemEventsData = EventMessage;
-
-/**
- * SystemDataUsageResponse
- * @example {"LayersSize":1092588,"Images":[{"Id":"sha256:2b8fd9751c4c0f5dd266fcae00707e67a2545ef34f9a29354585f93dac906749","ParentId":"","RepoTags":["busybox:latest"],"RepoDigests":["busybox@sha256:a59906e33509d14c036c8678d687bd4eec81ed7c4b8ce907b888c607f6a1e0e6"],"Created":1466724217,"Size":1092588,"SharedSize":0,"Labels":{},"Containers":1}],"Containers":[{"Id":"e575172ed11dc01bfce087fb27bee502db149e1a0fad7c296ad300bbff178148","Names":["/top"],"Image":"busybox","ImageID":"sha256:2b8fd9751c4c0f5dd266fcae00707e67a2545ef34f9a29354585f93dac906749","Command":"top","Created":1472592424,"Ports":[],"SizeRootFs":1092588,"Labels":{},"State":"exited","Status":"Exited (0) 56 minutes ago","HostConfig":{"NetworkMode":"default"},"NetworkSettings":{"Networks":{"bridge":{"IPAMConfig":null,"Links":null,"Aliases":null,"NetworkID":"d687bc59335f0e5c9ee8193e5612e8aee000c8c62ea170cfb99c098f95899d92","EndpointID":"8ed5115aeaad9abb174f68dcf135b49f11daf597678315231a32ca28441dec6a","Gateway":"172.18.0.1","IPAddress":"172.18.0.2","IPPrefixLen":16,"IPv6Gateway":"","GlobalIPv6Address":"","GlobalIPv6PrefixLen":0,"MacAddress":"02:42:ac:12:00:02"}}},"Mounts":[]}],"Volumes":[{"Name":"my-volume","Driver":"local","Mountpoint":"/var/lib/docker/volumes/my-volume/_data","Labels":null,"Scope":"local","Options":null,"UsageData":{"Size":10920104,"RefCount":2}}],"BuildCache":[{"ID":"hw53o5aio51xtltp5xjp8v7fx","Parents":[],"Type":"regular","Description":"pulled from docker.io/library/debian@sha256:234cb88d3020898631af0ccbbcca9a66ae7306ecd30c9720690858c1b007d2a0","InUse":false,"Shared":true,"Size":0,"CreatedAt":"2021-06-28T13:31:01.474619385Z","LastUsedAt":"2021-07-07T22:02:32.738075951Z","UsageCount":26},{"ID":"ndlpt0hhvkqcdfkputsk4cq9c","Parents":["ndlpt0hhvkqcdfkputsk4cq9c"],"Type":"regular","Description":"mount / from exec /bin/sh -c echo 'Binary::apt::APT::Keep-Downloaded-Packages \"true\";' > /etc/apt/apt.conf.d/keep-cache","InUse":false,"Shared":true,"Size":51,"CreatedAt":"2021-06-28T13:31:03.002625487Z","LastUsedAt":"2021-07-07T22:02:32.773909517Z","UsageCount":26}]}
- */
-export interface SystemDataUsageData {
-  /** @format int64 */
-  LayersSize?: number;
-  Images?: ImageSummary[];
-  Containers?: ContainerSummary[];
-  Volumes?: Volume[];
-  BuildCache?: BuildCache[];
-}
-
-/** @format binary */
-export type ImageGetData = File;
-
-/** @format binary */
-export type ImageGetAllData = File;
-
-export type ImageLoadData = any;
-
-export type ContainerExecData = IdResponse;
-
-export type ExecStartData = any;
-
-export type ExecResizeData = any;
-
-/** ExecInspectResponse */
-export interface ExecInspectData {
-  CanRemove?: boolean;
-  DetachKeys?: string;
-  ID?: string;
-  Running?: boolean;
-  ExitCode?: number;
-  ProcessConfig?: ProcessConfig;
-  OpenStdin?: boolean;
-  OpenStderr?: boolean;
-  OpenStdout?: boolean;
-  ContainerID?: string;
-  /** The system process ID for the exec process. */
-  Pid?: number;
-}
-
-export type VolumeListData = VolumeListResponse;
-
-export type VolumeCreateData = Volume;
-
-export type VolumeInspectData = Volume;
-
-export type VolumeUpdateData = any;
-
-export type VolumeDeleteData = any;
-
-/** VolumePruneResponse */
-export interface VolumePruneData {
-  /** Volumes that were deleted */
-  VolumesDeleted?: string[];
+  ImageData?: {
+    /**
+     * OCI platform of the image. This will be the platform specified in the
+     * manifest descriptor from the index/manifest list.
+     * If it's not available, it will be obtained from the image config.
+     */
+    Platform: OCIPlatform;
+    /**
+     * The IDs of the containers that are using this image.
+     * @example ["ede54ee1fda366ab42f824e8a5ffd195155d853ceaec74a927f249ea270c7430","abadbce344c096744d8d6071a90d474d28af8f1034b5ea9fb03c3f4bfc6d005e"]
+     */
+    Containers: string[];
+    Size: {
+      /**
+       * Unpacked is the size (in bytes) of the locally unpacked
+       * (uncompressed) image content that's directly usable by the containers
+       * running this image.
+       * It's independent of the distributable content - e.g.
+       * the image might still have an unpacked data that's still used by
+       * some container even when the distributable/compressed content is
+       * already gone.
+       * @format int64
+       * @example 3987495
+       */
+      Unpacked: number;
+    };
+  } | null;
   /**
-   * Disk space reclaimed in bytes
-   * @format int64
+   * The image data for the attestation manifest.
+   * This field is only populated when Kind is "attestation".
    */
-  SpaceReclaimed?: number;
+  AttestationData?: {
+    /**
+     * The digest of the image manifest that this attestation is for.
+     * @example "sha256:95869fbcf224d947ace8d61d0e931d49e31bb7fc67fffbbe9c3198c33aa8e93f"
+     */
+    For: string;
+  } | null;
 }
 
-export type NetworkListData = Network[];
+export namespace Containers {
+  /**
+   * @description Returns a list of containers. For details on the format, see the [inspect endpoint](#operation/ContainerInspect). Note that it uses a different, smaller representation of a container than inspecting a single container. For example, the list of linked containers is not propagated .
+   * @tags Container
+   * @name ContainerList
+   * @summary List containers
+   * @request GET:/containers/json
+   */
+  export namespace ContainerList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Return all containers. By default, only running containers are shown.
+       * @default false
+       */
+      all?: boolean;
+      /**
+       * Return this number of most recently created containers, including
+       * non-running ones.
+       */
+      limit?: number;
+      /**
+       * Return the size of container as fields `SizeRw` and `SizeRootFs`.
+       * @default false
+       */
+      size?: boolean;
+      /**
+       * Filters to process on the container list, encoded as JSON (a
+       * `map[string][]string`). For example, `{"status": ["paused"]}` will
+       * only return paused containers.
+       *
+       * Available filters:
+       *
+       * - `ancestor`=(`<image-name>[:<tag>]`, `<image id>`, or `<image@digest>`)
+       * - `before`=(`<container id>` or `<container name>`)
+       * - `expose`=(`<port>[/<proto>]`|`<startport-endport>/[<proto>]`)
+       * - `exited=<int>` containers with exit code of `<int>`
+       * - `health`=(`starting`|`healthy`|`unhealthy`|`none`)
+       * - `id=<ID>` a container's ID
+       * - `isolation=`(`default`|`process`|`hyperv`) (Windows daemon only)
+       * - `is-task=`(`true`|`false`)
+       * - `label=key` or `label="key=value"` of a container label
+       * - `name=<name>` a container's name
+       * - `network`=(`<network id>` or `<network name>`)
+       * - `publish`=(`<port>[/<proto>]`|`<startport-endport>/[<proto>]`)
+       * - `since`=(`<container id>` or `<container name>`)
+       * - `status=`(`created`|`restarting`|`running`|`removing`|`paused`|`exited`|`dead`)
+       * - `volume`=(`<volume name>` or `<mount point destination>`)
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ContainerSummary[];
+  }
 
-export type NetworkInspectData = Network;
+  /**
+   * No description
+   * @tags Container
+   * @name ContainerCreate
+   * @summary Create a container
+   * @request POST:/containers/create
+   */
+  export namespace ContainerCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Assign the specified name to the container. Must match
+       * `/?[a-zA-Z0-9][a-zA-Z0-9_.-]+`.
+       * @pattern ^/?[a-zA-Z0-9][a-zA-Z0-9_.-]+$
+       */
+      name?: string;
+      /**
+       * Platform in the format `os[/arch[/variant]]` used for image lookup.
+       *
+       * When specified, the daemon checks if the requested image is present
+       * in the local image cache with the given OS and Architecture, and
+       * otherwise returns a `404` status.
+       *
+       * If the option is not set, the host's native OS and Architecture are
+       * used to look up the image in the image cache. However, if no platform
+       * is passed and the given image does exist in the local image cache,
+       * but its OS or architecture does not match, the container is created
+       * with the available image, and a warning is added to the `Warnings`
+       * field in the response, for example;
+       *
+       *     WARNING: The requested image's platform (linux/arm64/v8) does not
+       *              match the detected host platform (linux/amd64) and no
+       *              specific platform was requested
+       * @default ""
+       */
+      platform?: string;
+    };
+    export type RequestBody = ContainerConfig & {
+      /** Container configuration that depends on the host we are running on */
+      HostConfig?: HostConfig;
+      /**
+       * NetworkingConfig represents the container's networking configuration for
+       * each of its interfaces.
+       * It is used for the networking configs specified in the `docker create`
+       * and `docker network connect` commands.
+       */
+      NetworkingConfig?: NetworkingConfig;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = ContainerCreateResponse;
+  }
 
-export type NetworkDeleteData = any;
+  /**
+   * @description Return low-level information about a container.
+   * @tags Container
+   * @name ContainerInspect
+   * @summary Inspect a container
+   * @request GET:/containers/{id}/json
+   */
+  export namespace ContainerInspect {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Return the size of container as fields `SizeRw` and `SizeRootFs`
+       * @default false
+       */
+      size?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      /** The ID of the container */
+      Id?: string;
+      /** The time the container was created */
+      Created?: string;
+      /** The path to the command being run */
+      Path?: string;
+      /** The arguments to the command being run */
+      Args?: string[];
+      /**
+       * ContainerState stores container's running state. It's part of ContainerJSONBase
+       * and will be returned by the "inspect" command.
+       */
+      State?: ContainerState;
+      /** The container's image ID */
+      Image?: string;
+      ResolvConfPath?: string;
+      HostnamePath?: string;
+      HostsPath?: string;
+      LogPath?: string;
+      Name?: string;
+      RestartCount?: number;
+      Driver?: string;
+      Platform?: string;
+      MountLabel?: string;
+      ProcessLabel?: string;
+      AppArmorProfile?: string;
+      /** IDs of exec instances that are running in the container. */
+      ExecIDs?: string[] | null;
+      /** Container configuration that depends on the host we are running on */
+      HostConfig?: HostConfig;
+      /**
+       * Information about the storage driver used to store the container's and
+       * image's filesystem.
+       */
+      GraphDriver?: DriverData;
+      /**
+       * The size of files that have been created or changed by this
+       * container.
+       * @format int64
+       */
+      SizeRw?: number;
+      /**
+       * The total size of all the files in this container.
+       * @format int64
+       */
+      SizeRootFs?: number;
+      Mounts?: MountPoint[];
+      /** Configuration for a container that is portable between hosts. */
+      Config?: ContainerConfig;
+      /** NetworkSettings exposes the network settings in the API */
+      NetworkSettings?: NetworkSettings;
+    };
+  }
 
-/**
- * NetworkCreateResponse
- * @example {"Id":"22be93d5babb089c5aab8dbc369042fad48ff791584ca2da2100db837a1c7c30","Warning":""}
- */
-export interface NetworkCreateData {
-  /** The ID of the created network. */
-  Id?: string;
-  Warning?: string;
+  /**
+   * @description On Unix systems, this is done by running the `ps` command. This endpoint is not supported on Windows.
+   * @tags Container
+   * @name ContainerTop
+   * @summary List processes running inside a container
+   * @request GET:/containers/{id}/top
+   */
+  export namespace ContainerTop {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * The arguments to pass to `ps`. For example, `aux`
+       * @default "-ef"
+       */
+      ps_args?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      /** The ps column titles */
+      Titles?: string[];
+      /**
+       * Each process running in the container, where each is process
+       * is an array of values corresponding to the titles.
+       */
+      Processes?: string[][];
+    };
+  }
+
+  /**
+   * @description Get `stdout` and `stderr` logs from a container. Note: This endpoint works only for containers with the `json-file` or `journald` logging driver.
+   * @tags Container
+   * @name ContainerLogs
+   * @summary Get container logs
+   * @request GET:/containers/{id}/logs
+   */
+  export namespace ContainerLogs {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Keep connection after returning logs.
+       * @default false
+       */
+      follow?: boolean;
+      /**
+       * Return logs from `stdout`
+       * @default false
+       */
+      stdout?: boolean;
+      /**
+       * Return logs from `stderr`
+       * @default false
+       */
+      stderr?: boolean;
+      /**
+       * Only return logs since this time, as a UNIX timestamp
+       * @default 0
+       */
+      since?: number;
+      /**
+       * Only return logs before this time, as a UNIX timestamp
+       * @default 0
+       */
+      until?: number;
+      /**
+       * Add timestamps to every log line
+       * @default false
+       */
+      timestamps?: boolean;
+      /**
+       * Only return this number of log lines from the end of the logs.
+       * Specify as an integer or `all` to output all log lines.
+       * @default "all"
+       */
+      tail?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = File;
+  }
+
+  /**
+   * @description Returns which files in a container's filesystem have been added, deleted, or modified. The `Kind` of modification can be one of: - `0`: Modified ("C") - `1`: Added ("A") - `2`: Deleted ("D")
+   * @tags Container
+   * @name ContainerChanges
+   * @summary Get changes on a container’s filesystem
+   * @request GET:/containers/{id}/changes
+   */
+  export namespace ContainerChanges {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = FilesystemChange[];
+  }
+
+  /**
+   * @description Export the contents of a container as a tarball.
+   * @tags Container
+   * @name ContainerExport
+   * @summary Export a container
+   * @request GET:/containers/{id}/export
+   */
+  export namespace ContainerExport {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description This endpoint returns a live stream of a container’s resource usage statistics. The `precpu_stats` is the CPU statistic of the *previous* read, and is used to calculate the CPU usage percentage. It is not an exact copy of the `cpu_stats` field. If either `precpu_stats.online_cpus` or `cpu_stats.online_cpus` is nil then for compatibility with older daemons the length of the corresponding `cpu_usage.percpu_usage` array should be used. On a cgroup v2 host, the following fields are not set * `blkio_stats`: all fields other than `io_service_bytes_recursive` * `cpu_stats`: `cpu_usage.percpu_usage` * `memory_stats`: `max_usage` and `failcnt` Also, `memory_stats.stats` fields are incompatible with cgroup v1. To calculate the values shown by the `stats` command of the docker cli tool the following formulas can be used: * used_memory = `memory_stats.usage - memory_stats.stats.cache` * available_memory = `memory_stats.limit` * Memory usage % = `(used_memory / available_memory) * 100.0` * cpu_delta = `cpu_stats.cpu_usage.total_usage - precpu_stats.cpu_usage.total_usage` * system_cpu_delta = `cpu_stats.system_cpu_usage - precpu_stats.system_cpu_usage` * number_cpus = `length(cpu_stats.cpu_usage.percpu_usage)` or `cpu_stats.online_cpus` * CPU usage % = `(cpu_delta / system_cpu_delta) * number_cpus * 100.0`
+   * @tags Container
+   * @name ContainerStats
+   * @summary Get container stats based on resource usage
+   * @request GET:/containers/{id}/stats
+   */
+  export namespace ContainerStats {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Stream the output. If false, the stats will be output once and then
+       * it will disconnect.
+       * @default true
+       */
+      stream?: boolean;
+      /**
+       * Only get a single stat instead of waiting for 2 cycles. Must be used
+       * with `stream=false`.
+       * @default false
+       */
+      "one-shot"?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = object;
+  }
+
+  /**
+   * @description Resize the TTY for a container.
+   * @tags Container
+   * @name ContainerResize
+   * @summary Resize a container TTY
+   * @request POST:/containers/{id}/resize
+   */
+  export namespace ContainerResize {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /** Height of the TTY session in characters */
+      h: number;
+      /** Width of the TTY session in characters */
+      w: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Container
+   * @name ContainerStart
+   * @summary Start a container
+   * @request POST:/containers/{id}/start
+   */
+  export namespace ContainerStart {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Override the key sequence for detaching a container. Format is a
+       * single character `[a-Z]` or `ctrl-<value>` where `<value>` is one
+       * of: `a-z`, `@`, `^`, `[`, `,` or `_`.
+       */
+      detachKeys?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Container
+   * @name ContainerStop
+   * @summary Stop a container
+   * @request POST:/containers/{id}/stop
+   */
+  export namespace ContainerStop {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /** Signal to send to the container as an integer or string (e.g. `SIGINT`). */
+      signal?: string;
+      /** Number of seconds to wait before killing the container */
+      t?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Container
+   * @name ContainerRestart
+   * @summary Restart a container
+   * @request POST:/containers/{id}/restart
+   */
+  export namespace ContainerRestart {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /** Signal to send to the container as an integer or string (e.g. `SIGINT`). */
+      signal?: string;
+      /** Number of seconds to wait before killing the container */
+      t?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Send a POSIX signal to a container, defaulting to killing to the container.
+   * @tags Container
+   * @name ContainerKill
+   * @summary Kill a container
+   * @request POST:/containers/{id}/kill
+   */
+  export namespace ContainerKill {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Signal to send to the container as an integer or string (e.g. `SIGINT`).
+       * @default "SIGKILL"
+       */
+      signal?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Change various configuration options of a container without having to recreate it.
+   * @tags Container
+   * @name ContainerUpdate
+   * @summary Update a container
+   * @request POST:/containers/{id}/update
+   */
+  export namespace ContainerUpdate {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = Resources & {
+      /**
+       * The behavior to apply when the container exits. The default is not to
+       * restart.
+       *
+       * An ever increasing delay (double the previous delay, starting at 100ms) is
+       * added before each restart to prevent flooding the server.
+       */
+      RestartPolicy?: RestartPolicy;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      Warnings?: string[];
+    };
+  }
+
+  /**
+   * No description
+   * @tags Container
+   * @name ContainerRename
+   * @summary Rename a container
+   * @request POST:/containers/{id}/rename
+   */
+  export namespace ContainerRename {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /** New name for the container */
+      name: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Use the freezer cgroup to suspend all processes in a container. Traditionally, when suspending a process the `SIGSTOP` signal is used, which is observable by the process being suspended. With the freezer cgroup the process is unaware, and unable to capture, that it is being suspended, and subsequently resumed.
+   * @tags Container
+   * @name ContainerPause
+   * @summary Pause a container
+   * @request POST:/containers/{id}/pause
+   */
+  export namespace ContainerPause {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Resume a container which has been paused.
+   * @tags Container
+   * @name ContainerUnpause
+   * @summary Unpause a container
+   * @request POST:/containers/{id}/unpause
+   */
+  export namespace ContainerUnpause {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Attach to a container to read its output or send it input. You can attach to the same container multiple times and you can reattach to containers that have been detached. Either the `stream` or `logs` parameter must be `true` for this endpoint to do anything. See the [documentation for the `docker attach` command](https://docs.docker.com/engine/reference/commandline/attach/) for more details. ### Hijacking This endpoint hijacks the HTTP connection to transport `stdin`, `stdout`, and `stderr` on the same socket. This is the response from the daemon for an attach request: ``` HTTP/1.1 200 OK Content-Type: application/vnd.docker.raw-stream [STREAM] ``` After the headers and two new lines, the TCP connection can now be used for raw, bidirectional communication between the client and server. To hint potential proxies about connection hijacking, the Docker client can also optionally send connection upgrade headers. For example, the client sends this request to upgrade the connection: ``` POST /containers/16253994b7c4/attach?stream=1&stdout=1 HTTP/1.1 Upgrade: tcp Connection: Upgrade ``` The Docker daemon will respond with a `101 UPGRADED` response, and will similarly follow with the raw stream: ``` HTTP/1.1 101 UPGRADED Content-Type: application/vnd.docker.raw-stream Connection: Upgrade Upgrade: tcp [STREAM] ``` ### Stream format When the TTY setting is disabled in [`POST /containers/create`](#operation/ContainerCreate), the HTTP Content-Type header is set to application/vnd.docker.multiplexed-stream and the stream over the hijacked connected is multiplexed to separate out `stdout` and `stderr`. The stream consists of a series of frames, each containing a header and a payload. The header contains the information which the stream writes (`stdout` or `stderr`). It also contains the size of the associated frame encoded in the last four bytes (`uint32`). It is encoded on the first eight bytes like this: ```go header := [8]byte{STREAM_TYPE, 0, 0, 0, SIZE1, SIZE2, SIZE3, SIZE4} ``` `STREAM_TYPE` can be: - 0: `stdin` (is written on `stdout`) - 1: `stdout` - 2: `stderr` `SIZE1, SIZE2, SIZE3, SIZE4` are the four bytes of the `uint32` size encoded as big endian. Following the header is the payload, which is the specified number of bytes of `STREAM_TYPE`. The simplest way to implement this protocol is the following: 1. Read 8 bytes. 2. Choose `stdout` or `stderr` depending on the first byte. 3. Extract the frame size from the last four bytes. 4. Read the extracted size and output it on the correct output. 5. Goto 1. ### Stream format when using a TTY When the TTY setting is enabled in [`POST /containers/create`](#operation/ContainerCreate), the stream is not multiplexed. The data exchanged over the hijacked connection is simply the raw data from the process PTY and client's `stdin`.
+   * @tags Container
+   * @name ContainerAttach
+   * @summary Attach to a container
+   * @request POST:/containers/{id}/attach
+   */
+  export namespace ContainerAttach {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Override the key sequence for detaching a container.Format is a single
+       * character `[a-Z]` or `ctrl-<value>` where `<value>` is one of: `a-z`,
+       * `@`, `^`, `[`, `,` or `_`.
+       */
+      detachKeys?: string;
+      /**
+       * Replay previous logs from the container.
+       *
+       * This is useful for attaching to a container that has started and you
+       * want to output everything since the container started.
+       *
+       * If `stream` is also enabled, once all the previous output has been
+       * returned, it will seamlessly transition into streaming current
+       * output.
+       * @default false
+       */
+      logs?: boolean;
+      /**
+       * Stream attached streams from the time the request was made onwards.
+       * @default false
+       */
+      stream?: boolean;
+      /**
+       * Attach to `stdin`
+       * @default false
+       */
+      stdin?: boolean;
+      /**
+       * Attach to `stdout`
+       * @default false
+       */
+      stdout?: boolean;
+      /**
+       * Attach to `stderr`
+       * @default false
+       */
+      stderr?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Container
+   * @name ContainerAttachWebsocket
+   * @summary Attach to a container via a websocket
+   * @request GET:/containers/{id}/attach/ws
+   */
+  export namespace ContainerAttachWebsocket {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Override the key sequence for detaching a container.Format is a single
+       * character `[a-Z]` or `ctrl-<value>` where `<value>` is one of: `a-z`,
+       * `@`, `^`, `[`, `,`, or `_`.
+       */
+      detachKeys?: string;
+      /**
+       * Return logs
+       * @default false
+       */
+      logs?: boolean;
+      /**
+       * Return stream
+       * @default false
+       */
+      stream?: boolean;
+      /**
+       * Attach to `stdin`
+       * @default false
+       */
+      stdin?: boolean;
+      /**
+       * Attach to `stdout`
+       * @default false
+       */
+      stdout?: boolean;
+      /**
+       * Attach to `stderr`
+       * @default false
+       */
+      stderr?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Block until a container stops, then returns the exit code.
+   * @tags Container
+   * @name ContainerWait
+   * @summary Wait for a container
+   * @request POST:/containers/{id}/wait
+   */
+  export namespace ContainerWait {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Wait until a container state reaches the given condition.
+       *
+       * Defaults to `not-running` if omitted or empty.
+       * @default "not-running"
+       */
+      condition?: "not-running" | "next-exit" | "removed";
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ContainerWaitResponse;
+  }
+
+  /**
+   * No description
+   * @tags Container
+   * @name ContainerDelete
+   * @summary Remove a container
+   * @request DELETE:/containers/{id}
+   */
+  export namespace ContainerDelete {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Remove anonymous volumes associated with the container.
+       * @default false
+       */
+      v?: boolean;
+      /**
+       * If the container is running, kill it before removing it.
+       * @default false
+       */
+      force?: boolean;
+      /**
+       * Remove the specified link associated with the container.
+       * @default false
+       */
+      link?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description A response header `X-Docker-Container-Path-Stat` is returned, containing a base64 - encoded JSON object with some filesystem header information about the path.
+   * @tags Container
+   * @name ContainerArchiveInfo
+   * @summary Get information about files in a container
+   * @request HEAD:/containers/{id}/archive
+   */
+  export namespace ContainerArchiveInfo {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /** Resource in the container’s filesystem to archive. */
+      path: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Get a tar archive of a resource in the filesystem of container id.
+   * @tags Container
+   * @name ContainerArchive
+   * @summary Get an archive of a filesystem resource in a container
+   * @request GET:/containers/{id}/archive
+   */
+  export namespace ContainerArchive {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /** Resource in the container’s filesystem to archive. */
+      path: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Upload a tar archive to be extracted to a path in the filesystem of container id. `path` parameter is asserted to be a directory. If it exists as a file, 400 error will be returned with message "not a directory".
+   * @tags Container
+   * @name PutContainerArchive
+   * @summary Extract an archive of files or folders to a directory in a container
+   * @request PUT:/containers/{id}/archive
+   */
+  export namespace PutContainerArchive {
+    export type RequestParams = {
+      /** ID or name of the container */
+      id: string;
+    };
+    export type RequestQuery = {
+      /** Path to a directory in the container to extract the archive’s contents into.  */
+      path: string;
+      /**
+       * If `1`, `true`, or `True` then it will be an error if unpacking the
+       * given content would cause an existing directory to be replaced with
+       * a non-directory and vice versa.
+       */
+      noOverwriteDirNonDir?: string;
+      /**
+       * If `1`, `true`, then it will copy UID/GID maps to the dest file or
+       * dir
+       */
+      copyUIDGID?: string;
+    };
+    export type RequestBody = File;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Container
+   * @name ContainerPrune
+   * @summary Delete stopped containers
+   * @request POST:/containers/prune
+   */
+  export namespace ContainerPrune {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Filters to process on the prune list, encoded as JSON (a `map[string][]string`).
+       *
+       * Available filters:
+       * - `until=<timestamp>` Prune containers created before this timestamp. The `<timestamp>` can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. `10m`, `1h30m`) computed relative to the daemon machine’s time.
+       * - `label` (`label=<key>`, `label=<key>=<value>`, `label!=<key>`, or `label!=<key>=<value>`) Prune containers with (or without, in case `label!=...` is used) the specified labels.
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      /** Container IDs that were deleted */
+      ContainersDeleted?: string[];
+      /**
+       * Disk space reclaimed in bytes
+       * @format int64
+       */
+      SpaceReclaimed?: number;
+    };
+  }
+
+  /**
+   * @description Run a command inside a running container.
+   * @tags Exec
+   * @name ContainerExec
+   * @summary Create an exec instance
+   * @request POST:/containers/{id}/exec
+   */
+  export namespace ContainerExec {
+    export type RequestParams = {
+      /** ID or name of container */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = {
+      /** Attach to `stdin` of the exec command. */
+      AttachStdin?: boolean;
+      /** Attach to `stdout` of the exec command. */
+      AttachStdout?: boolean;
+      /** Attach to `stderr` of the exec command. */
+      AttachStderr?: boolean;
+      /**
+       * Initial console size, as an `[height, width]` array.
+       * @maxItems 2
+       * @minItems 2
+       */
+      ConsoleSize?: number[] | null;
+      /**
+       * Override the key sequence for detaching a container. Format is
+       * a single character `[a-Z]` or `ctrl-<value>` where `<value>`
+       * is one of: `a-z`, `@`, `^`, `[`, `,` or `_`.
+       */
+      DetachKeys?: string;
+      /** Allocate a pseudo-TTY. */
+      Tty?: boolean;
+      /** A list of environment variables in the form `["VAR=value", ...]`. */
+      Env?: string[];
+      /** Command to run, as a string or array of strings. */
+      Cmd?: string[];
+      /**
+       * Runs the exec process with extended privileges.
+       * @default false
+       */
+      Privileged?: boolean;
+      /**
+       * The user, and optionally, group to run the exec process inside
+       * the container. Format is one of: `user`, `user:group`, `uid`,
+       * or `uid:gid`.
+       */
+      User?: string;
+      /** The working directory for the exec process inside the container. */
+      WorkingDir?: string;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = IdResponse;
+  }
 }
 
-export type NetworkConnectData = any;
+export namespace Images {
+  /**
+   * @description Returns a list of images on the server. Note that it uses a different, smaller representation of an image than inspecting a single image.
+   * @tags Image
+   * @name ImageList
+   * @summary List Images
+   * @request GET:/images/json
+   */
+  export namespace ImageList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Show all images. Only images from a final layer (no children) are shown by default.
+       * @default false
+       */
+      all?: boolean;
+      /**
+       * A JSON encoded value of the filters (a `map[string][]string`) to
+       * process on the images list.
+       *
+       * Available filters:
+       *
+       * - `before`=(`<image-name>[:<tag>]`,  `<image id>` or `<image@digest>`)
+       * - `dangling=true`
+       * - `label=key` or `label="key=value"` of an image label
+       * - `reference`=(`<image-name>[:<tag>]`)
+       * - `since`=(`<image-name>[:<tag>]`,  `<image id>` or `<image@digest>`)
+       * - `until=<timestamp>`
+       */
+      filters?: string;
+      /**
+       * Compute and show shared size as a `SharedSize` field on each image.
+       * @default false
+       */
+      "shared-size"?: boolean;
+      /**
+       * Show digest information as a `RepoDigests` field on each image.
+       * @default false
+       */
+      digests?: boolean;
+      /**
+       * Include `Manifests` in the image summary.
+       * @default false
+       */
+      manifests?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ImageSummary[];
+  }
 
-export type NetworkDisconnectData = any;
+  /**
+   * @description Pull or import an image.
+   * @tags Image
+   * @name ImageCreate
+   * @summary Create an image
+   * @request POST:/images/create
+   */
+  export namespace ImageCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** Name of the image to pull. The name may include a tag or digest. This parameter may only be used when pulling an image. The pull is cancelled if the HTTP connection is closed. */
+      fromImage?: string;
+      /** Source to import. The value may be a URL from which the image can be retrieved or `-` to read the image from the request body. This parameter may only be used when importing an image. */
+      fromSrc?: string;
+      /** Repository name given to an image when it is imported. The repo may include a tag. This parameter may only be used when importing an image. */
+      repo?: string;
+      /** Tag or digest. If empty when pulling an image, this causes all tags for the given image to be pulled. */
+      tag?: string;
+      /** Set commit message for imported image. */
+      message?: string;
+      /**
+       * Apply `Dockerfile` instructions to the image that is created,
+       * for example: `changes=ENV DEBUG=true`.
+       * Note that `ENV DEBUG=true` should be URI component encoded.
+       *
+       * Supported `Dockerfile` instructions:
+       * `CMD`|`ENTRYPOINT`|`ENV`|`EXPOSE`|`ONBUILD`|`USER`|`VOLUME`|`WORKDIR`
+       */
+      changes?: string[];
+      /**
+       * Platform in the format os[/arch[/variant]].
+       *
+       * When used in combination with the `fromImage` option, the daemon checks
+       * if the given image is present in the local image cache with the given
+       * OS and Architecture, and otherwise attempts to pull the image. If the
+       * option is not set, the host's native OS and Architecture are used.
+       * If the given image does not exist in the local image cache, the daemon
+       * attempts to pull the image with the host's native OS and Architecture.
+       * If the given image does exists in the local image cache, but its OS or
+       * architecture does not match, a warning is produced.
+       *
+       * When used with the `fromSrc` option to import an image from an archive,
+       * this option sets the platform information for the imported image. If
+       * the option is not set, the host's native OS and Architecture are used
+       * for the imported image.
+       * @default ""
+       */
+      platform?: string;
+    };
+    export type RequestBody = string;
+    export type RequestHeaders = {
+      /**
+       * A base64url-encoded auth configuration.
+       *
+       * Refer to the [authentication section](#section/Authentication) for
+       * details.
+       */
+      "X-Registry-Auth"?: string;
+    };
+    export type ResponseBody = void;
+  }
 
-/** NetworkPruneResponse */
-export interface NetworkPruneData {
-  /** Networks that were deleted */
-  NetworksDeleted?: string[];
+  /**
+   * @description Return low-level information about an image.
+   * @tags Image
+   * @name ImageInspect
+   * @summary Inspect an image
+   * @request GET:/images/{name}/json
+   */
+  export namespace ImageInspect {
+    export type RequestParams = {
+      /** Image name or id */
+      name: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ImageInspect;
+  }
+
+  /**
+   * @description Return parent layers of an image.
+   * @tags Image
+   * @name ImageHistory
+   * @summary Get the history of an image
+   * @request GET:/images/{name}/history
+   */
+  export namespace ImageHistory {
+    export type RequestParams = {
+      /** Image name or ID */
+      name: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      Id: string;
+      /** @format int64 */
+      Created: number;
+      CreatedBy: string;
+      Tags: string[];
+      /** @format int64 */
+      Size: number;
+      Comment: string;
+    }[];
+  }
+
+  /**
+   * @description Push an image to a registry. If you wish to push an image on to a private registry, that image must already have a tag which references the registry. For example, `registry.example.com/myimage:latest`. The push is cancelled if the HTTP connection is closed.
+   * @tags Image
+   * @name ImagePush
+   * @summary Push an image
+   * @request POST:/images/{name}/push
+   */
+  export namespace ImagePush {
+    export type RequestParams = {
+      /**
+       * Name of the image to push. For example, `registry.example.com/myimage`.
+       * The image must be present in the local image store with the same name.
+       *
+       * The name should be provided without tag; if a tag is provided, it
+       * is ignored. For example, `registry.example.com/myimage:latest` is
+       * considered equivalent to `registry.example.com/myimage`.
+       *
+       * Use the `tag` parameter to specify the tag to push.
+       */
+      name: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Tag of the image to push. For example, `latest`. If no tag is provided,
+       * all tags of the given image that are present in the local image store
+       * are pushed.
+       */
+      tag?: string;
+      /**
+       * JSON-encoded OCI platform to select the platform-variant to push.
+       * If not provided, all available variants will attempt to be pushed.
+       *
+       * If the daemon provides a multi-platform image store, this selects
+       * the platform-variant to push to the registry. If the image is
+       * a single-platform image, or if the multi-platform image does not
+       * provide a variant matching the given platform, an error is returned.
+       *
+       * Example: `{"os": "linux", "architecture": "arm", "variant": "v5"}`
+       */
+      platform?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {
+      /**
+       * A base64url-encoded auth configuration.
+       *
+       * Refer to the [authentication section](#section/Authentication) for
+       * details.
+       */
+      "X-Registry-Auth": string;
+    };
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Tag an image so that it becomes part of a repository.
+   * @tags Image
+   * @name ImageTag
+   * @summary Tag an image
+   * @request POST:/images/{name}/tag
+   */
+  export namespace ImageTag {
+    export type RequestParams = {
+      /** Image name or ID to tag. */
+      name: string;
+    };
+    export type RequestQuery = {
+      /** The repository to tag in. For example, `someuser/someimage`. */
+      repo?: string;
+      /** The name of the new tag. */
+      tag?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Remove an image, along with any untagged parent images that were referenced by that image. Images can't be removed if they have descendant images, are being used by a running container or are being used by a build.
+   * @tags Image
+   * @name ImageDelete
+   * @summary Remove an image
+   * @request DELETE:/images/{name}
+   */
+  export namespace ImageDelete {
+    export type RequestParams = {
+      /** Image name or ID */
+      name: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Remove the image even if it is being used by stopped containers or has other tags
+       * @default false
+       */
+      force?: boolean;
+      /**
+       * Do not delete untagged parent images
+       * @default false
+       */
+      noprune?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = ImageDeleteResponseItem[];
+  }
+
+  /**
+   * @description Search for an image on Docker Hub.
+   * @tags Image
+   * @name ImageSearch
+   * @summary Search images
+   * @request GET:/images/search
+   */
+  export namespace ImageSearch {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** Term to search */
+      term: string;
+      /** Maximum number of results to return */
+      limit?: number;
+      /**
+       * A JSON encoded value of the filters (a `map[string][]string`) to process on the images list. Available filters:
+       *
+       * - `is-official=(true|false)`
+       * - `stars=<number>` Matches images that has at least 'number' stars.
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      description?: string;
+      is_official?: boolean;
+      /**
+       * Whether this repository has automated builds enabled.
+       *
+       * <p><br /></p>
+       *
+       * > **Deprecated**: This field is deprecated and will always be "false".
+       * @example false
+       */
+      is_automated?: boolean;
+      name?: string;
+      star_count?: number;
+    }[];
+  }
+
+  /**
+   * No description
+   * @tags Image
+   * @name ImagePrune
+   * @summary Delete unused images
+   * @request POST:/images/prune
+   */
+  export namespace ImagePrune {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Filters to process on the prune list, encoded as JSON (a `map[string][]string`). Available filters:
+       *
+       * - `dangling=<boolean>` When set to `true` (or `1`), prune only
+       *    unused *and* untagged images. When set to `false`
+       *    (or `0`), all unused images are pruned.
+       * - `until=<string>` Prune images created before this timestamp. The `<timestamp>` can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. `10m`, `1h30m`) computed relative to the daemon machine’s time.
+       * - `label` (`label=<key>`, `label=<key>=<value>`, `label!=<key>`, or `label!=<key>=<value>`) Prune images with (or without, in case `label!=...` is used) the specified labels.
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      /** Images that were deleted */
+      ImagesDeleted?: ImageDeleteResponseItem[];
+      /**
+       * Disk space reclaimed in bytes
+       * @format int64
+       */
+      SpaceReclaimed?: number;
+    };
+  }
+
+  /**
+   * @description Get a tarball containing all images and metadata for a repository. If `name` is a specific name and tag (e.g. `ubuntu:latest`), then only that image (and its parents) are returned. If `name` is an image ID, similarly only that image (and its parents) are returned, but with the exclusion of the `repositories` file in the tarball, as there were no image names referenced. ### Image tarball format An image tarball contains one directory per image layer (named using its long ID), each containing these files: - `VERSION`: currently `1.0` - the file format version - `json`: detailed layer information, similar to `docker inspect layer_id` - `layer.tar`: A tarfile containing the filesystem changes in this layer The `layer.tar` file contains `aufs` style `.wh..wh.aufs` files and directories for storing attribute changes and deletions. If the tarball defines a repository, the tarball should also include a `repositories` file at the root that contains a list of repository and tag names mapped to layer IDs. ```json { "hello-world": { "latest": "565a9d68a73f6706862bfe8409a7f659776d4d60a8d096eb4a3cbce6999cc2a1" } } ```
+   * @tags Image
+   * @name ImageGet
+   * @summary Export an image
+   * @request GET:/images/{name}/get
+   */
+  export namespace ImageGet {
+    export type RequestParams = {
+      /** Image name or ID */
+      name: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = File;
+  }
+
+  /**
+   * @description Get a tarball containing all images and metadata for several image repositories. For each value of the `names` parameter: if it is a specific name and tag (e.g. `ubuntu:latest`), then only that image (and its parents) are returned; if it is an image ID, similarly only that image (and its parents) are returned and there would be no names referenced in the 'repositories' file for this image ID. For details on the format, see the [export image endpoint](#operation/ImageGet).
+   * @tags Image
+   * @name ImageGetAll
+   * @summary Export several images
+   * @request GET:/images/get
+   */
+  export namespace ImageGetAll {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** Image names to filter by */
+      names?: string[];
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = File;
+  }
+
+  /**
+   * @description Load a set of images and tags into a repository. For details on the format, see the [export image endpoint](#operation/ImageGet).
+   * @tags Image
+   * @name ImageLoad
+   * @summary Import images
+   * @request POST:/images/load
+   */
+  export namespace ImageLoad {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Suppress progress details during load.
+       * @default false
+       */
+      quiet?: boolean;
+    };
+    export type RequestBody = File;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
 }
 
-export type PluginListData = Plugin[];
+export namespace Build {
+  /**
+   * @description Build an image from a tar archive with a `Dockerfile` in it. The `Dockerfile` specifies how the image is built from the tar archive. It is typically in the archive's root, but can be at a different path or have a different name by specifying the `dockerfile` parameter. [See the `Dockerfile` reference for more information](https://docs.docker.com/engine/reference/builder/). The Docker daemon performs a preliminary validation of the `Dockerfile` before starting the build, and returns an error if the syntax is incorrect. After that, each instruction is run one-by-one until the ID of the new image is output. The build is canceled if the client drops the connection by quitting or being killed.
+   * @tags Image
+   * @name ImageBuild
+   * @summary Build an image
+   * @request POST:/build
+   */
+  export namespace ImageBuild {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Path within the build context to the `Dockerfile`. This is ignored if `remote` is specified and points to an external `Dockerfile`.
+       * @default "Dockerfile"
+       */
+      dockerfile?: string;
+      /** A name and optional tag to apply to the image in the `name:tag` format. If you omit the tag the default `latest` value is assumed. You can provide several `t` parameters. */
+      t?: string;
+      /** Extra hosts to add to /etc/hosts */
+      extrahosts?: string;
+      /** A Git repository URI or HTTP/HTTPS context URI. If the URI points to a single text file, the file’s contents are placed into a file called `Dockerfile` and the image is built from that file. If the URI points to a tarball, the file is downloaded by the daemon and the contents therein used as the context for the build. If the URI points to a tarball and the `dockerfile` parameter is also specified, there must be a file with the corresponding path inside the tarball. */
+      remote?: string;
+      /**
+       * Suppress verbose build output.
+       * @default false
+       */
+      q?: boolean;
+      /**
+       * Do not use the cache when building the image.
+       * @default false
+       */
+      nocache?: boolean;
+      /** JSON array of images used for build cache resolution. */
+      cachefrom?: string;
+      /** Attempt to pull the image even if an older image exists locally. */
+      pull?: string;
+      /**
+       * Remove intermediate containers after a successful build.
+       * @default true
+       */
+      rm?: boolean;
+      /**
+       * Always remove intermediate containers, even upon failure.
+       * @default false
+       */
+      forcerm?: boolean;
+      /** Set memory limit for build. */
+      memory?: number;
+      /** Total memory (memory + swap). Set as `-1` to disable swap. */
+      memswap?: number;
+      /** CPU shares (relative weight). */
+      cpushares?: number;
+      /** CPUs in which to allow execution (e.g., `0-3`, `0,1`). */
+      cpusetcpus?: string;
+      /** The length of a CPU period in microseconds. */
+      cpuperiod?: number;
+      /** Microseconds of CPU time that the container can get in a CPU period. */
+      cpuquota?: number;
+      /**
+       * JSON map of string pairs for build-time variables. Users pass these values at build-time. Docker uses the buildargs as the environment context for commands run via the `Dockerfile` RUN instruction, or for variable expansion in other `Dockerfile` instructions. This is not meant for passing secret values.
+       *
+       * For example, the build arg `FOO=bar` would become `{"FOO":"bar"}` in JSON. This would result in the query parameter `buildargs={"FOO":"bar"}`. Note that `{"FOO":"bar"}` should be URI component encoded.
+       *
+       * [Read more about the buildargs instruction.](https://docs.docker.com/engine/reference/builder/#arg)
+       */
+      buildargs?: string;
+      /** Size of `/dev/shm` in bytes. The size must be greater than 0. If omitted the system uses 64MB. */
+      shmsize?: number;
+      /** Squash the resulting images layers into a single layer. *(Experimental release only.)* */
+      squash?: boolean;
+      /** Arbitrary key/value labels to set on the image, as a JSON map of string pairs. */
+      labels?: string;
+      /**
+       * Sets the networking mode for the run commands during build. Supported
+       * standard values are: `bridge`, `host`, `none`, and `container:<name|id>`.
+       * Any other value is taken as a custom network's name or ID to which this
+       * container should connect to.
+       */
+      networkmode?: string;
+      /**
+       * Platform in the format os[/arch[/variant]]
+       * @default ""
+       */
+      platform?: string;
+      /**
+       * Target build stage
+       * @default ""
+       */
+      target?: string;
+      /**
+       * BuildKit output configuration
+       * @default ""
+       */
+      outputs?: string;
+      /**
+       * Version of the builder backend to use.
+       *
+       * - `1` is the first generation classic (deprecated) builder in the Docker daemon (default)
+       * - `2` is [BuildKit](https://github.com/moby/buildkit)
+       * @default "1"
+       */
+      version?: "1" | "2";
+    };
+    export type RequestBody = File;
+    export type RequestHeaders = {
+      /** @default "application/x-tar" */
+      "Content-type"?: "application/x-tar";
+      /**
+       * This is a base64-encoded JSON object with auth configurations for multiple registries that a build may refer to.
+       *
+       * The key is a registry URL, and the value is an auth configuration object, [as described in the authentication section](#section/Authentication). For example:
+       *
+       * ```
+       * {
+       *   "docker.example.com": {
+       *     "username": "janedoe",
+       *     "password": "hunter2"
+       *   },
+       *   "https://index.docker.io/v1/": {
+       *     "username": "mobydock",
+       *     "password": "conta1n3rize14"
+       *   }
+       * }
+       * ```
+       *
+       * Only the registry domain name (and port if not the default 443) are required. However, for legacy reasons, the Docker Hub registry must be specified with both a `https://` prefix and a `/v1/` suffix even though Docker will prefer to use the v2 registry API.
+       */
+      "X-Registry-Config"?: string;
+    };
+    export type ResponseBody = void;
+  }
 
-/** @example [{"Name":"network","Description":"","Value":["host"]},{"Name":"mount","Description":"","Value":["/data"]},{"Name":"device","Description":"","Value":["/dev/cpu_dma_latency"]}] */
-export type GetPluginPrivilegesData = PluginPrivilege[];
-
-export type PluginPullData = any;
-
-export type PluginInspectData = Plugin;
-
-export type PluginDeleteData = Plugin;
-
-export type PluginEnableData = any;
-
-export type PluginDisableData = any;
-
-export type PluginUpgradeData = any;
-
-export type PluginCreateData = any;
-
-export type PluginPushData = any;
-
-export type PluginSetData = any;
-
-export type NodeListData = Node[];
-
-export type NodeInspectData = Node;
-
-export type NodeDeleteData = any;
-
-export type NodeUpdateData = any;
-
-export type SwarmInspectData = Swarm;
-
-/**
- * The node ID
- * @example "7v2t30z9blmxuhnyo6s4cpenp"
- */
-export type SwarmInitData = string;
-
-export type SwarmJoinData = any;
-
-export type SwarmLeaveData = any;
-
-export type SwarmUpdateData = any;
-
-/**
- * UnlockKeyResponse
- * @example {"UnlockKey":"SWMKEY-1-7c37Cc8654o6p38HnroywCi19pllOnGtbdZEgtKxZu8"}
- */
-export interface SwarmUnlockkeyData {
-  /** The swarm's unlock key. */
-  UnlockKey?: string;
+  /**
+   * No description
+   * @tags Image
+   * @name BuildPrune
+   * @summary Delete builder cache
+   * @request POST:/build/prune
+   */
+  export namespace BuildPrune {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Amount of disk space in bytes to keep for cache
+       * @format int64
+       */
+      "keep-storage"?: number;
+      /** Remove all types of build cache */
+      all?: boolean;
+      /**
+       * A JSON encoded value of the filters (a `map[string][]string`) to
+       * process on the list of build cache objects.
+       *
+       * Available filters:
+       *
+       * - `until=<timestamp>` remove cache older than `<timestamp>`. The `<timestamp>` can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. `10m`, `1h30m`) computed relative to the daemon's local time.
+       * - `id=<id>`
+       * - `parent=<id>`
+       * - `type=<string>`
+       * - `description=<string>`
+       * - `inuse`
+       * - `shared`
+       * - `private`
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      CachesDeleted?: string[];
+      /**
+       * Disk space reclaimed in bytes
+       * @format int64
+       */
+      SpaceReclaimed?: number;
+    };
+  }
 }
 
-export type SwarmUnlockData = any;
+export namespace Auth {
+  /**
+   * @description Validate credentials for a registry and, if available, get an identity token for accessing the registry without password.
+   * @tags System
+   * @name SystemAuth
+   * @summary Check auth configuration
+   * @request POST:/auth
+   */
+  export namespace SystemAuth {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = AuthConfig;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      /** The status of the authentication */
+      Status: string;
+      /** An opaque token used to authenticate a user after a successful login */
+      IdentityToken: string;
+    };
+  }
+}
 
-export type ServiceListData = Service[];
+export namespace Info {
+  /**
+   * No description
+   * @tags System
+   * @name SystemInfo
+   * @summary Get system information
+   * @request GET:/info
+   */
+  export namespace SystemInfo {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = SystemInfo;
+  }
+}
 
-export type ServiceCreateData = ServiceCreateResponse;
+export namespace Version {
+  /**
+   * @description Returns the version of Docker that is running and various information about the system that Docker is running on.
+   * @tags System
+   * @name SystemVersion
+   * @summary Get version
+   * @request GET:/version
+   */
+  export namespace SystemVersion {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = SystemVersion;
+  }
+}
 
-export type ServiceInspectData = Service;
+export namespace Ping {
+  /**
+   * @description This is a dummy endpoint you can use to test if the server is accessible.
+   * @tags System
+   * @name SystemPing
+   * @summary Ping
+   * @request GET:/_ping
+   */
+  export namespace SystemPing {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = string;
+  }
 
-export type ServiceDeleteData = any;
+  /**
+   * @description This is a dummy endpoint you can use to test if the server is accessible.
+   * @tags System
+   * @name SystemPingHead
+   * @summary Ping
+   * @request HEAD:/_ping
+   */
+  export namespace SystemPingHead {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = string;
+  }
+}
 
-export type ServiceUpdateData = ServiceUpdateResponse;
+export namespace Commit {
+  /**
+   * No description
+   * @tags Image
+   * @name ImageCommit
+   * @summary Create a new image from a container
+   * @request POST:/commit
+   */
+  export namespace ImageCommit {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** The ID or name of the container to commit */
+      container?: string;
+      /** Repository name for the created image */
+      repo?: string;
+      /** Tag name for the create image */
+      tag?: string;
+      /** Commit message */
+      comment?: string;
+      /** Author of the image (e.g., `John Hannibal Smith <hannibal@a-team.com>`) */
+      author?: string;
+      /**
+       * Whether to pause the container before committing
+       * @default true
+       */
+      pause?: boolean;
+      /** `Dockerfile` instructions to apply while committing */
+      changes?: string;
+    };
+    export type RequestBody = ContainerConfig;
+    export type RequestHeaders = {};
+    export type ResponseBody = IdResponse;
+  }
+}
 
-/** @format binary */
-export type ServiceLogsData = File;
+export namespace Events {
+  /**
+   * @description Stream real-time events from the server. Various objects within Docker report events when something happens to them. Containers report these events: `attach`, `commit`, `copy`, `create`, `destroy`, `detach`, `die`, `exec_create`, `exec_detach`, `exec_start`, `exec_die`, `export`, `health_status`, `kill`, `oom`, `pause`, `rename`, `resize`, `restart`, `start`, `stop`, `top`, `unpause`, `update`, and `prune` Images report these events: `create`, `delete`, `import`, `load`, `pull`, `push`, `save`, `tag`, `untag`, and `prune` Volumes report these events: `create`, `mount`, `unmount`, `destroy`, and `prune` Networks report these events: `create`, `connect`, `disconnect`, `destroy`, `update`, `remove`, and `prune` The Docker daemon reports these events: `reload` Services report these events: `create`, `update`, and `remove` Nodes report these events: `create`, `update`, and `remove` Secrets report these events: `create`, `update`, and `remove` Configs report these events: `create`, `update`, and `remove` The Builder reports `prune` events
+   * @tags System
+   * @name SystemEvents
+   * @summary Monitor events
+   * @request GET:/events
+   */
+  export namespace SystemEvents {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** Show events created since this timestamp then stream new events. */
+      since?: string;
+      /** Show events created until this timestamp then stop streaming. */
+      until?: string;
+      /**
+       * A JSON encoded value of filters (a `map[string][]string`) to process on the event list. Available filters:
+       *
+       * - `config=<string>` config name or ID
+       * - `container=<string>` container name or ID
+       * - `daemon=<string>` daemon name or ID
+       * - `event=<string>` event type
+       * - `image=<string>` image name or ID
+       * - `label=<string>` image or container label
+       * - `network=<string>` network name or ID
+       * - `node=<string>` node ID
+       * - `plugin`=<string> plugin name or ID
+       * - `scope`=<string> local or swarm
+       * - `secret=<string>` secret name or ID
+       * - `service=<string>` service name or ID
+       * - `type=<string>` object to filter by, one of `container`, `image`, `volume`, `network`, `daemon`, `plugin`, `node`, `service`, `secret` or `config`
+       * - `volume=<string>` volume name
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = EventMessage;
+  }
+}
 
-/** @example [{"ID":"0kzzo1i0y4jz6027t0k7aezc7","Version":{"Index":71},"CreatedAt":"2016-06-07T21:07:31.171892745Z","UpdatedAt":"2016-06-07T21:07:31.376370513Z","Spec":{"ContainerSpec":{"Image":"redis"},"Resources":{"Limits":{},"Reservations":{}},"RestartPolicy":{"Condition":"any","MaxAttempts":0},"Placement":{}},"ServiceID":"9mnpnzenvg8p8tdbtq4wvbkcz","Slot":1,"NodeID":"60gvrl6tm78dmak4yl7srz94v","Status":{"Timestamp":"2016-06-07T21:07:31.290032978Z","State":"running","Message":"started","ContainerStatus":{"ContainerID":"e5d62702a1b48d01c3e02ca1e0212a250801fa8d67caca0b6f35919ebc12f035","PID":677}},"DesiredState":"running","NetworksAttachments":[{"Network":{"ID":"4qvuz4ko70xaltuqbt8956gd1","Version":{"Index":18},"CreatedAt":"2016-06-07T20:31:11.912919752Z","UpdatedAt":"2016-06-07T21:07:29.955277358Z","Spec":{"Name":"ingress","Labels":{"com.docker.swarm.internal":"true"},"DriverConfiguration":{},"IPAMOptions":{"Driver":{},"Configs":[{"Subnet":"10.255.0.0/16","Gateway":"10.255.0.1"}]}},"DriverState":{"Name":"overlay","Options":{"com.docker.network.driver.overlay.vxlanid_list":"256"}},"IPAMOptions":{"Driver":{"Name":"default"},"Configs":[{"Subnet":"10.255.0.0/16","Gateway":"10.255.0.1"}]}},"Addresses":["10.255.0.10/16"]}]},{"ID":"1yljwbmlr8er2waf8orvqpwms","Version":{"Index":30},"CreatedAt":"2016-06-07T21:07:30.019104782Z","UpdatedAt":"2016-06-07T21:07:30.231958098Z","Name":"hopeful_cori","Spec":{"ContainerSpec":{"Image":"redis"},"Resources":{"Limits":{},"Reservations":{}},"RestartPolicy":{"Condition":"any","MaxAttempts":0},"Placement":{}},"ServiceID":"9mnpnzenvg8p8tdbtq4wvbkcz","Slot":1,"NodeID":"60gvrl6tm78dmak4yl7srz94v","Status":{"Timestamp":"2016-06-07T21:07:30.202183143Z","State":"shutdown","Message":"shutdown","ContainerStatus":{"ContainerID":"1cf8d63d18e79668b0004a4be4c6ee58cddfad2dae29506d8781581d0688a213"}},"DesiredState":"shutdown","NetworksAttachments":[{"Network":{"ID":"4qvuz4ko70xaltuqbt8956gd1","Version":{"Index":18},"CreatedAt":"2016-06-07T20:31:11.912919752Z","UpdatedAt":"2016-06-07T21:07:29.955277358Z","Spec":{"Name":"ingress","Labels":{"com.docker.swarm.internal":"true"},"DriverConfiguration":{},"IPAMOptions":{"Driver":{},"Configs":[{"Subnet":"10.255.0.0/16","Gateway":"10.255.0.1"}]}},"DriverState":{"Name":"overlay","Options":{"com.docker.network.driver.overlay.vxlanid_list":"256"}},"IPAMOptions":{"Driver":{"Name":"default"},"Configs":[{"Subnet":"10.255.0.0/16","Gateway":"10.255.0.1"}]}},"Addresses":["10.255.0.5/16"]}]}] */
-export type TaskListData = Task[];
+export namespace System {
+  /**
+   * No description
+   * @tags System
+   * @name SystemDataUsage
+   * @summary Get data usage information
+   * @request GET:/system/df
+   */
+  export namespace SystemDataUsage {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /** Object types, for which to compute and return data. */
+      type?: ("container" | "image" | "volume" | "build-cache")[];
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      /** @format int64 */
+      LayersSize?: number;
+      Images?: ImageSummary[];
+      Containers?: ContainerSummary[];
+      Volumes?: Volume[];
+      BuildCache?: BuildCache[];
+    };
+  }
+}
 
-export type TaskInspectData = Task;
+export namespace Exec {
+  /**
+   * @description Starts a previously set up exec instance. If detach is true, this endpoint returns immediately after starting the command. Otherwise, it sets up an interactive session with the command.
+   * @tags Exec
+   * @name ExecStart
+   * @summary Start an exec instance
+   * @request POST:/exec/{id}/start
+   */
+  export namespace ExecStart {
+    export type RequestParams = {
+      /** Exec instance ID */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = {
+      /** Detach from the command. */
+      Detach?: boolean;
+      /** Allocate a pseudo-TTY. */
+      Tty?: boolean;
+      /**
+       * Initial console size, as an `[height, width]` array.
+       * @maxItems 2
+       * @minItems 2
+       */
+      ConsoleSize?: number[] | null;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
 
-/** @format binary */
-export type TaskLogsData = File;
+  /**
+   * @description Resize the TTY session used by an exec instance. This endpoint only works if `tty` was specified as part of creating and starting the exec instance.
+   * @tags Exec
+   * @name ExecResize
+   * @summary Resize an exec instance
+   * @request POST:/exec/{id}/resize
+   */
+  export namespace ExecResize {
+    export type RequestParams = {
+      /** Exec instance ID */
+      id: string;
+    };
+    export type RequestQuery = {
+      /** Height of the TTY session in characters */
+      h: number;
+      /** Width of the TTY session in characters */
+      w: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
 
-/** @example [{"ID":"blt1owaxmitz71s9v5zh81zun","Version":{"Index":85},"CreatedAt":"2017-07-20T13:55:28.678958722Z","UpdatedAt":"2017-07-20T13:55:28.678958722Z","Spec":{"Name":"mysql-passwd","Labels":{"some.label":"some.value"},"Driver":{"Name":"secret-bucket","Options":{"OptionA":"value for driver option A","OptionB":"value for driver option B"}}}},{"ID":"ktnbjxoalbkvbvedmg1urrz8h","Version":{"Index":11},"CreatedAt":"2016-11-05T01:20:17.327670065Z","UpdatedAt":"2016-11-05T01:20:17.327670065Z","Spec":{"Name":"app-dev.crt","Labels":{"foo":"bar"}}}] */
-export type SecretListData = Secret[];
+  /**
+   * @description Return low-level information about an exec instance.
+   * @tags Exec
+   * @name ExecInspect
+   * @summary Inspect an exec instance
+   * @request GET:/exec/{id}/json
+   */
+  export namespace ExecInspect {
+    export type RequestParams = {
+      /** Exec instance ID */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      CanRemove?: boolean;
+      DetachKeys?: string;
+      ID?: string;
+      Running?: boolean;
+      ExitCode?: number;
+      ProcessConfig?: ProcessConfig;
+      OpenStdin?: boolean;
+      OpenStderr?: boolean;
+      OpenStdout?: boolean;
+      ContainerID?: string;
+      /** The system process ID for the exec process. */
+      Pid?: number;
+    };
+  }
+}
 
-export type SecretCreateData = IdResponse;
+export namespace Volumes {
+  /**
+   * No description
+   * @tags Volume
+   * @name VolumeList
+   * @summary List volumes
+   * @request GET:/volumes
+   */
+  export namespace VolumeList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * JSON encoded value of the filters (a `map[string][]string`) to
+       * process on the volumes list. Available filters:
+       *
+       * - `dangling=<boolean>` When set to `true` (or `1`), returns all
+       *    volumes that are not in use by a container. When set to `false`
+       *    (or `0`), only volumes that are in use by one or more
+       *    containers are returned.
+       * - `driver=<volume-driver-name>` Matches volumes based on their driver.
+       * - `label=<key>` or `label=<key>:<value>` Matches volumes based on
+       *    the presence of a `label` alone or a `label` and a value.
+       * - `name=<volume-name>` Matches all or part of a volume name.
+       * @format json
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = VolumeListResponse;
+  }
 
-export type SecretInspectData = Secret;
+  /**
+   * No description
+   * @tags Volume
+   * @name VolumeCreate
+   * @summary Create a volume
+   * @request POST:/volumes/create
+   */
+  export namespace VolumeCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = VolumeCreateOptions;
+    export type RequestHeaders = {};
+    export type ResponseBody = Volume;
+  }
 
-export type SecretDeleteData = any;
+  /**
+   * No description
+   * @tags Volume
+   * @name VolumeInspect
+   * @summary Inspect a volume
+   * @request GET:/volumes/{name}
+   */
+  export namespace VolumeInspect {
+    export type RequestParams = {
+      /** Volume name or ID */
+      name: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Volume;
+  }
 
-export type SecretUpdateData = any;
+  /**
+   * No description
+   * @tags Volume
+   * @name VolumeUpdate
+   * @summary "Update a volume. Valid only for Swarm cluster volumes"
+   * @request PUT:/volumes/{name}
+   */
+  export namespace VolumeUpdate {
+    export type RequestParams = {
+      /** The name or ID of the volume */
+      name: string;
+    };
+    export type RequestQuery = {
+      /**
+       * The version number of the volume being updated. This is required to
+       * avoid conflicting writes. Found in the volume's `ClusterVolume`
+       * field.
+       * @format int64
+       */
+      version: number;
+    };
+    export type RequestBody = {
+      /** Cluster-specific options used to create the volume. */
+      Spec?: ClusterVolumeSpec;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
 
-/** @example [{"ID":"ktnbjxoalbkvbvedmg1urrz8h","Version":{"Index":11},"CreatedAt":"2016-11-05T01:20:17.327670065Z","UpdatedAt":"2016-11-05T01:20:17.327670065Z","Spec":{"Name":"server.conf"}}] */
-export type ConfigListData = Config[];
+  /**
+   * @description Instruct the driver to remove the volume.
+   * @tags Volume
+   * @name VolumeDelete
+   * @summary Remove a volume
+   * @request DELETE:/volumes/{name}
+   */
+  export namespace VolumeDelete {
+    export type RequestParams = {
+      /** Volume name or ID */
+      name: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Force the removal of the volume
+       * @default false
+       */
+      force?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
 
-export type ConfigCreateData = IdResponse;
+  /**
+   * No description
+   * @tags Volume
+   * @name VolumePrune
+   * @summary Delete unused volumes
+   * @request POST:/volumes/prune
+   */
+  export namespace VolumePrune {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Filters to process on the prune list, encoded as JSON (a `map[string][]string`).
+       *
+       * Available filters:
+       * - `label` (`label=<key>`, `label=<key>=<value>`, `label!=<key>`, or `label!=<key>=<value>`) Prune volumes with (or without, in case `label!=...` is used) the specified labels.
+       * - `all` (`all=true`) - Consider all (local) volumes for pruning and not just anonymous volumes.
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      /** Volumes that were deleted */
+      VolumesDeleted?: string[];
+      /**
+       * Disk space reclaimed in bytes
+       * @format int64
+       */
+      SpaceReclaimed?: number;
+    };
+  }
+}
 
-export type ConfigInspectData = Config;
+export namespace Networks {
+  /**
+   * @description Returns a list of networks. For details on the format, see the [network inspect endpoint](#operation/NetworkInspect). Note that it uses a different, smaller representation of a network than inspecting a single network. For example, the list of containers attached to the network is not propagated in API versions 1.28 and up.
+   * @tags Network
+   * @name NetworkList
+   * @summary List networks
+   * @request GET:/networks
+   */
+  export namespace NetworkList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * JSON encoded value of the filters (a `map[string][]string`) to process
+       * on the networks list.
+       *
+       * Available filters:
+       *
+       * - `dangling=<boolean>` When set to `true` (or `1`), returns all
+       *    networks that are not in use by a container. When set to `false`
+       *    (or `0`), only networks that are in use by one or more
+       *    containers are returned.
+       * - `driver=<driver-name>` Matches a network's driver.
+       * - `id=<network-id>` Matches all or part of a network ID.
+       * - `label=<key>` or `label=<key>=<value>` of a network label.
+       * - `name=<network-name>` Matches all or part of a network name.
+       * - `scope=["swarm"|"global"|"local"]` Filters networks by scope (`swarm`, `global`, or `local`).
+       * - `type=["custom"|"builtin"]` Filters networks by type. The `custom` keyword returns all user-defined networks.
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Network[];
+  }
 
-export type ConfigDeleteData = any;
+  /**
+   * No description
+   * @tags Network
+   * @name NetworkInspect
+   * @summary Inspect a network
+   * @request GET:/networks/{id}
+   */
+  export namespace NetworkInspect {
+    export type RequestParams = {
+      /** Network ID or name */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Detailed inspect output for troubleshooting
+       * @default false
+       */
+      verbose?: boolean;
+      /** Filter the network by scope (swarm, global, or local) */
+      scope?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Network;
+  }
 
-export type ConfigUpdateData = any;
+  /**
+   * No description
+   * @tags Network
+   * @name NetworkDelete
+   * @summary Remove a network
+   * @request DELETE:/networks/{id}
+   */
+  export namespace NetworkDelete {
+    export type RequestParams = {
+      /** Network ID or name */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
 
-export type DistributionInspectData = DistributionInspect;
+  /**
+   * No description
+   * @tags Network
+   * @name NetworkCreate
+   * @summary Create a network
+   * @request POST:/networks/create
+   */
+  export namespace NetworkCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = {
+      /**
+       * The network's name.
+       * @example "my_network"
+       */
+      Name: string;
+      /**
+       * Name of the network driver plugin to use.
+       * @default "bridge"
+       * @example "bridge"
+       */
+      Driver?: string;
+      /**
+       * The level at which the network exists (e.g. `swarm` for cluster-wide
+       * or `local` for machine level).
+       */
+      Scope?: string;
+      /** Restrict external access to the network. */
+      Internal?: boolean;
+      /**
+       * Globally scoped network is manually attachable by regular
+       * containers from workers in swarm mode.
+       * @example true
+       */
+      Attachable?: boolean;
+      /**
+       * Ingress network is the network which provides the routing-mesh
+       * in swarm mode.
+       * @example false
+       */
+      Ingress?: boolean;
+      /**
+       * Creates a config-only network. Config-only networks are placeholder
+       * networks for network configurations to be used by other networks.
+       * Config-only networks cannot be used directly to run containers
+       * or services.
+       * @default false
+       * @example false
+       */
+      ConfigOnly?: boolean;
+      /**
+       * Specifies the source which will provide the configuration for
+       * this network. The specified network must be an existing
+       * config-only network; see ConfigOnly.
+       */
+      ConfigFrom?: ConfigReference;
+      /** Optional custom IP scheme for the network. */
+      IPAM?: IPAM;
+      /**
+       * Enable IPv4 on the network.
+       * To disable IPv4, the daemon must be started with experimental features enabled.
+       * @example true
+       */
+      EnableIPv4?: boolean;
+      /**
+       * Enable IPv6 on the network.
+       * @example true
+       */
+      EnableIPv6?: boolean;
+      /**
+       * Network specific options to be used by the drivers.
+       * @example {"com.docker.network.bridge.default_bridge":"true","com.docker.network.bridge.enable_icc":"true","com.docker.network.bridge.enable_ip_masquerade":"true","com.docker.network.bridge.host_binding_ipv4":"0.0.0.0","com.docker.network.bridge.name":"docker0","com.docker.network.driver.mtu":"1500"}
+       */
+      Options?: Record<string, string>;
+      /**
+       * User-defined key/value metadata.
+       * @example {"com.example.some-label":"some-value","com.example.some-other-label":"some-other-value"}
+       */
+      Labels?: Record<string, string>;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = NetworkCreateResponse;
+  }
+
+  /**
+   * @description The network must be either a local-scoped network or a swarm-scoped network with the `attachable` option set. A network cannot be re-attached to a running container
+   * @tags Network
+   * @name NetworkConnect
+   * @summary Connect a container to a network
+   * @request POST:/networks/{id}/connect
+   */
+  export namespace NetworkConnect {
+    export type RequestParams = {
+      /** Network ID or name */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = {
+      /** The ID or name of the container to connect to the network. */
+      Container?: string;
+      /** Configuration for a network endpoint. */
+      EndpointConfig?: EndpointSettings;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Network
+   * @name NetworkDisconnect
+   * @summary Disconnect a container from a network
+   * @request POST:/networks/{id}/disconnect
+   */
+  export namespace NetworkDisconnect {
+    export type RequestParams = {
+      /** Network ID or name */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = {
+      /** The ID or name of the container to disconnect from the network. */
+      Container?: string;
+      /** Force the container to disconnect from the network. */
+      Force?: boolean;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Network
+   * @name NetworkPrune
+   * @summary Delete unused networks
+   * @request POST:/networks/prune
+   */
+  export namespace NetworkPrune {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Filters to process on the prune list, encoded as JSON (a `map[string][]string`).
+       *
+       * Available filters:
+       * - `until=<timestamp>` Prune networks created before this timestamp. The `<timestamp>` can be Unix timestamps, date formatted timestamps, or Go duration strings (e.g. `10m`, `1h30m`) computed relative to the daemon machine’s time.
+       * - `label` (`label=<key>`, `label=<key>=<value>`, `label!=<key>`, or `label!=<key>=<value>`) Prune networks with (or without, in case `label!=...` is used) the specified labels.
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      /** Networks that were deleted */
+      NetworksDeleted?: string[];
+    };
+  }
+}
+
+export namespace Plugins {
+  /**
+   * @description Returns information about installed plugins.
+   * @tags Plugin
+   * @name PluginList
+   * @summary List plugins
+   * @request GET:/plugins
+   */
+  export namespace PluginList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * A JSON encoded value of the filters (a `map[string][]string`) to
+       * process on the plugin list.
+       *
+       * Available filters:
+       *
+       * - `capability=<capability name>`
+       * - `enable=<true>|<false>`
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Plugin[];
+  }
+
+  /**
+   * No description
+   * @tags Plugin
+   * @name GetPluginPrivileges
+   * @summary Get plugin privileges
+   * @request GET:/plugins/privileges
+   */
+  export namespace GetPluginPrivileges {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * The name of the plugin. The `:latest` tag is optional, and is the
+       * default if omitted.
+       */
+      remote: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = PluginPrivilege[];
+  }
+
+  /**
+   * @description Pulls and installs a plugin. After the plugin is installed, it can be enabled using the [`POST /plugins/{name}/enable` endpoint](#operation/PostPluginsEnable).
+   * @tags Plugin
+   * @name PluginPull
+   * @summary Install a plugin
+   * @request POST:/plugins/pull
+   */
+  export namespace PluginPull {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Remote reference for plugin to install.
+       *
+       * The `:latest` tag is optional, and is used as the default if omitted.
+       */
+      remote: string;
+      /**
+       * Local name for the pulled plugin.
+       *
+       * The `:latest` tag is optional, and is used as the default if omitted.
+       */
+      name?: string;
+    };
+    export type RequestBody = PluginPrivilege[];
+    export type RequestHeaders = {
+      /**
+       * A base64url-encoded auth configuration to use when pulling a plugin
+       * from a registry.
+       *
+       * Refer to the [authentication section](#section/Authentication) for
+       * details.
+       */
+      "X-Registry-Auth"?: string;
+    };
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Plugin
+   * @name PluginInspect
+   * @summary Inspect a plugin
+   * @request GET:/plugins/{name}/json
+   */
+  export namespace PluginInspect {
+    export type RequestParams = {
+      /**
+       * The name of the plugin. The `:latest` tag is optional, and is the
+       * default if omitted.
+       */
+      name: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Plugin;
+  }
+
+  /**
+   * No description
+   * @tags Plugin
+   * @name PluginDelete
+   * @summary Remove a plugin
+   * @request DELETE:/plugins/{name}
+   */
+  export namespace PluginDelete {
+    export type RequestParams = {
+      /**
+       * The name of the plugin. The `:latest` tag is optional, and is the
+       * default if omitted.
+       */
+      name: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Disable the plugin before removing. This may result in issues if the
+       * plugin is in use by a container.
+       * @default false
+       */
+      force?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Plugin;
+  }
+
+  /**
+   * No description
+   * @tags Plugin
+   * @name PluginEnable
+   * @summary Enable a plugin
+   * @request POST:/plugins/{name}/enable
+   */
+  export namespace PluginEnable {
+    export type RequestParams = {
+      /**
+       * The name of the plugin. The `:latest` tag is optional, and is the
+       * default if omitted.
+       */
+      name: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Set the HTTP client timeout (in seconds)
+       * @default 0
+       */
+      timeout?: number;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Plugin
+   * @name PluginDisable
+   * @summary Disable a plugin
+   * @request POST:/plugins/{name}/disable
+   */
+  export namespace PluginDisable {
+    export type RequestParams = {
+      /**
+       * The name of the plugin. The `:latest` tag is optional, and is the
+       * default if omitted.
+       */
+      name: string;
+    };
+    export type RequestQuery = {
+      /** Force disable a plugin even if still in use. */
+      force?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Plugin
+   * @name PluginUpgrade
+   * @summary Upgrade a plugin
+   * @request POST:/plugins/{name}/upgrade
+   */
+  export namespace PluginUpgrade {
+    export type RequestParams = {
+      /**
+       * The name of the plugin. The `:latest` tag is optional, and is the
+       * default if omitted.
+       */
+      name: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Remote reference to upgrade to.
+       *
+       * The `:latest` tag is optional, and is used as the default if omitted.
+       */
+      remote: string;
+    };
+    export type RequestBody = PluginPrivilege[];
+    export type RequestHeaders = {
+      /**
+       * A base64url-encoded auth configuration to use when pulling a plugin
+       * from a registry.
+       *
+       * Refer to the [authentication section](#section/Authentication) for
+       * details.
+       */
+      "X-Registry-Auth"?: string;
+    };
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Plugin
+   * @name PluginCreate
+   * @summary Create a plugin
+   * @request POST:/plugins/create
+   */
+  export namespace PluginCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * The name of the plugin. The `:latest` tag is optional, and is the
+       * default if omitted.
+       */
+      name: string;
+    };
+    export type RequestBody = File;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * @description Push a plugin to the registry.
+   * @tags Plugin
+   * @name PluginPush
+   * @summary Push a plugin
+   * @request POST:/plugins/{name}/push
+   */
+  export namespace PluginPush {
+    export type RequestParams = {
+      /**
+       * The name of the plugin. The `:latest` tag is optional, and is the
+       * default if omitted.
+       */
+      name: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Plugin
+   * @name PluginSet
+   * @summary Configure a plugin
+   * @request POST:/plugins/{name}/set
+   */
+  export namespace PluginSet {
+    export type RequestParams = {
+      /**
+       * The name of the plugin. The `:latest` tag is optional, and is the
+       * default if omitted.
+       */
+      name: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = string[];
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Nodes {
+  /**
+   * No description
+   * @tags Node
+   * @name NodeList
+   * @summary List nodes
+   * @request GET:/nodes
+   */
+  export namespace NodeList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Filters to process on the nodes list, encoded as JSON (a `map[string][]string`).
+       *
+       * Available filters:
+       * - `id=<node id>`
+       * - `label=<engine label>`
+       * - `membership=`(`accepted`|`pending`)`
+       * - `name=<node name>`
+       * - `node.label=<node label>`
+       * - `role=`(`manager`|`worker`)`
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Node[];
+  }
+
+  /**
+   * No description
+   * @tags Node
+   * @name NodeInspect
+   * @summary Inspect a node
+   * @request GET:/nodes/{id}
+   */
+  export namespace NodeInspect {
+    export type RequestParams = {
+      /** The ID or name of the node */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Node;
+  }
+
+  /**
+   * No description
+   * @tags Node
+   * @name NodeDelete
+   * @summary Delete a node
+   * @request DELETE:/nodes/{id}
+   */
+  export namespace NodeDelete {
+    export type RequestParams = {
+      /** The ID or name of the node */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Force remove a node from the swarm
+       * @default false
+       */
+      force?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Node
+   * @name NodeUpdate
+   * @summary Update a node
+   * @request POST:/nodes/{id}/update
+   */
+  export namespace NodeUpdate {
+    export type RequestParams = {
+      /** The ID of the node */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * The version number of the node object being updated. This is required
+       * to avoid conflicting writes.
+       * @format int64
+       */
+      version: number;
+    };
+    export type RequestBody = NodeSpec;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Swarm {
+  /**
+   * No description
+   * @tags Swarm
+   * @name SwarmInspect
+   * @summary Inspect swarm
+   * @request GET:/swarm
+   */
+  export namespace SwarmInspect {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Swarm;
+  }
+
+  /**
+   * No description
+   * @tags Swarm
+   * @name SwarmInit
+   * @summary Initialize a new swarm
+   * @request POST:/swarm/init
+   */
+  export namespace SwarmInit {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = {
+      /**
+       * Listen address used for inter-manager communication, as well
+       * as determining the networking interface used for the VXLAN
+       * Tunnel Endpoint (VTEP). This can either be an address/port
+       * combination in the form `192.168.1.1:4567`, or an interface
+       * followed by a port number, like `eth0:4567`. If the port number
+       * is omitted, the default swarm listening port is used.
+       */
+      ListenAddr?: string;
+      /**
+       * Externally reachable address advertised to other nodes. This
+       * can either be an address/port combination in the form
+       * `192.168.1.1:4567`, or an interface followed by a port number,
+       * like `eth0:4567`. If the port number is omitted, the port
+       * number from the listen address is used. If `AdvertiseAddr` is
+       * not specified, it will be automatically detected when possible.
+       */
+      AdvertiseAddr?: string;
+      /**
+       * Address or interface to use for data path traffic (format:
+       * `<ip|interface>`), for example,  `192.168.1.1`, or an interface,
+       * like `eth0`. If `DataPathAddr` is unspecified, the same address
+       * as `AdvertiseAddr` is used.
+       *
+       * The `DataPathAddr` specifies the address that global scope
+       * network drivers will publish towards other  nodes in order to
+       * reach the containers running on this node. Using this parameter
+       * it is possible to separate the container data traffic from the
+       * management traffic of the cluster.
+       */
+      DataPathAddr?: string;
+      /**
+       * DataPathPort specifies the data path port number for data traffic.
+       * Acceptable port range is 1024 to 49151.
+       * if no port is set or is set to 0, default port 4789 will be used.
+       * @format uint32
+       */
+      DataPathPort?: number;
+      /**
+       * Default Address Pool specifies default subnet pools for global
+       * scope networks.
+       */
+      DefaultAddrPool?: string[];
+      /** Force creation of a new swarm. */
+      ForceNewCluster?: boolean;
+      /**
+       * SubnetSize specifies the subnet size of the networks created
+       * from the default subnet pool.
+       * @format uint32
+       */
+      SubnetSize?: number;
+      /** User modifiable swarm configuration. */
+      Spec?: SwarmSpec;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = string;
+  }
+
+  /**
+   * No description
+   * @tags Swarm
+   * @name SwarmJoin
+   * @summary Join an existing swarm
+   * @request POST:/swarm/join
+   */
+  export namespace SwarmJoin {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = {
+      /**
+       * Listen address used for inter-manager communication if the node
+       * gets promoted to manager, as well as determining the networking
+       * interface used for the VXLAN Tunnel Endpoint (VTEP).
+       */
+      ListenAddr?: string;
+      /**
+       * Externally reachable address advertised to other nodes. This
+       * can either be an address/port combination in the form
+       * `192.168.1.1:4567`, or an interface followed by a port number,
+       * like `eth0:4567`. If the port number is omitted, the port
+       * number from the listen address is used. If `AdvertiseAddr` is
+       * not specified, it will be automatically detected when possible.
+       */
+      AdvertiseAddr?: string;
+      /**
+       * Address or interface to use for data path traffic (format:
+       * `<ip|interface>`), for example,  `192.168.1.1`, or an interface,
+       * like `eth0`. If `DataPathAddr` is unspecified, the same address
+       * as `AdvertiseAddr` is used.
+       *
+       * The `DataPathAddr` specifies the address that global scope
+       * network drivers will publish towards other nodes in order to
+       * reach the containers running on this node. Using this parameter
+       * it is possible to separate the container data traffic from the
+       * management traffic of the cluster.
+       */
+      DataPathAddr?: string;
+      /** Addresses of manager nodes already participating in the swarm. */
+      RemoteAddrs?: string[];
+      /** Secret token for joining this swarm. */
+      JoinToken?: string;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Swarm
+   * @name SwarmLeave
+   * @summary Leave a swarm
+   * @request POST:/swarm/leave
+   */
+  export namespace SwarmLeave {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * Force leave swarm, even if this is the last manager or that it will
+       * break the cluster.
+       * @default false
+       */
+      force?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Swarm
+   * @name SwarmUpdate
+   * @summary Update a swarm
+   * @request POST:/swarm/update
+   */
+  export namespace SwarmUpdate {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * The version number of the swarm object being updated. This is
+       * required to avoid conflicting writes.
+       * @format int64
+       */
+      version: number;
+      /**
+       * Rotate the worker join token.
+       * @default false
+       */
+      rotateWorkerToken?: boolean;
+      /**
+       * Rotate the manager join token.
+       * @default false
+       */
+      rotateManagerToken?: boolean;
+      /**
+       * Rotate the manager unlock key.
+       * @default false
+       */
+      rotateManagerUnlockKey?: boolean;
+    };
+    export type RequestBody = SwarmSpec;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Swarm
+   * @name SwarmUnlockkey
+   * @summary Get the unlock key
+   * @request GET:/swarm/unlockkey
+   */
+  export namespace SwarmUnlockkey {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = {
+      /** The swarm's unlock key. */
+      UnlockKey?: string;
+    };
+  }
+
+  /**
+   * No description
+   * @tags Swarm
+   * @name SwarmUnlock
+   * @summary Unlock a locked manager
+   * @request POST:/swarm/unlock
+   */
+  export namespace SwarmUnlock {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = {
+      /** The swarm's unlock key. */
+      UnlockKey?: string;
+    };
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Services {
+  /**
+   * No description
+   * @tags Service
+   * @name ServiceList
+   * @summary List services
+   * @request GET:/services
+   */
+  export namespace ServiceList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * A JSON encoded value of the filters (a `map[string][]string`) to
+       * process on the services list.
+       *
+       * Available filters:
+       *
+       * - `id=<service id>`
+       * - `label=<service label>`
+       * - `mode=["replicated"|"global"]`
+       * - `name=<service name>`
+       */
+      filters?: string;
+      /** Include service status, with count of running and desired tasks. */
+      status?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Service[];
+  }
+
+  /**
+   * No description
+   * @tags Service
+   * @name ServiceCreate
+   * @summary Create a service
+   * @request POST:/services/create
+   */
+  export namespace ServiceCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ServiceSpec & object;
+    export type RequestHeaders = {
+      /**
+       * A base64url-encoded auth configuration for pulling from private
+       * registries.
+       *
+       * Refer to the [authentication section](#section/Authentication) for
+       * details.
+       */
+      "X-Registry-Auth"?: string;
+    };
+    export type ResponseBody = ServiceCreateResponse;
+  }
+
+  /**
+   * No description
+   * @tags Service
+   * @name ServiceInspect
+   * @summary Inspect a service
+   * @request GET:/services/{id}
+   */
+  export namespace ServiceInspect {
+    export type RequestParams = {
+      /** ID or name of service. */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Fill empty fields with default values.
+       * @default false
+       */
+      insertDefaults?: boolean;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Service;
+  }
+
+  /**
+   * No description
+   * @tags Service
+   * @name ServiceDelete
+   * @summary Delete a service
+   * @request DELETE:/services/{id}
+   */
+  export namespace ServiceDelete {
+    export type RequestParams = {
+      /** ID or name of service. */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Service
+   * @name ServiceUpdate
+   * @summary Update a service
+   * @request POST:/services/{id}/update
+   */
+  export namespace ServiceUpdate {
+    export type RequestParams = {
+      /** ID or name of service. */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * The version number of the service object being updated. This is
+       * required to avoid conflicting writes.
+       * This version number should be the value as currently set on the
+       * service *before* the update. You can find the current version by
+       * calling `GET /services/{id}`
+       */
+      version: number;
+      /**
+       * If the `X-Registry-Auth` header is not specified, this parameter
+       * indicates where to find registry authorization credentials.
+       * @default "spec"
+       */
+      registryAuthFrom?: "spec" | "previous-spec";
+      /**
+       * Set to this parameter to `previous` to cause a server-side rollback
+       * to the previous service spec. The supplied spec will be ignored in
+       * this case.
+       */
+      rollback?: string;
+    };
+    export type RequestBody = ServiceSpec & object;
+    export type RequestHeaders = {
+      /**
+       * A base64url-encoded auth configuration for pulling from private
+       * registries.
+       *
+       * Refer to the [authentication section](#section/Authentication) for
+       * details.
+       */
+      "X-Registry-Auth"?: string;
+    };
+    export type ResponseBody = ServiceUpdateResponse;
+  }
+
+  /**
+   * @description Get `stdout` and `stderr` logs from a service. See also [`/containers/{id}/logs`](#operation/ContainerLogs). **Note**: This endpoint works only for services with the `local`, `json-file` or `journald` logging drivers.
+   * @tags Service
+   * @name ServiceLogs
+   * @summary Get service logs
+   * @request GET:/services/{id}/logs
+   */
+  export namespace ServiceLogs {
+    export type RequestParams = {
+      /** ID or name of the service */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Show service context and extra details provided to logs.
+       * @default false
+       */
+      details?: boolean;
+      /**
+       * Keep connection after returning logs.
+       * @default false
+       */
+      follow?: boolean;
+      /**
+       * Return logs from `stdout`
+       * @default false
+       */
+      stdout?: boolean;
+      /**
+       * Return logs from `stderr`
+       * @default false
+       */
+      stderr?: boolean;
+      /**
+       * Only return logs since this time, as a UNIX timestamp
+       * @default 0
+       */
+      since?: number;
+      /**
+       * Add timestamps to every log line
+       * @default false
+       */
+      timestamps?: boolean;
+      /**
+       * Only return this number of log lines from the end of the logs.
+       * Specify as an integer or `all` to output all log lines.
+       * @default "all"
+       */
+      tail?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = File;
+  }
+}
+
+export namespace Tasks {
+  /**
+   * No description
+   * @tags Task
+   * @name TaskList
+   * @summary List tasks
+   * @request GET:/tasks
+   */
+  export namespace TaskList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * A JSON encoded value of the filters (a `map[string][]string`) to
+       * process on the tasks list.
+       *
+       * Available filters:
+       *
+       * - `desired-state=(running | shutdown | accepted)`
+       * - `id=<task id>`
+       * - `label=key` or `label="key=value"`
+       * - `name=<task name>`
+       * - `node=<node id or name>`
+       * - `service=<service name>`
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Task[];
+  }
+
+  /**
+   * No description
+   * @tags Task
+   * @name TaskInspect
+   * @summary Inspect a task
+   * @request GET:/tasks/{id}
+   */
+  export namespace TaskInspect {
+    export type RequestParams = {
+      /** ID of the task */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Task;
+  }
+
+  /**
+   * @description Get `stdout` and `stderr` logs from a task. See also [`/containers/{id}/logs`](#operation/ContainerLogs). **Note**: This endpoint works only for services with the `local`, `json-file` or `journald` logging drivers.
+   * @tags Task
+   * @name TaskLogs
+   * @summary Get task logs
+   * @request GET:/tasks/{id}/logs
+   */
+  export namespace TaskLogs {
+    export type RequestParams = {
+      /** ID of the task */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * Show task context and extra details provided to logs.
+       * @default false
+       */
+      details?: boolean;
+      /**
+       * Keep connection after returning logs.
+       * @default false
+       */
+      follow?: boolean;
+      /**
+       * Return logs from `stdout`
+       * @default false
+       */
+      stdout?: boolean;
+      /**
+       * Return logs from `stderr`
+       * @default false
+       */
+      stderr?: boolean;
+      /**
+       * Only return logs since this time, as a UNIX timestamp
+       * @default 0
+       */
+      since?: number;
+      /**
+       * Add timestamps to every log line
+       * @default false
+       */
+      timestamps?: boolean;
+      /**
+       * Only return this number of log lines from the end of the logs.
+       * Specify as an integer or `all` to output all log lines.
+       * @default "all"
+       */
+      tail?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = File;
+  }
+}
+
+export namespace Secrets {
+  /**
+   * No description
+   * @tags Secret
+   * @name SecretList
+   * @summary List secrets
+   * @request GET:/secrets
+   */
+  export namespace SecretList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * A JSON encoded value of the filters (a `map[string][]string`) to
+       * process on the secrets list.
+       *
+       * Available filters:
+       *
+       * - `id=<secret id>`
+       * - `label=<key> or label=<key>=value`
+       * - `name=<secret name>`
+       * - `names=<secret name>`
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Secret[];
+  }
+
+  /**
+   * No description
+   * @tags Secret
+   * @name SecretCreate
+   * @summary Create a secret
+   * @request POST:/secrets/create
+   */
+  export namespace SecretCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = SecretSpec & object;
+    export type RequestHeaders = {};
+    export type ResponseBody = IdResponse;
+  }
+
+  /**
+   * No description
+   * @tags Secret
+   * @name SecretInspect
+   * @summary Inspect a secret
+   * @request GET:/secrets/{id}
+   */
+  export namespace SecretInspect {
+    export type RequestParams = {
+      /** ID of the secret */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Secret;
+  }
+
+  /**
+   * No description
+   * @tags Secret
+   * @name SecretDelete
+   * @summary Delete a secret
+   * @request DELETE:/secrets/{id}
+   */
+  export namespace SecretDelete {
+    export type RequestParams = {
+      /** ID of the secret */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Secret
+   * @name SecretUpdate
+   * @summary Update a Secret
+   * @request POST:/secrets/{id}/update
+   */
+  export namespace SecretUpdate {
+    export type RequestParams = {
+      /** The ID or name of the secret */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * The version number of the secret object being updated. This is
+       * required to avoid conflicting writes.
+       * @format int64
+       */
+      version: number;
+    };
+    export type RequestBody = SecretSpec;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Configs {
+  /**
+   * No description
+   * @tags Config
+   * @name ConfigList
+   * @summary List configs
+   * @request GET:/configs
+   */
+  export namespace ConfigList {
+    export type RequestParams = {};
+    export type RequestQuery = {
+      /**
+       * A JSON encoded value of the filters (a `map[string][]string`) to
+       * process on the configs list.
+       *
+       * Available filters:
+       *
+       * - `id=<config id>`
+       * - `label=<key> or label=<key>=value`
+       * - `name=<config name>`
+       * - `names=<config name>`
+       */
+      filters?: string;
+    };
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Config[];
+  }
+
+  /**
+   * No description
+   * @tags Config
+   * @name ConfigCreate
+   * @summary Create a config
+   * @request POST:/configs/create
+   */
+  export namespace ConfigCreate {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = ConfigSpec & object;
+    export type RequestHeaders = {};
+    export type ResponseBody = IdResponse;
+  }
+
+  /**
+   * No description
+   * @tags Config
+   * @name ConfigInspect
+   * @summary Inspect a config
+   * @request GET:/configs/{id}
+   */
+  export namespace ConfigInspect {
+    export type RequestParams = {
+      /** ID of the config */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = Config;
+  }
+
+  /**
+   * No description
+   * @tags Config
+   * @name ConfigDelete
+   * @summary Delete a config
+   * @request DELETE:/configs/{id}
+   */
+  export namespace ConfigDelete {
+    export type RequestParams = {
+      /** ID of the config */
+      id: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+
+  /**
+   * No description
+   * @tags Config
+   * @name ConfigUpdate
+   * @summary Update a Config
+   * @request POST:/configs/{id}/update
+   */
+  export namespace ConfigUpdate {
+    export type RequestParams = {
+      /** The ID or name of the config */
+      id: string;
+    };
+    export type RequestQuery = {
+      /**
+       * The version number of the config object being updated. This is
+       * required to avoid conflicting writes.
+       * @format int64
+       */
+      version: number;
+    };
+    export type RequestBody = ConfigSpec;
+    export type RequestHeaders = {};
+    export type ResponseBody = void;
+  }
+}
+
+export namespace Distribution {
+  /**
+   * @description Return image digest and platform information by contacting the registry.
+   * @tags Distribution
+   * @name DistributionInspect
+   * @summary Get image information from the registry
+   * @request GET:/distribution/{name}/json
+   */
+  export namespace DistributionInspect {
+    export type RequestParams = {
+      /** Image name or id */
+      name: string;
+    };
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = DistributionInspect;
+  }
+}
+
+export namespace Session {
+  /**
+   * @description Start a new interactive session with a server. Session allows server to call back to the client for advanced capabilities. ### Hijacking This endpoint hijacks the HTTP connection to HTTP2 transport that allows the client to expose gPRC services on that connection. For example, the client sends this request to upgrade the connection: ``` POST /session HTTP/1.1 Upgrade: h2c Connection: Upgrade ``` The Docker daemon responds with a `101 UPGRADED` response follow with the raw stream: ``` HTTP/1.1 101 UPGRADED Connection: Upgrade Upgrade: h2c ```
+   * @tags Session
+   * @name Session
+   * @summary Initialize interactive session
+   * @request POST:/session
+   */
+  export namespace Session {
+    export type RequestParams = {};
+    export type RequestQuery = {};
+    export type RequestBody = never;
+    export type RequestHeaders = {};
+    export type ResponseBody = any;
+  }
+}
 
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
@@ -5461,7 +8545,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "/v1.45";
+  public baseUrl: string = "/v1.47";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -5627,8 +8711,8 @@ export class HttpClient<SecurityDataType = unknown> {
 
 /**
  * @title Docker Engine API
- * @version 1.45
- * @baseUrl /v1.45
+ * @version 1.47
+ * @baseUrl /v1.47
  *
  * The Engine API is an HTTP API served by Docker Engine. It is the API the
  * Docker client uses to communicate with the Engine, so everything the Docker
@@ -5659,8 +8743,8 @@ export class HttpClient<SecurityDataType = unknown> {
  * the URL is not supported by the daemon, a HTTP `400 Bad Request` error message
  * is returned.
  *
- * If you omit the version-prefix, the current version of the API (v1.45) is used.
- * For example, calling `/info` is the same as calling `/v1.45/info`. Using the
+ * If you omit the version-prefix, the current version of the API (v1.47) is used.
+ * For example, calling `/info` is the same as calling `/v1.47/info`. Using the
  * API without a version-prefix is deprecated and will be removed in a future release.
  *
  * Engine releases in the near future should support this version of the API,
@@ -5756,7 +8840,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerListData, ErrorResponse>({
+      this.request<ContainerSummary[], ErrorResponse>({
         path: `/containers/json`,
         method: "GET",
         query: query,
@@ -5814,7 +8898,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerCreateData, ErrorResponse>({
+      this.request<ContainerCreateResponse, ErrorResponse>({
         path: `/containers/create`,
         method: "POST",
         query: query,
@@ -5843,7 +8927,62 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerInspectData, ErrorResponse>({
+      this.request<
+        {
+          /** The ID of the container */
+          Id?: string;
+          /** The time the container was created */
+          Created?: string;
+          /** The path to the command being run */
+          Path?: string;
+          /** The arguments to the command being run */
+          Args?: string[];
+          /**
+           * ContainerState stores container's running state. It's part of ContainerJSONBase
+           * and will be returned by the "inspect" command.
+           */
+          State?: ContainerState;
+          /** The container's image ID */
+          Image?: string;
+          ResolvConfPath?: string;
+          HostnamePath?: string;
+          HostsPath?: string;
+          LogPath?: string;
+          Name?: string;
+          RestartCount?: number;
+          Driver?: string;
+          Platform?: string;
+          MountLabel?: string;
+          ProcessLabel?: string;
+          AppArmorProfile?: string;
+          /** IDs of exec instances that are running in the container. */
+          ExecIDs?: string[] | null;
+          /** Container configuration that depends on the host we are running on */
+          HostConfig?: HostConfig;
+          /**
+           * Information about the storage driver used to store the container's and
+           * image's filesystem.
+           */
+          GraphDriver?: DriverData;
+          /**
+           * The size of files that have been created or changed by this
+           * container.
+           * @format int64
+           */
+          SizeRw?: number;
+          /**
+           * The total size of all the files in this container.
+           * @format int64
+           */
+          SizeRootFs?: number;
+          Mounts?: MountPoint[];
+          /** Configuration for a container that is portable between hosts. */
+          Config?: ContainerConfig;
+          /** NetworkSettings exposes the network settings in the API */
+          NetworkSettings?: NetworkSettings;
+        },
+        ErrorResponse
+      >({
         path: `/containers/${id}/json`,
         method: "GET",
         query: query,
@@ -5870,7 +9009,18 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerTopData, ErrorResponse>({
+      this.request<
+        {
+          /** The ps column titles */
+          Titles?: string[];
+          /**
+           * Each process running in the container, where each is process
+           * is an array of values corresponding to the titles.
+           */
+          Processes?: string[][];
+        },
+        ErrorResponse
+      >({
         path: `/containers/${id}/top`,
         method: "GET",
         query: query,
@@ -5928,7 +9078,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerLogsData, ErrorResponse>({
+      this.request<File, ErrorResponse>({
         path: `/containers/${id}/logs`,
         method: "GET",
         query: query,
@@ -5944,7 +9094,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/containers/{id}/changes
      */
     containerChanges: (id: string, params: RequestParams = {}) =>
-      this.request<ContainerChangesData, ErrorResponse>({
+      this.request<FilesystemChange[], ErrorResponse>({
         path: `/containers/${id}/changes`,
         method: "GET",
         format: "json",
@@ -5960,14 +9110,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/containers/{id}/export
      */
     containerExport: (id: string, params: RequestParams = {}) =>
-      this.request<ContainerExportData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/export`,
         method: "GET",
         ...params,
       }),
 
     /**
-     * @description This endpoint returns a live stream of a container’s resource usage statistics. The `precpu_stats` is the CPU statistic of the *previous* read, and is used to calculate the CPU usage percentage. It is not an exact copy of the `cpu_stats` field. If either `precpu_stats.online_cpus` or `cpu_stats.online_cpus` is nil then for compatibility with older daemons the length of the corresponding `cpu_usage.percpu_usage` array should be used. On a cgroup v2 host, the following fields are not set * `blkio_stats`: all fields other than `io_service_bytes_recursive` * `cpu_stats`: `cpu_usage.percpu_usage` * `memory_stats`: `max_usage` and `failcnt` Also, `memory_stats.stats` fields are incompatible with cgroup v1. To calculate the values shown by the `stats` command of the docker cli tool the following formulas can be used: * used_memory = `memory_stats.usage - memory_stats.stats.cache` * available_memory = `memory_stats.limit` * Memory usage % = `(used_memory / available_memory) * 100.0` * cpu_delta = `cpu_stats.cpu_usage.total_usage - precpu_stats.cpu_usage.total_usage` * system_cpu_delta = `cpu_stats.system_cpu_usage - precpu_stats.system_cpu_usage` * number_cpus = `lenght(cpu_stats.cpu_usage.percpu_usage)` or `cpu_stats.online_cpus` * CPU usage % = `(cpu_delta / system_cpu_delta) * number_cpus * 100.0`
+     * @description This endpoint returns a live stream of a container’s resource usage statistics. The `precpu_stats` is the CPU statistic of the *previous* read, and is used to calculate the CPU usage percentage. It is not an exact copy of the `cpu_stats` field. If either `precpu_stats.online_cpus` or `cpu_stats.online_cpus` is nil then for compatibility with older daemons the length of the corresponding `cpu_usage.percpu_usage` array should be used. On a cgroup v2 host, the following fields are not set * `blkio_stats`: all fields other than `io_service_bytes_recursive` * `cpu_stats`: `cpu_usage.percpu_usage` * `memory_stats`: `max_usage` and `failcnt` Also, `memory_stats.stats` fields are incompatible with cgroup v1. To calculate the values shown by the `stats` command of the docker cli tool the following formulas can be used: * used_memory = `memory_stats.usage - memory_stats.stats.cache` * available_memory = `memory_stats.limit` * Memory usage % = `(used_memory / available_memory) * 100.0` * cpu_delta = `cpu_stats.cpu_usage.total_usage - precpu_stats.cpu_usage.total_usage` * system_cpu_delta = `cpu_stats.system_cpu_usage - precpu_stats.system_cpu_usage` * number_cpus = `length(cpu_stats.cpu_usage.percpu_usage)` or `cpu_stats.online_cpus` * CPU usage % = `(cpu_delta / system_cpu_delta) * number_cpus * 100.0`
      *
      * @tags Container
      * @name ContainerStats
@@ -5992,7 +9142,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerStatsData, ErrorResponse>({
+      this.request<object, ErrorResponse>({
         path: `/containers/${id}/stats`,
         method: "GET",
         query: query,
@@ -6010,15 +9160,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     containerResize: (
       id: string,
-      query?: {
+      query: {
         /** Height of the TTY session in characters */
-        h?: number;
+        h: number;
         /** Width of the TTY session in characters */
-        w?: number;
+        w: number;
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerResizeData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/resize`,
         method: "POST",
         query: query,
@@ -6045,7 +9195,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerStartData, void | ErrorResponse>({
+      this.request<void, void | ErrorResponse>({
         path: `/containers/${id}/start`,
         method: "POST",
         query: query,
@@ -6070,7 +9220,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerStopData, void | ErrorResponse>({
+      this.request<void, void | ErrorResponse>({
         path: `/containers/${id}/stop`,
         method: "POST",
         query: query,
@@ -6095,7 +9245,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerRestartData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/restart`,
         method: "POST",
         query: query,
@@ -6121,7 +9271,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerKillData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/kill`,
         method: "POST",
         query: query,
@@ -6150,7 +9300,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerUpdateData, ErrorResponse>({
+      this.request<
+        {
+          Warnings?: string[];
+        },
+        ErrorResponse
+      >({
         path: `/containers/${id}/update`,
         method: "POST",
         body: update,
@@ -6175,7 +9330,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerRenameData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/rename`,
         method: "POST",
         query: query,
@@ -6191,7 +9346,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/containers/{id}/pause
      */
     containerPause: (id: string, params: RequestParams = {}) =>
-      this.request<ContainerPauseData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/pause`,
         method: "POST",
         ...params,
@@ -6206,7 +9361,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/containers/{id}/unpause
      */
     containerUnpause: (id: string, params: RequestParams = {}) =>
-      this.request<ContainerUnpauseData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/unpause`,
         method: "POST",
         ...params,
@@ -6264,7 +9419,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerAttachData, void | ErrorResponse>({
+      this.request<void, void | ErrorResponse>({
         path: `/containers/${id}/attach`,
         method: "POST",
         query: query,
@@ -6316,7 +9471,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerAttachWebsocketData, void | ErrorResponse>({
+      this.request<void, void | ErrorResponse>({
         path: `/containers/${id}/attach/ws`,
         method: "GET",
         query: query,
@@ -6344,7 +9499,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerWaitData, ErrorResponse>({
+      this.request<ContainerWaitResponse, ErrorResponse>({
         path: `/containers/${id}/wait`,
         method: "POST",
         query: query,
@@ -6381,7 +9536,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerDeleteData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}`,
         method: "DELETE",
         query: query,
@@ -6404,7 +9559,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerArchiveInfoData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/archive`,
         method: "HEAD",
         query: query,
@@ -6427,7 +9582,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerArchiveData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/archive`,
         method: "GET",
         query: query,
@@ -6462,7 +9617,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       inputStream: File,
       params: RequestParams = {},
     ) =>
-      this.request<PutContainerArchiveData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/containers/${id}/archive`,
         method: "PUT",
         query: query,
@@ -6491,7 +9646,18 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerPruneData, ErrorResponse>({
+      this.request<
+        {
+          /** Container IDs that were deleted */
+          ContainersDeleted?: string[];
+          /**
+           * Disk space reclaimed in bytes
+           * @format int64
+           */
+          SpaceReclaimed?: number;
+        },
+        ErrorResponse
+      >({
         path: `/containers/prune`,
         method: "POST",
         query: query,
@@ -6550,7 +9716,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ContainerExecData, ErrorResponse>({
+      this.request<IdResponse, ErrorResponse>({
         path: `/containers/${id}/exec`,
         method: "POST",
         body: execConfig,
@@ -6599,10 +9765,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
          * @default false
          */
         digests?: boolean;
+        /**
+         * Include `Manifests` in the image summary.
+         * @default false
+         */
+        manifests?: boolean;
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageListData, ErrorResponse>({
+      this.request<ImageSummary[], ErrorResponse>({
         path: `/images/json`,
         method: "GET",
         query: query,
@@ -6662,7 +9833,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageCreateData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/images/create`,
         method: "POST",
         query: query,
@@ -6680,7 +9851,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/images/{name}/json
      */
     imageInspect: (name: string, params: RequestParams = {}) =>
-      this.request<ImageInspectData, ErrorResponse>({
+      this.request<ImageInspect, ErrorResponse>({
         path: `/images/${name}/json`,
         method: "GET",
         format: "json",
@@ -6696,7 +9867,19 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/images/{name}/history
      */
     imageHistory: (name: string, params: RequestParams = {}) =>
-      this.request<ImageHistoryData, ErrorResponse>({
+      this.request<
+        {
+          Id: string;
+          /** @format int64 */
+          Created: number;
+          CreatedBy: string;
+          Tags: string[];
+          /** @format int64 */
+          Size: number;
+          Comment: string;
+        }[],
+        ErrorResponse
+      >({
         path: `/images/${name}/history`,
         method: "GET",
         format: "json",
@@ -6714,12 +9897,28 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     imagePush: (
       name: string,
       query?: {
-        /** The tag to associate with the image on the registry. */
+        /**
+         * Tag of the image to push. For example, `latest`. If no tag is provided,
+         * all tags of the given image that are present in the local image store
+         * are pushed.
+         */
         tag?: string;
+        /**
+         * JSON-encoded OCI platform to select the platform-variant to push.
+         * If not provided, all available variants will attempt to be pushed.
+         *
+         * If the daemon provides a multi-platform image store, this selects
+         * the platform-variant to push to the registry. If the image is
+         * a single-platform image, or if the multi-platform image does not
+         * provide a variant matching the given platform, an error is returned.
+         *
+         * Example: `{"os": "linux", "architecture": "arm", "variant": "v5"}`
+         */
+        platform?: string;
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImagePushData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/images/${name}/push`,
         method: "POST",
         query: query,
@@ -6744,7 +9943,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageTagData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/images/${name}/tag`,
         method: "POST",
         query: query,
@@ -6775,7 +9974,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageDeleteData, ErrorResponse>({
+      this.request<ImageDeleteResponseItem[], ErrorResponse>({
         path: `/images/${name}`,
         method: "DELETE",
         query: query,
@@ -6807,7 +10006,24 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageSearchData, ErrorResponse>({
+      this.request<
+        {
+          description?: string;
+          is_official?: boolean;
+          /**
+           * Whether this repository has automated builds enabled.
+           *
+           * <p><br /></p>
+           *
+           * > **Deprecated**: This field is deprecated and will always be "false".
+           * @example false
+           */
+          is_automated?: boolean;
+          name?: string;
+          star_count?: number;
+        }[],
+        ErrorResponse
+      >({
         path: `/images/search`,
         method: "GET",
         query: query,
@@ -6838,7 +10054,18 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImagePruneData, ErrorResponse>({
+      this.request<
+        {
+          /** Images that were deleted */
+          ImagesDeleted?: ImageDeleteResponseItem[];
+          /**
+           * Disk space reclaimed in bytes
+           * @format int64
+           */
+          SpaceReclaimed?: number;
+        },
+        ErrorResponse
+      >({
         path: `/images/prune`,
         method: "POST",
         query: query,
@@ -6855,7 +10082,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/images/{name}/get
      */
     imageGet: (name: string, params: RequestParams = {}) =>
-      this.request<ImageGetData, ErrorResponse>({
+      this.request<File, ErrorResponse>({
         path: `/images/${name}/get`,
         method: "GET",
         ...params,
@@ -6876,7 +10103,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageGetAllData, ErrorResponse>({
+      this.request<File, ErrorResponse>({
         path: `/images/get`,
         method: "GET",
         query: query,
@@ -6902,7 +10129,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageLoadData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/images/load`,
         method: "POST",
         query: query,
@@ -7016,7 +10243,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageBuildData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/build`,
         method: "POST",
         query: query,
@@ -7060,7 +10287,17 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<BuildPruneData, ErrorResponse>({
+      this.request<
+        {
+          CachesDeleted?: string[];
+          /**
+           * Disk space reclaimed in bytes
+           * @format int64
+           */
+          SpaceReclaimed?: number;
+        },
+        ErrorResponse
+      >({
         path: `/build/prune`,
         method: "POST",
         query: query,
@@ -7078,7 +10315,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/auth
      */
     systemAuth: (authConfig: AuthConfig, params: RequestParams = {}) =>
-      this.request<SystemAuthData, ErrorResponse>({
+      this.request<
+        {
+          /** The status of the authentication */
+          Status: string;
+          /** An opaque token used to authenticate a user after a successful login */
+          IdentityToken: string;
+        },
+        ErrorResponse
+      >({
         path: `/auth`,
         method: "POST",
         body: authConfig,
@@ -7097,7 +10342,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/info
      */
     systemInfo: (params: RequestParams = {}) =>
-      this.request<SystemInfoData, ErrorResponse>({
+      this.request<SystemInfo, ErrorResponse>({
         path: `/info`,
         method: "GET",
         format: "json",
@@ -7114,7 +10359,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/version
      */
     systemVersion: (params: RequestParams = {}) =>
-      this.request<SystemVersionData, ErrorResponse>({
+      this.request<SystemVersion, ErrorResponse>({
         path: `/version`,
         method: "GET",
         format: "json",
@@ -7131,7 +10376,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/_ping
      */
     systemPing: (params: RequestParams = {}) =>
-      this.request<SystemPingData, ErrorResponse>({
+      this.request<string, ErrorResponse>({
         path: `/_ping`,
         method: "GET",
         ...params,
@@ -7146,7 +10391,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request HEAD:/_ping
      */
     systemPingHead: (params: RequestParams = {}) =>
-      this.request<SystemPingHeadData, ErrorResponse>({
+      this.request<string, ErrorResponse>({
         path: `/_ping`,
         method: "HEAD",
         ...params,
@@ -7184,7 +10429,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ImageCommitData, ErrorResponse>({
+      this.request<IdResponse, ErrorResponse>({
         path: `/commit`,
         method: "POST",
         query: query,
@@ -7196,7 +10441,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   };
   events = {
     /**
-     * @description Stream real-time events from the server. Various objects within Docker report events when something happens to them. Containers report these events: `attach`, `commit`, `copy`, `create`, `destroy`, `detach`, `die`, `exec_create`, `exec_detach`, `exec_start`, `exec_die`, `export`, `health_status`, `kill`, `oom`, `pause`, `rename`, `resize`, `restart`, `start`, `stop`, `top`, `unpause`, `update`, and `prune` Images report these events: `delete`, `import`, `load`, `pull`, `push`, `save`, `tag`, `untag`, and `prune` Volumes report these events: `create`, `mount`, `unmount`, `destroy`, and `prune` Networks report these events: `create`, `connect`, `disconnect`, `destroy`, `update`, `remove`, and `prune` The Docker daemon reports these events: `reload` Services report these events: `create`, `update`, and `remove` Nodes report these events: `create`, `update`, and `remove` Secrets report these events: `create`, `update`, and `remove` Configs report these events: `create`, `update`, and `remove` The Builder reports `prune` events
+     * @description Stream real-time events from the server. Various objects within Docker report events when something happens to them. Containers report these events: `attach`, `commit`, `copy`, `create`, `destroy`, `detach`, `die`, `exec_create`, `exec_detach`, `exec_start`, `exec_die`, `export`, `health_status`, `kill`, `oom`, `pause`, `rename`, `resize`, `restart`, `start`, `stop`, `top`, `unpause`, `update`, and `prune` Images report these events: `create`, `delete`, `import`, `load`, `pull`, `push`, `save`, `tag`, `untag`, and `prune` Volumes report these events: `create`, `mount`, `unmount`, `destroy`, and `prune` Networks report these events: `create`, `connect`, `disconnect`, `destroy`, `update`, `remove`, and `prune` The Docker daemon reports these events: `reload` Services report these events: `create`, `update`, and `remove` Nodes report these events: `create`, `update`, and `remove` Secrets report these events: `create`, `update`, and `remove` Configs report these events: `create`, `update`, and `remove` The Builder reports `prune` events
      *
      * @tags System
      * @name SystemEvents
@@ -7231,7 +10476,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<SystemEventsData, ErrorResponse>({
+      this.request<EventMessage, ErrorResponse>({
         path: `/events`,
         method: "GET",
         query: query,
@@ -7255,7 +10500,17 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<SystemDataUsageData, ErrorResponse>({
+      this.request<
+        {
+          /** @format int64 */
+          LayersSize?: number;
+          Images?: ImageSummary[];
+          Containers?: ContainerSummary[];
+          Volumes?: Volume[];
+          BuildCache?: BuildCache[];
+        },
+        ErrorResponse
+      >({
         path: `/system/df`,
         method: "GET",
         query: query,
@@ -7288,7 +10543,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ExecStartData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/exec/${id}/start`,
         method: "POST",
         body: execStartConfig,
@@ -7306,15 +10561,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      */
     execResize: (
       id: string,
-      query?: {
+      query: {
         /** Height of the TTY session in characters */
-        h?: number;
+        h: number;
         /** Width of the TTY session in characters */
-        w?: number;
+        w: number;
       },
       params: RequestParams = {},
     ) =>
-      this.request<ExecResizeData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/exec/${id}/resize`,
         method: "POST",
         query: query,
@@ -7330,7 +10585,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/exec/{id}/json
      */
     execInspect: (id: string, params: RequestParams = {}) =>
-      this.request<ExecInspectData, ErrorResponse>({
+      this.request<
+        {
+          CanRemove?: boolean;
+          DetachKeys?: string;
+          ID?: string;
+          Running?: boolean;
+          ExitCode?: number;
+          ProcessConfig?: ProcessConfig;
+          OpenStdin?: boolean;
+          OpenStderr?: boolean;
+          OpenStdout?: boolean;
+          ContainerID?: string;
+          /** The system process ID for the exec process. */
+          Pid?: number;
+        },
+        ErrorResponse
+      >({
         path: `/exec/${id}/json`,
         method: "GET",
         format: "json",
@@ -7366,7 +10637,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<VolumeListData, ErrorResponse>({
+      this.request<VolumeListResponse, ErrorResponse>({
         path: `/volumes`,
         method: "GET",
         query: query,
@@ -7383,7 +10654,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/volumes/create
      */
     volumeCreate: (volumeConfig: VolumeCreateOptions, params: RequestParams = {}) =>
-      this.request<VolumeCreateData, ErrorResponse>({
+      this.request<Volume, ErrorResponse>({
         path: `/volumes/create`,
         method: "POST",
         body: volumeConfig,
@@ -7401,7 +10672,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/volumes/{name}
      */
     volumeInspect: (name: string, params: RequestParams = {}) =>
-      this.request<VolumeInspectData, ErrorResponse>({
+      this.request<Volume, ErrorResponse>({
         path: `/volumes/${name}`,
         method: "GET",
         format: "json",
@@ -7433,7 +10704,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<VolumeUpdateData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/volumes/${name}`,
         method: "PUT",
         query: query,
@@ -7461,7 +10732,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<VolumeDeleteData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/volumes/${name}`,
         method: "DELETE",
         query: query,
@@ -7489,7 +10760,18 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<VolumePruneData, ErrorResponse>({
+      this.request<
+        {
+          /** Volumes that were deleted */
+          VolumesDeleted?: string[];
+          /**
+           * Disk space reclaimed in bytes
+           * @format int64
+           */
+          SpaceReclaimed?: number;
+        },
+        ErrorResponse
+      >({
         path: `/volumes/prune`,
         method: "POST",
         query: query,
@@ -7529,7 +10811,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<NetworkListData, ErrorResponse>({
+      this.request<Network[], ErrorResponse>({
         path: `/networks`,
         method: "GET",
         query: query,
@@ -7558,7 +10840,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<NetworkInspectData, ErrorResponse>({
+      this.request<Network, ErrorResponse>({
         path: `/networks/${id}`,
         method: "GET",
         query: query,
@@ -7575,7 +10857,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request DELETE:/networks/{id}
      */
     networkDelete: (id: string, params: RequestParams = {}) =>
-      this.request<NetworkDeleteData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/networks/${id}`,
         method: "DELETE",
         ...params,
@@ -7596,11 +10878,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
          * @example "my_network"
          */
         Name: string;
-        /**
-         * Deprecated: CheckDuplicate is now always enabled.
-         * @example true
-         */
-        CheckDuplicate?: boolean;
         /**
          * Name of the network driver plugin to use.
          * @default "bridge"
@@ -7644,6 +10921,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         /** Optional custom IP scheme for the network. */
         IPAM?: IPAM;
         /**
+         * Enable IPv4 on the network.
+         * To disable IPv4, the daemon must be started with experimental features enabled.
+         * @example true
+         */
+        EnableIPv4?: boolean;
+        /**
          * Enable IPv6 on the network.
          * @example true
          */
@@ -7661,7 +10944,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<NetworkCreateData, ErrorResponse>({
+      this.request<NetworkCreateResponse, ErrorResponse>({
         path: `/networks/create`,
         method: "POST",
         body: networkConfig,
@@ -7688,7 +10971,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<NetworkConnectData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/networks/${id}/connect`,
         method: "POST",
         body: container,
@@ -7714,7 +10997,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<NetworkDisconnectData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/networks/${id}/disconnect`,
         method: "POST",
         body: container,
@@ -7743,7 +11026,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<NetworkPruneData, ErrorResponse>({
+      this.request<
+        {
+          /** Networks that were deleted */
+          NetworksDeleted?: string[];
+        },
+        ErrorResponse
+      >({
         path: `/networks/prune`,
         method: "POST",
         query: query,
@@ -7775,7 +11064,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<PluginListData, ErrorResponse>({
+      this.request<Plugin[], ErrorResponse>({
         path: `/plugins`,
         method: "GET",
         query: query,
@@ -7801,7 +11090,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<GetPluginPrivilegesData, ErrorResponse>({
+      this.request<PluginPrivilege[], ErrorResponse>({
         path: `/plugins/privileges`,
         method: "GET",
         query: query,
@@ -7835,7 +11124,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: PluginPrivilege[],
       params: RequestParams = {},
     ) =>
-      this.request<PluginPullData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/plugins/pull`,
         method: "POST",
         query: query,
@@ -7852,7 +11141,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/plugins/{name}/json
      */
     pluginInspect: (name: string, params: RequestParams = {}) =>
-      this.request<PluginInspectData, ErrorResponse>({
+      this.request<Plugin, ErrorResponse>({
         path: `/plugins/${name}/json`,
         method: "GET",
         format: "json",
@@ -7879,7 +11168,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<PluginDeleteData, ErrorResponse>({
+      this.request<Plugin, ErrorResponse>({
         path: `/plugins/${name}`,
         method: "DELETE",
         query: query,
@@ -7906,7 +11195,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<PluginEnableData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/plugins/${name}/enable`,
         method: "POST",
         query: query,
@@ -7929,7 +11218,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<PluginDisableData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/plugins/${name}/disable`,
         method: "POST",
         query: query,
@@ -7957,7 +11246,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: PluginPrivilege[],
       params: RequestParams = {},
     ) =>
-      this.request<PluginUpgradeData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/plugins/${name}/upgrade`,
         method: "POST",
         query: query,
@@ -7984,7 +11273,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       tarContext: File,
       params: RequestParams = {},
     ) =>
-      this.request<PluginCreateData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/plugins/create`,
         method: "POST",
         query: query,
@@ -8001,7 +11290,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/plugins/{name}/push
      */
     pluginPush: (name: string, params: RequestParams = {}) =>
-      this.request<PluginPushData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/plugins/${name}/push`,
         method: "POST",
         ...params,
@@ -8016,7 +11305,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/plugins/{name}/set
      */
     pluginSet: (name: string, body: string[], params: RequestParams = {}) =>
-      this.request<PluginSetData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/plugins/${name}/set`,
         method: "POST",
         body: body,
@@ -8050,7 +11339,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<NodeListData, ErrorResponse>({
+      this.request<Node[], ErrorResponse>({
         path: `/nodes`,
         method: "GET",
         query: query,
@@ -8067,7 +11356,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/nodes/{id}
      */
     nodeInspect: (id: string, params: RequestParams = {}) =>
-      this.request<NodeInspectData, ErrorResponse>({
+      this.request<Node, ErrorResponse>({
         path: `/nodes/${id}`,
         method: "GET",
         format: "json",
@@ -8093,7 +11382,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<NodeDeleteData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/nodes/${id}`,
         method: "DELETE",
         query: query,
@@ -8121,7 +11410,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: NodeSpec,
       params: RequestParams = {},
     ) =>
-      this.request<NodeUpdateData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/nodes/${id}/update`,
         method: "POST",
         query: query,
@@ -8140,7 +11429,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/swarm
      */
     swarmInspect: (params: RequestParams = {}) =>
-      this.request<SwarmInspectData, ErrorResponse>({
+      this.request<Swarm, ErrorResponse>({
         path: `/swarm`,
         method: "GET",
         format: "json",
@@ -8213,7 +11502,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<SwarmInitData, ErrorResponse>({
+      this.request<string, ErrorResponse>({
         path: `/swarm/init`,
         method: "POST",
         body: body,
@@ -8267,7 +11556,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<SwarmJoinData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/swarm/join`,
         method: "POST",
         body: body,
@@ -8294,7 +11583,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<SwarmLeaveData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/swarm/leave`,
         method: "POST",
         query: query,
@@ -8336,7 +11625,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: SwarmSpec,
       params: RequestParams = {},
     ) =>
-      this.request<SwarmUpdateData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/swarm/update`,
         method: "POST",
         query: query,
@@ -8354,7 +11643,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/swarm/unlockkey
      */
     swarmUnlockkey: (params: RequestParams = {}) =>
-      this.request<SwarmUnlockkeyData, ErrorResponse>({
+      this.request<
+        {
+          /** The swarm's unlock key. */
+          UnlockKey?: string;
+        },
+        ErrorResponse
+      >({
         path: `/swarm/unlockkey`,
         method: "GET",
         type: ContentType.Json,
@@ -8377,7 +11672,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<SwarmUnlockData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/swarm/unlock`,
         method: "POST",
         body: body,
@@ -8413,7 +11708,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ServiceListData, ErrorResponse>({
+      this.request<Service[], ErrorResponse>({
         path: `/services`,
         method: "GET",
         query: query,
@@ -8430,7 +11725,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/services/create
      */
     serviceCreate: (body: ServiceSpec & object, params: RequestParams = {}) =>
-      this.request<ServiceCreateData, ErrorResponse>({
+      this.request<ServiceCreateResponse, ErrorResponse>({
         path: `/services/create`,
         method: "POST",
         body: body,
@@ -8458,7 +11753,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ServiceInspectData, ErrorResponse>({
+      this.request<Service, ErrorResponse>({
         path: `/services/${id}`,
         method: "GET",
         query: query,
@@ -8475,7 +11770,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request DELETE:/services/{id}
      */
     serviceDelete: (id: string, params: RequestParams = {}) =>
-      this.request<ServiceDeleteData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/services/${id}`,
         method: "DELETE",
         ...params,
@@ -8516,7 +11811,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: ServiceSpec & object,
       params: RequestParams = {},
     ) =>
-      this.request<ServiceUpdateData, ErrorResponse>({
+      this.request<ServiceUpdateResponse, ErrorResponse>({
         path: `/services/${id}/update`,
         method: "POST",
         query: query,
@@ -8576,7 +11871,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ServiceLogsData, ErrorResponse>({
+      this.request<File, ErrorResponse>({
         path: `/services/${id}/logs`,
         method: "GET",
         query: query,
@@ -8611,7 +11906,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<TaskListData, ErrorResponse>({
+      this.request<Task[], ErrorResponse>({
         path: `/tasks`,
         method: "GET",
         query: query,
@@ -8628,7 +11923,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/tasks/{id}
      */
     taskInspect: (id: string, params: RequestParams = {}) =>
-      this.request<TaskInspectData, ErrorResponse>({
+      this.request<Task, ErrorResponse>({
         path: `/tasks/${id}`,
         method: "GET",
         format: "json",
@@ -8685,7 +11980,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<TaskLogsData, ErrorResponse>({
+      this.request<File, ErrorResponse>({
         path: `/tasks/${id}/logs`,
         method: "GET",
         query: query,
@@ -8718,7 +12013,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<SecretListData, ErrorResponse>({
+      this.request<Secret[], ErrorResponse>({
         path: `/secrets`,
         method: "GET",
         query: query,
@@ -8735,7 +12030,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/secrets/create
      */
     secretCreate: (body: SecretSpec & object, params: RequestParams = {}) =>
-      this.request<SecretCreateData, ErrorResponse>({
+      this.request<IdResponse, ErrorResponse>({
         path: `/secrets/create`,
         method: "POST",
         body: body,
@@ -8753,7 +12048,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/secrets/{id}
      */
     secretInspect: (id: string, params: RequestParams = {}) =>
-      this.request<SecretInspectData, ErrorResponse>({
+      this.request<Secret, ErrorResponse>({
         path: `/secrets/${id}`,
         method: "GET",
         format: "json",
@@ -8769,7 +12064,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request DELETE:/secrets/{id}
      */
     secretDelete: (id: string, params: RequestParams = {}) =>
-      this.request<SecretDeleteData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/secrets/${id}`,
         method: "DELETE",
         ...params,
@@ -8796,7 +12091,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: SecretSpec,
       params: RequestParams = {},
     ) =>
-      this.request<SecretUpdateData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/secrets/${id}/update`,
         method: "POST",
         query: query,
@@ -8831,7 +12126,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<ConfigListData, ErrorResponse>({
+      this.request<Config[], ErrorResponse>({
         path: `/configs`,
         method: "GET",
         query: query,
@@ -8848,7 +12143,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/configs/create
      */
     configCreate: (body: ConfigSpec & object, params: RequestParams = {}) =>
-      this.request<ConfigCreateData, ErrorResponse>({
+      this.request<IdResponse, ErrorResponse>({
         path: `/configs/create`,
         method: "POST",
         body: body,
@@ -8866,7 +12161,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/configs/{id}
      */
     configInspect: (id: string, params: RequestParams = {}) =>
-      this.request<ConfigInspectData, ErrorResponse>({
+      this.request<Config, ErrorResponse>({
         path: `/configs/${id}`,
         method: "GET",
         format: "json",
@@ -8882,7 +12177,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request DELETE:/configs/{id}
      */
     configDelete: (id: string, params: RequestParams = {}) =>
-      this.request<ConfigDeleteData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/configs/${id}`,
         method: "DELETE",
         ...params,
@@ -8909,7 +12204,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       body: ConfigSpec,
       params: RequestParams = {},
     ) =>
-      this.request<ConfigUpdateData, ErrorResponse>({
+      this.request<void, ErrorResponse>({
         path: `/configs/${id}/update`,
         method: "POST",
         query: query,
@@ -8928,7 +12223,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/distribution/{name}/json
      */
     distributionInspect: (name: string, params: RequestParams = {}) =>
-      this.request<DistributionInspectData, ErrorResponse>({
+      this.request<DistributionInspect, ErrorResponse>({
         path: `/distribution/${name}/json`,
         method: "GET",
         format: "json",

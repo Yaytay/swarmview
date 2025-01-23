@@ -1,4 +1,4 @@
-import { Config, ContainerInspectData, ContainerTopData, Network, Node, Secret, Service, SystemInfo, Task } from "./docker-schema";
+import { Containers, Config, Network, Node, Secret, Service, SystemInfo, Task } from "./docker-schema";
 
 class Cache {
   lastUpdate: Date = new Date()
@@ -21,8 +21,8 @@ class Cache {
 }
 
 export interface ContainerData {
-  container?: ContainerInspectData
-  , top?: ContainerTopData
+  container?: Containers.ContainerInspect.ResponseBody
+  , top?: Containers.ContainerTop.ResponseBody
 }
 
 export class DockerApi {

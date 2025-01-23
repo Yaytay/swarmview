@@ -1,5 +1,5 @@
 import { Check } from "./checks/checks";
-import { ContainerInspectData, ContainerTopData, SystemInfo, Task } from "./docker-schema";
+import { SystemInfo, Task } from "./docker-schema";
 import ChecksUi from "./ChecksUi";
 import { other_1_0_0_taskRestartPolicy } from "./checks/task-checks/other/1.0.0-task-restart-policy";
 import { other_1_0_1_taskRestartPolicyLimit } from "./checks/task-checks/other/1.0.1-task-restart-policy-limit";
@@ -19,6 +19,10 @@ import { cis_5_13_rootFsReadOnly } from "./checks/task-checks/cis/5.13-rootfs-re
 import { cis_5_14_exposeOnSpecificIp } from "./checks/task-checks/cis/5.14-expose-on-specific-ip";
 import { cis_5_15_restartOnFailure } from "./checks/task-checks/cis/5.15-restart-on-failure-max-5";
 import { cis_5_16_dontUseHostProcessNamespace } from "./checks/task-checks/cis/5.16-dont-use-host-process-namespace";
+import { cis_5_17_dontUseHostIpcNamespace } from "./checks/task-checks/cis/5.17-dont-use-host-ipc-namespace";
+import { cis_5_18_dontUseHostDevices } from "./checks/task-checks/cis/5.18-dont-use-host-devices";
+import { cis_5_19_override_default_ulimit } from "./checks/task-checks/cis/5.19-overdide-default-ulimit";
+import { cis_5_20_dont_mount_shared } from "./checks/task-checks/cis/5.20-dont-mount-shared";
 
 interface TaskChecksProps {
   task: Task
@@ -44,6 +48,10 @@ function TaskChecks(props: TaskChecksProps) {
     , cis_5_14_exposeOnSpecificIp
     , cis_5_15_restartOnFailure
     , cis_5_16_dontUseHostProcessNamespace
+    , cis_5_17_dontUseHostIpcNamespace
+    , cis_5_18_dontUseHostDevices
+    , cis_5_19_override_default_ulimit
+    , cis_5_20_dont_mount_shared
     , other_1_0_0_taskRestartPolicy
     , other_1_0_1_taskRestartPolicyLimit
     , other_1_0_2_taskRestartPolicyDelay
