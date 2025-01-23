@@ -28,6 +28,7 @@ const checkColumns: MRT_ColumnDef<CheckDetails>[] = [
   {
     accessorKey: 'result',
     header: 'RESULT',
+    filterVariant: 'select',
     size: 220,
   },
   {

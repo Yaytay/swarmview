@@ -15,6 +15,10 @@ import { cis_5_9_onlyExposeNeededPorts } from "./checks/task-checks/cis/5.9-only
 import { cis_5_10_dontUseHostNetworking } from "./checks/task-checks/cis/5.10-dont-user-host-networking";
 import { cis_5_11_limitMemory } from "./checks/task-checks/cis/5.11-limit-memory";
 import { cis_5_12_limitCpu } from "./checks/task-checks/cis/5.12-limit-cpu";
+import { cis_5_13_rootFsReadOnly } from "./checks/task-checks/cis/5.13-rootfs-read-only";
+import { cis_5_14_exposeOnSpecificIp } from "./checks/task-checks/cis/5.14-expose-on-specific-ip";
+import { cis_5_15_restartOnFailure } from "./checks/task-checks/cis/5.15-restart-on-failure-max-5";
+import { cis_5_16_dontUseHostProcessNamespace } from "./checks/task-checks/cis/5.16-dont-use-host-process-namespace";
 
 interface TaskChecksProps {
   task: Task
@@ -36,6 +40,10 @@ function TaskChecks(props: TaskChecksProps) {
     , cis_5_10_dontUseHostNetworking
     , cis_5_11_limitMemory
     , cis_5_12_limitCpu
+    , cis_5_13_rootFsReadOnly
+    , cis_5_14_exposeOnSpecificIp
+    , cis_5_15_restartOnFailure
+    , cis_5_16_dontUseHostProcessNamespace
     , other_1_0_0_taskRestartPolicy
     , other_1_0_1_taskRestartPolicyLimit
     , other_1_0_2_taskRestartPolicyDelay

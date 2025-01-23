@@ -5,7 +5,7 @@ export const cis_5_2_appArmorEnabled: Check = {
   , id: "5.2"
   , title: 'AppArmor Enabled'
   , description: "Ensure that, if applicable, an AppArmor Profile is enabled (Automated)"
-  , remediation: "If AppArmor is applicable for your Linux OS, you should enable it. Alternatively, Docker's default AppArmor policy can be used."
+  , remediation: `If AppArmor is applicable for your Linux OS, you should enable it. Alternatively, Docker's default AppArmor policy can be used.`
   , remediationImpact: "The container will have the security controls defined in the AppArmor profile. It should be noted that if the AppArmor profile is misconfigured, this may cause issues with the operation of the container."
   , reference: ''
 
@@ -23,8 +23,10 @@ export const cis_5_2_appArmorEnabled: Check = {
           state: args.task?.Spec?.ContainerSpec?.Privileges?.AppArmor.Mode == 'disabled' ? State.fail : State.pass
         }
       } else {
+        const isSwarm = args.container?.Config?.Labels?.hasOwnProperty('com.docker.stack.namespace')
+
         return {
-          state: State.warning
+          state: isSwarm ? State.info : State.fail
           , message: 'AppArmor not configured'
         }
       }
