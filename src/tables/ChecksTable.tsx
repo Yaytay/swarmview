@@ -17,19 +17,19 @@ const checkColumns: MRT_ColumnDef<CheckDetails>[] = [
   {
     accessorKey: 'id',
     header: 'ID',
-    size: 220,
+    size: 100,
   },
   {
     accessorKey: 'check',
     header: 'CHECK',
-    size: 220,
+    size: 300,
     Cell: ({ renderedCellValue, row }) => (<Tooltip placement="bottom-start" title={row.original.description}><span>{renderedCellValue}</span></Tooltip>)
   },
   {
     accessorKey: 'result',
     header: 'RESULT',
     filterVariant: 'select',
-    size: 220,
+    size: 160,
   },
   {
     accessorKey: 'value',

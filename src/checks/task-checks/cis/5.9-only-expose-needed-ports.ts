@@ -14,9 +14,16 @@ export const cis_5_9_onlyExposeNeededPorts: Check = {
     if (args.container) {
       const pb = args.container.HostConfig?.PortBindings
       if (pb) {
-        return {
-          state: State.info
-          , message: 'The following ports are exposed: ' + Object.keys(pb)
+        const keys = Object.keys(pb)
+        if (keys.length > 0) {
+          return {
+            state: State.info
+            , message: 'The following ports are exposed: ' + Object.keys(pb)
+          }
+        } else {
+          return {
+            state: State.pass
+          }
         }
       } else {
         return {

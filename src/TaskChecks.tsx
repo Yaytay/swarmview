@@ -1,8 +1,8 @@
 import { Check } from "./checks/checks";
-import { SystemInfo, Task } from "./docker-schema";
+import { Containers, SystemInfo, Task } from "./docker-schema";
 import ChecksUi from "./ChecksUi";
-import { other_1_0_0_taskRestartPolicy } from "./checks/task-checks/other/1.0.0-task-restart-policy";
-import { other_1_0_1_taskRestartPolicyLimit } from "./checks/task-checks/other/1.0.1-task-restart-policy-limit";
+import { other_1_0_0_capDropAll } from "./checks/task-checks/other/1.0.0-cap-drop-all";
+import { other_1_0_1_dontRunAsRoot } from "./checks/task-checks/other/1.0.1-dont-run-as-root";
 import { other_1_0_2_taskRestartPolicyDelay } from "./checks/task-checks/other/1.0.2-task-restart-policy-delay";
 import { cis_5_2_appArmorEnabled } from "./checks/task-checks/cis/5.2-app-armor-enabled";
 import { cis_5_3_seLinuxEnabled } from "./checks/task-checks/cis/5.3-selinux-enabled";
@@ -23,13 +23,20 @@ import { cis_5_17_dontUseHostIpcNamespace } from "./checks/task-checks/cis/5.17-
 import { cis_5_18_dontUseHostDevices } from "./checks/task-checks/cis/5.18-dont-use-host-devices";
 import { cis_5_19_override_default_ulimit } from "./checks/task-checks/cis/5.19-overdide-default-ulimit";
 import { cis_5_20_dont_mount_shared } from "./checks/task-checks/cis/5.20-dont-mount-shared";
+import { cis_5_21_dontUseHostUts } from "./checks/task-checks/cis/5.21-dont-use-host-uts";
+import { cis_5_22_dontDisableDefaultSeccomp } from "./checks/task-checks/cis/5.22-dont-disable-default-seccomp";
+import { cis_5_23_dontRunPrivileges } from "./checks/task-checks/cis/5.23-dont-run-privileged";
+import { cis_5_24_dontExecAsRoot } from "./checks/task-checks/cis/5.24-dont-exec-as-root";
+import { cis_5_25_ensureCgroupsConfirmed } from "./checks/task-checks/cis/5.25-ensure-cgroups-confirmed";
+import { cis_5_26_preventAdditionalPrivileges } from "./checks/task-checks/cis/5.26-prevent-additional-privileges";
 
 interface TaskChecksProps {
   task: Task
   , system?: SystemInfo
-  , container?: ContainerInspectData
-  , top?: ContainerTopData
+  , container?: Containers.ContainerInspect.ResponseBody
+  , top?: Containers.ContainerTop.ResponseBody
 }
+
 function TaskChecks(props: TaskChecksProps) {
 
   const checks: Check[] = [
@@ -52,8 +59,14 @@ function TaskChecks(props: TaskChecksProps) {
     , cis_5_18_dontUseHostDevices
     , cis_5_19_override_default_ulimit
     , cis_5_20_dont_mount_shared
-    , other_1_0_0_taskRestartPolicy
-    , other_1_0_1_taskRestartPolicyLimit
+    , cis_5_21_dontUseHostUts
+    , cis_5_22_dontDisableDefaultSeccomp
+    , cis_5_23_dontRunPrivileges
+    , cis_5_24_dontExecAsRoot
+    , cis_5_25_ensureCgroupsConfirmed
+    , cis_5_26_preventAdditionalPrivileges
+    , other_1_0_0_capDropAll
+    , other_1_0_1_dontRunAsRoot
     , other_1_0_2_taskRestartPolicyDelay
   ]
 
