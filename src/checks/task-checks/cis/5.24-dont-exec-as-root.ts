@@ -9,10 +9,11 @@ export const cis_5_24_dontExecAsRoot: Check = {
   , remediationImpact: ``
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: function (_: CheckArguments): CheckResult {
 
     return {
-      state: State.pass
+      state: State.info
+      , message: 'Cannot be tested'
     }
   }
 }

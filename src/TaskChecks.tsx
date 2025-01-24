@@ -29,6 +29,12 @@ import { cis_5_23_dontRunPrivileges } from "./checks/task-checks/cis/5.23-dont-r
 import { cis_5_24_dontExecAsRoot } from "./checks/task-checks/cis/5.24-dont-exec-as-root";
 import { cis_5_25_ensureCgroupsConfirmed } from "./checks/task-checks/cis/5.25-ensure-cgroups-confirmed";
 import { cis_5_26_preventAdditionalPrivileges } from "./checks/task-checks/cis/5.26-prevent-additional-privileges";
+import { cis_5_27_configureHealthCheck } from "./checks/task-checks/cis/5.27-configureHealthCheck";
+import { cis_5_28_useMostRecentImage } from "./checks/task-checks/cis/5.28-useMostRecentImage";
+import { cis_5_29_usePidsCgroupLimit } from "./checks/task-checks/cis/5.29-usePidsCgroupLimit";
+import { cis_5_30_dontUseDocker0Bridge } from "./checks/task-checks/cis/5.30-dontUseDocker0Bridge";
+import { cis_5_31_dontUseHostUserNamespace } from "./checks/task-checks/cis/5.31-dont-use-host-user-namespace";
+import { cis_5_32_dontMountDockerSocket } from "./checks/task-checks/cis/5.32-dont-mount-docker-socket";
 
 interface TaskChecksProps {
   task: Task
@@ -65,6 +71,12 @@ function TaskChecks(props: TaskChecksProps) {
     , cis_5_24_dontExecAsRoot
     , cis_5_25_ensureCgroupsConfirmed
     , cis_5_26_preventAdditionalPrivileges
+    , cis_5_27_configureHealthCheck
+    , cis_5_28_useMostRecentImage
+    , cis_5_29_usePidsCgroupLimit
+    , cis_5_30_dontUseDocker0Bridge
+    , cis_5_31_dontUseHostUserNamespace
+    , cis_5_32_dontMountDockerSocket
     , other_1_0_0_capDropAll
     , other_1_0_1_dontRunAsRoot
     , other_1_0_2_taskRestartPolicyDelay
