@@ -1,5 +1,5 @@
 import { Check } from "./checks/checks";
-import { Containers, SystemInfo, Task } from "./docker-schema";
+import { Containers, Service, SystemInfo, Task } from "./docker-schema";
 import ChecksUi from "./ChecksUi";
 import { other_1_0_0_capDropAll } from "./checks/task-checks/other/1.0.0-cap-drop-all";
 import { other_1_0_1_dontRunAsRoot } from "./checks/task-checks/other/1.0.1-dont-run-as-root";
@@ -39,6 +39,7 @@ import { other_1_0_3_taskUpdateConfig } from "./checks/task-checks/other/1.0.3-t
 
 interface TaskChecksProps {
   task: Task
+  , service?: Service
   , system?: SystemInfo
   , container?: Containers.ContainerInspect.ResponseBody
   , top?: Containers.ContainerTop.ResponseBody
@@ -84,7 +85,7 @@ function TaskChecks(props: TaskChecksProps) {
     , other_1_0_3_taskUpdateConfig
   ]
 
-  const args = { task: props.task, system: props.system, container: props.container, top: props.top }
+  const args = { task: props.task, service: props.service, system: props.system, container: props.container, top: props.top }
 
   return (
     <ChecksUi id='task.checks' checks={checks} args={args} />

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
-import { Task, Node, SystemInfo, ContainerInspectData, ContainerTopData } from './docker-schema';
+import { Task, Node, SystemInfo, Service } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
 import { Tabs, Tab } from '@mui/material';
@@ -33,6 +33,7 @@ function TaskUi(props: TaskUiProps) {
   const [networkDetails, setNetworkDetails] = useState<NetworkAttachmentDetails[]>([])
 
   const [task, setTask] = useState<Task | undefined>()
+  const [service, setService] = useState<Service | undefined>()
 
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map())
 
@@ -66,7 +67,9 @@ function TaskUi(props: TaskUiProps) {
       console.log(title)
       props.setTitle(title)
       setNodes(nodesById)
-
+      if (tsk?.ServiceID) {
+        setService(servicesById.get(tsk.ServiceID))
+      }
 
       let labels = [] as LabelDetails[]
       labels = createLabels(labels, task?.Labels, 'Task');
@@ -329,7 +332,7 @@ function TaskUi(props: TaskUiProps) {
         }
         {
           tab === 2 &&
-          <TaskChecks task={task} system={system} container={container} top={top} />
+          <TaskChecks task={task} service={service} system={system} container={container} top={top} />
         }
         {
           tab === 3 &&
