@@ -9,8 +9,6 @@ export interface CheckDetails {
   check: string
   description: string
   result?: string
-  value?: number
-  threshold?: number
   message?: string
 }
 const checkColumns: MRT_ColumnDef<CheckDetails>[] = [
@@ -30,16 +28,6 @@ const checkColumns: MRT_ColumnDef<CheckDetails>[] = [
     header: 'RESULT',
     filterVariant: 'select',
     size: 160,
-  },
-  {
-    accessorKey: 'value',
-    header: 'VALUE',
-    size: 100,
-  },
-  {
-    accessorKey: 'threshold',
-    header: 'THRESOLD',
-    size: 100,
   },
   {
     accessorKey: 'message',
@@ -85,8 +73,6 @@ export function createCheckDetails(check: Check, result: CheckResult): CheckDeta
     , check: check.title
     , description: check.description
     , result: result.state
-    , value: result.value
-    , threshold: result.threshold
     , message: result.message
   }
 }
