@@ -13,7 +13,7 @@ export const other_1_0_0_capDropAll: Check = {
 
     if (args.container) {
       if (args.container.HostConfig?.CapDrop && args.container.HostConfig?.CapDrop.length > 0) {
-        if (args.container.HostConfig?.CapDrop?.includes('all')) {
+        if (args.container.HostConfig?.CapDrop?.includes('ALL')) {
           if (args.container.HostConfig?.CapAdd && args.container.HostConfig?.CapAdd.length > 0) {
             return {
               state: State.fail
