@@ -13,6 +13,39 @@ docker run --detach --restart=on-failure:5 nginx`
 
   , evaluate: function (args: CheckArguments): CheckResult {
 
+    if (args.task) {
+      const rp = args.task?.Spec?.RestartPolicy;
+      if (rp) {
+        if (rp.Condition != 'on-failure') {
+          return {
+            state: State.fail
+            , message: 'task restart-policy configured with condition == ' + rp.Condition
+          }
+        }
+        if (!rp.MaxAttempts) {
+          return {
+            state: State.fail
+            , message: 'task restart-policy not configured with a maximum retry count'
+          }
+        }
+        if (rp.MaxAttempts < 5) {
+          return {
+            state: State.warning
+            , message: 'task restart-policy configured with a very low maximum retry count (' + rp.MaxAttempts + ')'
+          }
+        } else if (rp.MaxAttempts > 5) {
+          return {
+            state: State.warning
+            , message: 'task restart-policy configured with a high maximum retry count (' + rp.MaxAttempts + ')'
+          }
+        } else {
+          return {
+            state: State.pass
+          }
+        }
+      }
+    } 
+    
     if (args.container) {
       const rp = args.container.HostConfig?.RestartPolicy
 
@@ -20,24 +53,24 @@ docker run --detach --restart=on-failure:5 nginx`
         if (rp.Name == '') {
           return {
             state: State.fail
-            , message: 'restart-policy configured with no name'
+            , message: 'container restart-policy configured with no name'
           }
         } else if (rp.Name == "on-failure") {
           if (!rp.MaximumRetryCount) {
             return {
               state: State.fail
-              , message: 'restart-policy not configured with a maximum retry count'
+              , message: 'container restart-policy not configured with a maximum retry count'
             }
           }
           if (rp.MaximumRetryCount < 5) {
             return {
               state: State.warning
-              , message: 'restart-policy configured with a very low maximum retry count (' + rp.MaximumRetryCount + ')'
+              , message: 'container restart-policy configured with a very low maximum retry count (' + rp.MaximumRetryCount + ')'
             }
           } else if (rp.MaximumRetryCount > 5) {
             return {
               state: State.warning
-              , message: 'restart-policy configured with a high maximum retry count (' + rp.MaximumRetryCount + ')'
+              , message: 'container restart-policy configured with a high maximum retry count (' + rp.MaximumRetryCount + ')'
             }
           } else {
             return {
@@ -47,7 +80,7 @@ docker run --detach --restart=on-failure:5 nginx`
         } else {
           return {
             state: State.fail
-            , message: "restart-policy configured as '" + rp.Name + "'"
+            , message: "container restart-policy configured as '" + rp.Name + "'"
           }
         }
       } else {
