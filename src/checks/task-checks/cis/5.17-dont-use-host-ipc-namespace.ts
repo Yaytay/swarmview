@@ -19,7 +19,7 @@ export const cis_5_17_dontUseHostIpcNamespace: Check = {
         }
       } else if (args.container.HostConfig?.IpcMode) {
         return {
-          state: State.fail
+          state: State.info
           , message: "IPC mode set to '" + args.container.HostConfig?.IpcMode + "'"
         }
       } else {

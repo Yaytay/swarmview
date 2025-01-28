@@ -26,7 +26,7 @@ export const cis_5_4_kernelCapabilities: Check = {
           , message: 'Adds kernel capabilities: ' + args.container.HostConfig?.CapAdd?.join(', ')
         }
       } else {
-        if (args.container.HostConfig?.CapDrop?.find(cap => cap === 'NET_RAW')) {
+        if (args.container.HostConfig?.CapDrop?.find(cap => cap === 'NET_RAW') || args.container.HostConfig?.CapDrop?.find(cap => cap === 'ALL')) {
           return {
             state: State.pass
           }
