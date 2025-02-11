@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
-import { Task, Node, SystemInfo, Service } from './docker-schema';
+import { Task, Node, SystemInfo, Service, Containers } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
 import { Tabs, Tab } from '@mui/material';
@@ -38,8 +38,8 @@ function TaskUi(props: TaskUiProps) {
   const [nodes, setNodes] = useState<Map<string, Node>>(new Map())
 
   const [system, setSystem] = useState<SystemInfo | undefined>()
-  const [container, setContainer] = useState<ContainerInspectData | undefined>()
-  const [top, setTop] = useState<ContainerTopData | undefined>()
+  const [container, setContainer] = useState<Containers.ContainerInspect.ResponseBody | undefined>()
+  const [top, setTop] = useState<Containers.ContainerTop.ResponseBody | undefined>()
 
   const [tab, setTab] = useState(0)
 
