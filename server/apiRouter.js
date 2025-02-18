@@ -1,5 +1,6 @@
 import express from "express";
 import proxy from "express-http-proxy"
+import { performance } from "node:perf_hooks";
 import 'dotenv/config'
 
 const router = express.Router();
@@ -65,7 +66,7 @@ function getExportsForKnownImages(result, host) {
     .then(j => {
       const promises = []
       if (Array.isArray(j)) {
-        console.log('Found ' + j.length + ' images at ' + url)
+        // console.log('Found ' + j.length + ' images at ' + url)
         j.forEach(img => {
           if (img.Id) {
             promises.push(
@@ -118,7 +119,7 @@ function getContainerDetails(host, taskid) {
 
 function redirectServiceUrl(dockerProxyHost) {
   if (service_redirect && service_redirect[dockerProxyHost]) {
-    console.log('Using ' + service_redirect[dockerProxyHost] + ' instead of ' + dockerProxyHost)
+    // console.log('Using ' + service_redirect[dockerProxyHost] + ' instead of ' + dockerProxyHost)
     return service_redirect[dockerProxyHost]
   } else {
     return dockerProxyHost
@@ -184,7 +185,7 @@ class HttpError extends Error {
 
 // Return a promise containing the URL to use for a given node
 // The result cannot be (easily) cached because the proxy URL may change for a given node
-function getDockerApiUrlForNode(nodeid) {
+function getDockerApiEndpointForNode(nodeid) {
   if (!service) {
     return Promise.reject(new HttpError(404, 'Not configured for node-based data'))
   }
@@ -195,7 +196,6 @@ function getDockerApiUrlForNode(nodeid) {
   return Promise.all(promises)
       .then(results => results.find(Boolean))
       .then(url => {
-        console.log('Found', url)
         return url;
       })
       .catch(error => {
@@ -222,7 +222,7 @@ function getDockerApiUrlForNodeForGivenProxyUrl(nodeid, proxyUrl, proxyServiceNa
 }
 
 router.use('/api/system/:nodeid', (req, res) => {
-  return getDockerApiUrlForNode(req.params.nodeid)
+  return getDockerApiEndpointForNode(req.params.nodeid)
     .then(dockerProxyHost => getSystemInfo(dockerProxyHost))
     .then(j => res.status(200).send(j))
     .catch(ex => {
@@ -236,7 +236,7 @@ router.use('/api/system/:nodeid', (req, res) => {
 })
 
 router.use('/api/container/:nodeid/:taskid', (req, res) => {
-  return getDockerApiUrlForNode(req.params.nodeid)
+  return getDockerApiEndpointForNode(req.params.nodeid)
     .then(dockerProxyHost => getContainerDetails(dockerProxyHost, req.params.taskid))
     .then(j => res.status(200).send(j))
     .catch(ex => {
@@ -247,6 +247,222 @@ router.use('/api/container/:nodeid/:taskid', (req, res) => {
         res.status(500).send('Unable to get container details')
       }
     })
+})
+
+const permittedStandardLabels = new Set()
+permittedStandardLabels.add("com.docker.stack.namespace")
+permittedStandardLabels.add("com.docker.swarm.service.name")
+
+function buildStandardLabels(node, container) {
+  let labels = 'ctr_node="' + node.Description?.Hostname + '"'
+    + ',ctr_nodeid="' + node.ID + '"';
+  if (container.Labels) {
+    for (let [key, value] of Object.entries(container.Labels)) {
+      key = key.toLowerCase().replace(/[\s,=]+/g, '_').replace(/"/g, '')
+      if (permittedStandardLabels.has(key)) {
+        value = value.replace(/"/g, '')
+        labels = labels + ',ctr_label_' + key + '="' + value + '"' 
+      }
+    }
+  }
+  return labels
+}
+
+function getContainerStats(endpoint, containerId, startTime, node, container, stats) {
+  return fetch('http://' + endpoint + '/v1.45/containers/' + containerId + '/stats?stream=false&one-shot=true')
+    .then(r => r.json())
+    .then(cs => {
+      // console.log('Time to get stats for ' + containerId + ' from ' + endpoint + ': ' + (performance.now() - startTime))
+      let standardLabels = buildStandardLabels(node, container)
+
+      if (cs['blkio_stats']['io_service_bytes_recursive']) {
+        cs['blkio_stats']['io_service_bytes_recursive'].forEach(iosb => {
+          let op = iosb['op'].toLowerCase()
+          stats['ctr_blkio_stats_io_service_bytes_recursive_' + op].push(
+            'ctr_blkio_stats_io_service_bytes_recursive_' + op + '{' + standardLabels
+            + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"'
+            + '}="' + iosb['value'] + '"')
+        })
+      }
+      if (cs['blkio_stats']['io_service_recursive']) {
+        cs['blkio_stats']['io_service_recursive'].forEach(iosb => {
+          let op = iosb['op'].toLowerCase()
+          stats['ctr_blkio_stats_io_service_recursive_' + op].push(
+            'ctr_blkio_stats_io_service_recursive_' + op + '{' + standardLabels
+            + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"'
+            + '}="' + iosb['value'] + '"')
+        })
+      }
+      if (cs['cpu_stats']) {
+        let cpuStats = cs['cpu_stats']
+        if (cpuStats['cpu_usage']) {
+          let cpuUsage = cpuStats['cpu_usage']
+          stats['ctr_cpu_usage_total'].push(
+            'ctr_cpu_usage_total{' + standardLabels
+            + '}=' + cpuUsage['total_usage'])
+          stats['ctr_cpu_usage_kernelmode'].push(
+            'ctr_cpu_usage_kernelmode{' + standardLabels
+            + '}=' + cpuUsage['usage_in_kernelmode'])
+          stats['ctr_cpu_usage_usermode'].push(
+            'ctr_cpu_usage_usermode{' + standardLabels
+            + '}=' + cpuUsage['usage_in_usermode'])
+          if (cpuUsage['percpu_usage']) {
+            let perCpuUsage = cpuUsage['percpu_usage']
+            for (let i = 0; i < perCpuUsage.length; i++) {
+              stats['ctr_cpu_usage_percpu'].push(
+                'ctr_cpu_usage_percpu{' + standardLabels
+                + ',cpu="' + i.toString().padStart(2, '0')
+                + '}=' + perCpuUsage[i])
+                }
+          }
+        }
+      }
+    })
+}
+
+function getContainersStats(endpoint, startTime, node, stats) {
+  return fetch('http://' + endpoint + '/v1.45/containers/json')
+    .then(r => r.json())
+    .then(containers => {
+      console.log('Time to get containers from ' + endpoint + ': ' + (performance.now() - startTime))
+      const promises = []
+      if (Array.isArray(containers)) {
+        containers.forEach(container => {
+          promises.push(getContainerStats(endpoint, container.Id, startTime, node, container, stats))
+        })
+        return Promise.all(promises)
+      }
+    })
+}
+
+function getMetrics(serviceProxiesUrl, proxyServiceName, proxyServicePort, startTime, nodes, stats) {
+  return fetch(serviceProxiesUrl)
+    .then(r => r.json())
+    .then(dockerProxyTasks => {
+      console.log('Time to get docker proxy tasks from ' + serviceProxiesUrl + ': ' + (performance.now() - startTime))
+      const promises = []
+      if (Array.isArray(dockerProxyTasks)) {
+        dockerProxyTasks.forEach(dockerProxyTask => {
+          if (dockerProxyTask.ID && dockerProxyTask.NodeID && dockerProxyTask.Status.State === 'running') {
+            let node = nodes.find(n => n.ID === dockerProxyTask.NodeID);
+            let dockerProxyEndpoint = redirectServiceUrl(proxyServiceName + '.' + dockerProxyTask.NodeID + '.' + dockerProxyTask.ID + ':' + proxyServicePort)
+            promises.push(getContainersStats(dockerProxyEndpoint, startTime, node, stats))
+          }
+        })
+        return Promise.all(promises)
+      }
+    })
+}
+
+router.use('/metrics', (req, res) => {
+  let start = performance.now()
+  let stats = {
+    'ctr_blkio_stats_io_service_bytes_recursive_read': [
+      '# HELP ctr_blkio_stats_io_service_bytes_recursive_read count of bytes read by the container'
+      , '# TYPE ctr_blkio_stats_io_service_bytes_recursive_read counter'
+    ]
+    , 'ctr_blkio_stats_io_service_bytes_recursive_write': [
+      '# HELP ctr_blkio_stats_io_service_bytes_recursive_write count of bytes written by the container'
+      , '# TYPE ctr_blkio_stats_io_service_bytes_recursive_write counter'
+    ]
+    , 'ctr_blkio_stats_io_service_bytes_recursive_sync': [
+      '# HELP ctr_blkio_stats_io_service_bytes_recursive_sync count of bytes read or written by the container synchronously'
+      , '# TYPE ctr_blkio_stats_io_service_bytes_recursive_sync counter'
+    ]
+    , 'ctr_blkio_stats_io_service_bytes_recursive_async': [
+      '# HELP ctr_blkio_stats_io_service_bytes_recursive_async count of bytes read or written by the container asynchronously'
+      , '# TYPE ctr_blkio_stats_io_service_bytes_recursive_async counter'
+    ]
+    , 'ctr_blkio_stats_io_service_bytes_recursive_discard': [
+      '# HELP ctr_blkio_stats_io_service_bytes_recursive_discard count of I/O bytes discarded by the container'
+      , '# TYPE ctr_blkio_stats_io_service_bytes_recursive_discard counter'
+    ]
+    , 'ctr_blkio_stats_io_service_bytes_recursive_total': [
+      '# HELP ctr_blkio_stats_io_service_bytes_recursive_total count of I/O bytes by the container'
+      , '# TYPE ctr_blkio_stats_io_service_bytes_recursive_total counter'
+    ]
+    , 'ctr_blkio_stats_io_service_recursive_read': [
+      '# HELP ctr_blkio_stats_io_service_recursive_read count of reads by the container'
+      , '# TYPE ctr_blkio_stats_io_service_recursive_read counter'
+    ]
+    , 'ctr_blkio_stats_io_service_recursive_write': [
+      '# HELP ctr_blkio_stats_io_service_recursive_write count of writes by the container'
+      , '# TYPE ctr_blkio_stats_io_service_recursive_write counter'
+    ]
+    , 'ctr_blkio_stats_io_service_recursive_sync': [
+      '# HELP ctr_blkio_stats_io_service_recursive_sync count of synchronous I/O operations by the container'
+      , '# TYPE ctr_blkio_stats_io_service_recursive_sync counter'
+    ]
+    , 'ctr_blkio_stats_io_service_recursive_async': [
+      '# HELP ctr_blkio_stats_io_service_recursive_async count of asynchronous I/O operations by the container'
+      , '# TYPE ctr_blkio_stats_io_service_recursive_async counter'
+    ]
+    , 'ctr_blkio_stats_io_service_recursive_discard': [
+      '# HELP ctr_blkio_stats_io_service_recursive_discard count of I/O operations by the container that were discarded'
+      , '# TYPE ctr_blkio_stats_io_service_recursive_discard counter'
+    ]
+    , 'ctr_blkio_stats_io_service_recursive_total': [
+      '# HELP ctr_blkio_stats_io_service_recursive_total count of I/O operations by the container'
+      , '# TYPE ctr_blkio_stats_io_service_recursive_total counter'
+    ]
+
+    , 'ctr_cpu_usage_total': [
+      '# HELP ctr_cpu_usage_total total CPU time used by the container'
+      , '# TYPE ctr_cpu_usage_total counter'
+    ]
+    , 'ctr_cpu_usage_kernelmode': [
+      '# HELP ctr_cpu_usage_kernelmode CPU time in kernel mode used by the container'
+      , '# TYPE ctr_cpu_usage_kernelmode counter'
+    ]
+    , 'ctr_cpu_usage_usermode': [
+      '# HELP ctr_cpu_usage_usermode CPU time in user mode used by the container'
+      , '# TYPE ctr_cpu_usage_usermode counter'
+    ]
+    , 'ctr_cpu_usage_percpu': [
+      '# HELP ctr_cpu_usage_percpu CPU time used by the container on each CPU'
+      , '# TYPE ctr_cpu_usage_percpu counter'
+    ]
+  }
+
+  const promises = []
+  fetch('http://' + endpoint + '/v1.45/nodes')
+    .then(r => r.json())
+    .then(nodes => {
+      promises.push(getMetrics(serviceProxiesUrl, service, service_port, start, nodes, stats))
+      if (workersServiceProxiesUrl) {
+        promises.push(getMetrics(workersServiceProxiesUrl, workers_service, workers_service_port, start, nodes, stats))
+      }
+    
+      Promise.all(promises)
+          .then(results => {
+            console.log('Time to get stats: ' + (performance.now() - start))
+            res.status(200)
+            Object.values(stats).forEach(stat => {
+              console.log(stat[1])
+              stat.forEach(line => {
+                res.write(line)
+                res.write('\n')
+              })
+            })
+            res.end()
+          })
+          .catch(ex => {
+            console.log('Failed to get metrics: ', ex)
+            if (ex instanceof HttpError) {
+              res.status(ex.statusCode).send(ex.message)
+            } else {
+              res.status(500).send('Unable to get metrics')
+            }
+          })      
+    })
+    .catch(ex => {
+      console.log('Failed to get nodes: ', ex)
+      if (ex instanceof HttpError) {
+        res.status(ex.statusCode).send(ex.message)
+      } else {
+        res.status(500).send('Unable to get metrics')
+      }
+    })      
 })
 
 export default router;
