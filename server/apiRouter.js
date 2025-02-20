@@ -250,15 +250,15 @@ router.use('/api/container/:nodeid/:taskid', (req, res) => {
 })
 
 const permittedStandardLabels = new Set()
-permittedStandardLabels.add("com.docker.stack.namespace")
-permittedStandardLabels.add("com.docker.swarm.service.name")
+permittedStandardLabels.add("com_docker_stack_namespace")
+permittedStandardLabels.add("com_docker_swarm_service_name")
 
 function buildStandardLabels(node, container) {
   let labels = 'ctr_node="' + node.Description?.Hostname + '"'
     + ',ctr_nodeid="' + node.ID + '"';
   if (container.Labels) {
     for (let [key, value] of Object.entries(container.Labels)) {
-      key = key.toLowerCase().replace(/[\s,=]+/g, '_').replace(/"/g, '')
+      key = key.toLowerCase().replace(/[\s,=\.]+/g, '_').replace(/"/g, '')
       if (permittedStandardLabels.has(key)) {
         value = value.replace(/"/g, '')
         labels = labels + ',ctr_label_' + key + '="' + value + '"' 
