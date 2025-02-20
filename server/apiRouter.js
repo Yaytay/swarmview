@@ -582,6 +582,7 @@ router.use('/metrics', (req, res) => {
       Promise.all(promises)
           .then(results => {
             console.log('Time to get stats: ' + (performance.now() - start))
+            res.set('Content-Type', 'text/plain; version=0.0.4');
             res.status(200)
             Object.values(stats).forEach(stat => {
               console.log(stat[1])
