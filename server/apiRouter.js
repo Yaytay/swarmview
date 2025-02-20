@@ -275,47 +275,62 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
       // console.log('Time to get stats for ' + containerId + ' from ' + endpoint + ': ' + (performance.now() - startTime))
       let standardLabels = buildStandardLabels(node, container)
 
-      if (cs['blkio_stats']['io_service_bytes_recursive']) {
-        cs['blkio_stats']['io_service_bytes_recursive'].forEach(iosb => {
-          let op = iosb['op'].toLowerCase()
-          stats['ctr_blkio_stats_io_service_bytes_recursive_' + op].push(
-            'ctr_blkio_stats_io_service_bytes_recursive_' + op + '{' + standardLabels
-            + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"'
-            + '}="' + iosb['value'] + '"')
-        })
-      }
-      if (cs['blkio_stats']['io_service_recursive']) {
-        cs['blkio_stats']['io_service_recursive'].forEach(iosb => {
-          let op = iosb['op'].toLowerCase()
-          stats['ctr_blkio_stats_io_service_recursive_' + op].push(
-            'ctr_blkio_stats_io_service_recursive_' + op + '{' + standardLabels
-            + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"'
-            + '}="' + iosb['value'] + '"')
-        })
+      if (cs['blkio_stats']) {
+        if (cs['blkio_stats']['io_service_bytes_recursive']) {
+          cs['blkio_stats']['io_service_bytes_recursive'].forEach(iosb => {
+            let key = 'ctr_blkio_stats_io_service_bytes_recursive_' + iosb['op'].toLowerCase()
+            if (stats.hasOwnProperty(key)) {
+              stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '}="' + iosb['value'] + '"')
+            }
+          })
+        }
+        if (cs['blkio_stats']['io_service_recursive']) {
+          cs['blkio_stats']['io_service_recursive'].forEach(iosb => {
+            let key = 'ctr_blkio_stats_io_service_recursive_' + iosb['op'].toLowerCase()
+            if (stats.hasOwnProperty(key)) {
+              stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '}="' + iosb['value'] + '"')
+            }
+          })
+        }
       }
       if (cs['cpu_stats']) {
         let cpuStats = cs['cpu_stats']
         if (cpuStats['cpu_usage']) {
           let cpuUsage = cpuStats['cpu_usage']
-          stats['ctr_cpu_usage_total'].push(
-            'ctr_cpu_usage_total{' + standardLabels
-            + '}=' + cpuUsage['total_usage'])
-          stats['ctr_cpu_usage_kernelmode'].push(
-            'ctr_cpu_usage_kernelmode{' + standardLabels
-            + '}=' + cpuUsage['usage_in_kernelmode'])
-          stats['ctr_cpu_usage_usermode'].push(
-            'ctr_cpu_usage_usermode{' + standardLabels
-            + '}=' + cpuUsage['usage_in_usermode'])
+          stats['ctr_cpu_usage_total'].push('ctr_cpu_usage_total{' + standardLabels + '}=' + cpuUsage['total_usage'])
+          stats['ctr_cpu_usage_kernelmode'].push('ctr_cpu_usage_kernelmode{' + standardLabels + '}=' + cpuUsage['usage_in_kernelmode'])
+          stats['ctr_cpu_usage_usermode'].push('ctr_cpu_usage_usermode{' + standardLabels + '}=' + cpuUsage['usage_in_usermode'])
           if (cpuUsage['percpu_usage']) {
             let perCpuUsage = cpuUsage['percpu_usage']
             for (let i = 0; i < perCpuUsage.length; i++) {
-              stats['ctr_cpu_usage_percpu'].push(
-                'ctr_cpu_usage_percpu{' + standardLabels
-                + ',cpu="' + i.toString().padStart(2, '0')
-                + '}=' + perCpuUsage[i])
-                }
+              stats['ctr_cpu_usage_percpu'].push('ctr_cpu_usage_percpu{' + standardLabels + ',cpu="' + i.toString().padStart(2, '0') + '}=' + perCpuUsage[i])
+            }
           }
         }
+      }
+      if (cs['memory_stats']) {
+        let memStats = cs['memory_stats']
+        stats['ctr_memory_usage'].push('ctr_memory_usage{' + standardLabels + '}=' + memStats['usage'])
+        stats['ctr_memory_limit'].push('ctr_memory_limit{' + standardLabels + '}=' + memStats['usage'])
+        stats['ctr_memory_max_usage'].push('ctr_memory_max_usage{' + standardLabels + '}=' + memStats['max_usage'])
+        if (memStats['stats']) {
+          Object.entries(memStats['stats']).forEach(([stat, value]) => {
+            let key = 'ctr_memory_stats_' + stat.toLowerCase()
+            if (stats.hasOwnProperty(key)) {
+              stats[key].push(key + '{' + standardLabels + '}="' + value + '"')
+            }
+          })
+        }
+      }
+      if (cs['networks']) {
+        Object.entries(cs['networks']).forEach(([iface, ifaceStats]) => {
+          Object.entries(ifaceStats).forEach(([stat, value]) => {
+            let key = 'ctr_network_usage_' + stat.toLowerCase()
+            if (stats.hasOwnProperty(key)) {
+              stats[key].push(key + '{' + standardLabels + ',iface="' + iface + '"}="' + value + '"')
+            }
+          })
+        })
       }
     })
 }
@@ -421,6 +436,137 @@ router.use('/metrics', (req, res) => {
     , 'ctr_cpu_usage_percpu': [
       '# HELP ctr_cpu_usage_percpu CPU time used by the container on each CPU'
       , '# TYPE ctr_cpu_usage_percpu counter'
+    ]
+
+    , 'ctr_memory_usage': [
+      '# HELP ctr_memory_usage Memory used by the container (excludes page cache usage)'
+      , '# TYPE ctr_memory_usage guage'
+    ]
+
+    , 'ctr_memory_limit': [
+      '# HELP ctr_memory_limit Memory usage limit of the container, in bytes'
+      , '# TYPE ctr_memory_limit guage'
+    ]
+
+    , 'ctr_memory_max_usage': [
+      '# HELP ctr_memory_max_usage Maximum measured memory usage of the container, in bytes'
+      , '# TYPE ctr_memory_max_usage guage'
+    ]
+
+    , 'ctr_memory_stats_active_anon': [
+      '# HELP ctr_memory_stats_active_anon Amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages.'
+      , '# TYPE ctr_memory_stats_active_anon guage'
+    ]
+
+    , 'ctr_memory_stats_active_file': [
+      '# HELP ctr_memory_stats_active_file Amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs'
+      , '# TYPE ctr_memory_stats_active_file guage'
+    ]
+
+    , 'ctr_memory_stats_cache': [
+      '# HELP ctr_memory_stats_cache The amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs.'
+      , '# TYPE ctr_memory_stats_cache guage'
+    ]
+
+    , 'ctr_memory_stats_dirty': [
+      '# HELP ctr_memory_stats_dirty The amount of memory waiting to get written to disk'
+      , '# TYPE ctr_memory_stats_dirty guage'
+    ]
+
+    , 'ctr_memory_stats_hierarchical_memory_limit': [
+      '# HELP ctr_memory_stats_hierarchical_memory_limit The memory limit in place by the hierarchy cgroup'
+      , '# TYPE ctr_memory_stats_hierarchical_memory_limit guage'
+    ]
+
+    , 'ctr_memory_stats_hierarchical_memsw_limit': [
+      '# HELP ctr_memory_stats_hierarchical_memsw_limit The memory+swap limit in place by the hierarchy cgroup'
+      , '# TYPE ctr_memory_stats_hierarchical_memsw_limit guage'
+    ]
+
+    , 'ctr_memory_stats_inactive_anon': [
+      '# HELP ctr_memory_stats_inactive_anon Amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages.'
+      , '# TYPE ctr_memory_stats_inactive_anon guage'
+    ]
+
+    , 'ctr_memory_stats_inactive_file': [
+      '# HELP ctr_memory_stats_inactive_file Amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs'
+      , '# TYPE ctr_memory_stats_inactive_file guage'
+    ]
+    , 'ctr_memory_stats_mapped_file': [
+      '# HELP ctr_memory_stats_mapped_file Indicates the amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used.'
+      , '# TYPE ctr_memory_stats_mapped_file guage'
+    ]
+    , 'ctr_memory_stats_pgfault': [
+      '# HELP ctr_memory_stats_pgfault (cumulative) Number of times that a process of the cgroup triggered a page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info.'
+      , '# TYPE ctr_memory_stats_pgfault counter'
+    ]
+    , 'ctr_memory_stats_pgmajfault': [
+      '# HELP ctr_memory_stats_pgmajfault (cumulative) Number of times that a process of the cgroup triggered a major page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info.'
+      , '# TYPE ctr_memory_stats_pgmajfault counter'
+    ]
+    , 'ctr_memory_stats_pgpgin': [
+      '# HELP ctr_memory_stats_pgpgin (cumulative) Number of charging events to the memory cgroup. Charging events happen each time a page is accounted as either mapped anon page(RSS) or cache page to the cgroup.'
+      , '# TYPE ctr_memory_stats_pgpgin counter'
+    ]
+    , 'ctr_memory_stats_pgpgout': [
+      '# HELP ctr_memory_stats_pgpgout (cumulative) Number of uncharging events to the memory cgroup. Uncharging events happen each time a page is unaccounted from the cgroup.'
+      , '# TYPE ctr_memory_stats_pgpgout counter'
+    ]
+    , 'ctr_memory_stats_rss': [
+      '# HELP ctr_memory_stats_rss The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps.'
+      , '# TYPE ctr_memory_stats_rss guage'
+    ]
+    , 'ctr_memory_stats_rss_huge': [
+      '# HELP ctr_memory_stats_rss_huge Amount of memory due to anonymous transparent hugepages.'
+      , '# TYPE ctr_memory_stats_rss_huge guage'
+    ]
+    , 'ctr_memory_stats_shmem': [
+      '# HELP ctr_memory_stats_shmem Amount of Shared Memory used by the container, in bytes.'
+      , '# TYPE ctr_memory_stats_shmem guage'
+    ]
+    , 'ctr_memory_stats_swap': [
+      '# HELP ctr_memory_stats_swap Bytes of swap memory used by container'
+      , '# TYPE ctr_memory_stats_swap guage'
+    ]
+    , 'ctr_memory_stats_unevictable': [
+      '# HELP ctr_memory_stats_unevictable The amount of memory that cannot be reclaimed.'
+      , '# TYPE ctr_memory_stats_unevictable guage'
+    ]
+    , 'ctr_memory_stats_writeback': [
+      '# HELP ctr_memory_stats_writeback The amount of memory from file/anon cache that are queued for syncing to the disk'
+      , '# TYPE ctr_memory_stats_writeback guage'
+    ]
+    , 'ctr_network_usage_rx_bytes': [
+      '# HELP ctr_network_usage_rx_bytes Bytes received by the container via its network interface'
+      , '# TYPE ctr_network_usage_rx_bytes guage'
+    ]
+    , 'ctr_network_usage_rx_dropped': [
+      '# HELP ctr_network_usage_rx_dropped Number of inbound network packets dropped by the container'
+      , '# TYPE ctr_network_usage_rx_dropped guage'
+    ]
+    , 'ctr_network_usage_rx_errors': [
+      '# HELP ctr_network_usage_rx_errors Errors receiving network packets'
+      , '# TYPE ctr_network_usage_rx_errors guage'
+    ]
+    , 'ctr_network_usage_rx_packets': [
+      '# HELP ctr_network_usage_rx_packets Network packets received by the container via its network interface'
+      , '# TYPE ctr_network_usage_rx_packets guage'
+    ]
+    , 'ctr_network_usage_tx_bytes': [
+      '# HELP ctr_network_usage_tx_bytes Bytes sent by the container via its network interface'
+      , '# TYPE ctr_network_usage_tx_bytes guage'
+    ]
+    , 'ctr_network_usage_tx_dropped': [
+      '# HELP ctr_network_usage_tx_dropped Number of outbound network packets dropped by the container'
+      , '# TYPE ctr_network_usage_tx_dropped guage'
+    ]
+    , 'ctr_network_usage_tx_errors': [
+      '# HELP ctr_network_usage_tx_errors Errors sending network packets'
+      , '# TYPE ctr_network_usage_tx_errors guage'
+    ]
+    , 'ctr_network_usage_tx_packets': [
+      '# HELP ctr_network_usage_tx_packets Network packets sent by the container via its network interface'
+      , '# TYPE ctr_network_usage_tx_packets guage'
     ]
   }
 
