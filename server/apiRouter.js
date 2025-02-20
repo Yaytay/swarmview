@@ -280,7 +280,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
           cs['blkio_stats']['io_service_bytes_recursive'].forEach(iosb => {
             let key = 'ctr_blkio_stats_io_service_bytes_recursive_' + iosb['op'].toLowerCase()
             if (stats.hasOwnProperty(key)) {
-              stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '}="' + iosb['value'] + '"')
+              stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '} ' + iosb['value'])
             }
           })
         }
@@ -288,7 +288,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
           cs['blkio_stats']['io_service_recursive'].forEach(iosb => {
             let key = 'ctr_blkio_stats_io_service_recursive_' + iosb['op'].toLowerCase()
             if (stats.hasOwnProperty(key)) {
-              stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '}="' + iosb['value'] + '"')
+              stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '} ' + iosb['value'])
             }
           })
         }
@@ -297,27 +297,27 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
         let cpuStats = cs['cpu_stats']
         if (cpuStats['cpu_usage']) {
           let cpuUsage = cpuStats['cpu_usage']
-          stats['ctr_cpu_usage_total'].push('ctr_cpu_usage_total{' + standardLabels + '}=' + cpuUsage['total_usage'])
-          stats['ctr_cpu_usage_kernelmode'].push('ctr_cpu_usage_kernelmode{' + standardLabels + '}=' + cpuUsage['usage_in_kernelmode'])
-          stats['ctr_cpu_usage_usermode'].push('ctr_cpu_usage_usermode{' + standardLabels + '}=' + cpuUsage['usage_in_usermode'])
+          stats['ctr_cpu_usage_total'].push('ctr_cpu_usage_total{' + standardLabels + '} ' + cpuUsage['total_usage'])
+          stats['ctr_cpu_usage_kernelmode'].push('ctr_cpu_usage_kernelmode{' + standardLabels + '} ' + cpuUsage['usage_in_kernelmode'])
+          stats['ctr_cpu_usage_usermode'].push('ctr_cpu_usage_usermode{' + standardLabels + '} ' + cpuUsage['usage_in_usermode'])
           if (cpuUsage['percpu_usage']) {
             let perCpuUsage = cpuUsage['percpu_usage']
             for (let i = 0; i < perCpuUsage.length; i++) {
-              stats['ctr_cpu_usage_percpu'].push('ctr_cpu_usage_percpu{' + standardLabels + ',cpu="' + i.toString().padStart(2, '0') + '}=' + perCpuUsage[i])
+              stats['ctr_cpu_usage_percpu'].push('ctr_cpu_usage_percpu{' + standardLabels + ',cpu="' + i.toString().padStart(2, '0') + '} ' + perCpuUsage[i])
             }
           }
         }
       }
       if (cs['memory_stats']) {
         let memStats = cs['memory_stats']
-        stats['ctr_memory_usage'].push('ctr_memory_usage{' + standardLabels + '}=' + memStats['usage'])
-        stats['ctr_memory_limit'].push('ctr_memory_limit{' + standardLabels + '}=' + memStats['usage'])
-        stats['ctr_memory_max_usage'].push('ctr_memory_max_usage{' + standardLabels + '}=' + memStats['max_usage'])
+        stats['ctr_memory_usage'].push('ctr_memory_usage{' + standardLabels + '} ' + memStats['usage'])
+        stats['ctr_memory_limit'].push('ctr_memory_limit{' + standardLabels + '} ' + memStats['usage'])
+        stats['ctr_memory_max_usage'].push('ctr_memory_max_usage{' + standardLabels + '} ' + memStats['max_usage'])
         if (memStats['stats']) {
           Object.entries(memStats['stats']).forEach(([stat, value]) => {
             let key = 'ctr_memory_stats_' + stat.toLowerCase()
             if (stats.hasOwnProperty(key)) {
-              stats[key].push(key + '{' + standardLabels + '}="' + value + '"')
+              stats[key].push(key + '{' + standardLabels + '} ' + value)
             }
           })
         }
@@ -327,7 +327,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
           Object.entries(ifaceStats).forEach(([stat, value]) => {
             let key = 'ctr_network_usage_' + stat.toLowerCase()
             if (stats.hasOwnProperty(key)) {
-              stats[key].push(key + '{' + standardLabels + ',iface="' + iface + '"}="' + value + '"')
+              stats[key].push(key + '{' + standardLabels + ',iface="' + iface + '"} ' + value)
             }
           })
         })
