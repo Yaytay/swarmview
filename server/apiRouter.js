@@ -297,9 +297,15 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
         let cpuStats = cs['cpu_stats']
         if (cpuStats['cpu_usage']) {
           let cpuUsage = cpuStats['cpu_usage']
-          stats['ctr_cpu_usage_total'].push('ctr_cpu_usage_total{' + standardLabels + '} ' + cpuUsage['total_usage'])
-          stats['ctr_cpu_usage_kernelmode'].push('ctr_cpu_usage_kernelmode{' + standardLabels + '} ' + cpuUsage['usage_in_kernelmode'])
-          stats['ctr_cpu_usage_usermode'].push('ctr_cpu_usage_usermode{' + standardLabels + '} ' + cpuUsage['usage_in_usermode'])
+          if (cpuUsage['total_usage']) {
+            stats['ctr_cpu_usage_total'].push('ctr_cpu_usage_total{' + standardLabels + '} ' + cpuUsage['total_usage'])
+          }
+          if (cpuUsage['usage_in_kernelmode']) {
+            stats['ctr_cpu_usage_kernelmode'].push('ctr_cpu_usage_kernelmode{' + standardLabels + '} ' + cpuUsage['usage_in_kernelmode'])
+          }
+          if (cpuUsage['usage_in_usermode']) {
+            stats['ctr_cpu_usage_usermode'].push('ctr_cpu_usage_usermode{' + standardLabels + '} ' + cpuUsage['usage_in_usermode'])
+          }
           if (cpuUsage['percpu_usage']) {
             let perCpuUsage = cpuUsage['percpu_usage']
             for (let i = 0; i < perCpuUsage.length; i++) {
@@ -310,9 +316,15 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
       }
       if (cs['memory_stats']) {
         let memStats = cs['memory_stats']
-        stats['ctr_memory_usage'].push('ctr_memory_usage{' + standardLabels + '} ' + memStats['usage'])
-        stats['ctr_memory_limit'].push('ctr_memory_limit{' + standardLabels + '} ' + memStats['usage'])
-        stats['ctr_memory_max_usage'].push('ctr_memory_max_usage{' + standardLabels + '} ' + memStats['max_usage'])
+        if (memStats['usage']) {
+          stats['ctr_memory_usage'].push('ctr_memory_usage{' + standardLabels + '} ' + memStats['usage'])
+        }
+        if (memStats['limit']) {
+          stats['ctr_memory_limit'].push('ctr_memory_limit{' + standardLabels + '} ' + memStats['limit'])
+        }
+        if (memStats['max_usage']) {
+          stats['ctr_memory_max_usage'].push('ctr_memory_max_usage{' + standardLabels + '} ' + memStats['max_usage'])
+        }
         if (memStats['stats']) {
           Object.entries(memStats['stats']).forEach(([stat, value]) => {
             let key = 'ctr_memory_stats_' + stat.toLowerCase()
