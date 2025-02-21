@@ -8,6 +8,16 @@ export const cis_5_12_limitCpu: Check = {
   , remediation: "You should manage the CPU runtime between your containers dependent on their priority within your organization. To do so start the container using the --cpu-shares argument."
   , remediationImpact: "If you do not correctly assign CPU thresholds, the container process may run out of resources and become unresponsive. If CPU resources on the host are not constrainted, CPU shares do not place any restrictions on individual resources."
   , reference: ''
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+      resources:
+        limits:
+          cpus: '1'
+  `
 
   , evaluate: function (args: CheckArguments): CheckResult {
 

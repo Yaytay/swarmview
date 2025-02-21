@@ -8,6 +8,18 @@ export const other_1_0_2_taskRestartPolicyDelay: Check = {
   , remediation: "Define a restart policy with a delay to control restart-loops"
   , remediationImpact: ""
   , reference: ''
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+        delay: 15s
+        window: 120s
+`
 
   , evaluate: function (args: CheckArguments): CheckResult {
 

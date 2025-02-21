@@ -8,6 +8,16 @@ export const cis_5_11_limitMemory: Check = {
   , remediation: "You should run the container with only as much memory as it requires by using the --memory argument."
   , remediationImpact: "If correct memory limits are not set on each container, one process can expand its usage and cause other containers to run out of resources."
   , reference: ''
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+      resources:
+        limits:
+          memory: 64M
+  `
 
   , evaluate: function (args: CheckArguments): CheckResult {
 

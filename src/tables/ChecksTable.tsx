@@ -2,7 +2,7 @@ import MaterialTable from '../MaterialTable';
 import { MRT_ColumnDef } from 'material-react-table';
 import { Dimensions } from '../app-types';
 import { Check, CheckResult, State } from '../checks/checks';
-import { Paper, Tooltip, Typography } from '@mui/material';
+import { Link, Paper, Tooltip, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useState } from 'react';
@@ -54,7 +54,7 @@ function CheckDialog(props: CheckDialogProps) {
     return (<></>)
   } else {
     return (
-      <Dialog onClose={handleClose} open={props.open}>
+      <Dialog onClose={handleClose} open={props.open} maxWidth='lg' >
         <DialogTitle>{props.check.id} {props.check.title}</DialogTitle>
           <Paper sx={{ padding: '0px 24px 16px 24px' }}>
             {props.check.description}
@@ -74,9 +74,17 @@ function CheckDialog(props: CheckDialogProps) {
             { props.check.example && (
               <>
               <Typography variant='h6' sx={{ marginTop: '16px' }}>Example</Typography>
-              <Typography>
+              <pre>
                 {props.check.example.trim()}
-              </Typography>
+              </pre>
+              </>
+            ) }
+            { props.check.reference && (
+              <>
+              <Typography variant='h6' sx={{ marginTop: '16px' }}>Reference</Typography>
+              <Link href={props.check.reference.trim()} >
+                {props.check.reference.trim()}
+              </Link>
               </>
             ) }
           </Paper>

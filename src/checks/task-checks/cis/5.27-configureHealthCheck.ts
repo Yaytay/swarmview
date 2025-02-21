@@ -8,6 +8,19 @@ export const cis_5_27_configureHealthCheck: Check = {
   , remediation: `You should run the container using the --health-cmd parameter.`
   , remediationImpact: ``
   , reference: ''
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+    healthcheck:
+      test: [ 'CMD', 'wget', 'http://localhost:8080/manage/health', '-q', '-O', '-' ]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+  `
 
   , evaluate: function (args: CheckArguments): CheckResult {
 

@@ -8,6 +8,16 @@ export const cis_5_19_override_default_ulimit: Check = {
   , remediation: "You should only override the default ulimit settings if needed in a specific case."
   , remediationImpact: `If ulimits are not set correctly, overutilization by individual containers could make the host system unusable.`
   , reference: ''
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+    ulimits:
+      nproc: 100
+      nofile: 1000
+  `
 
   , evaluate: function (args: CheckArguments): CheckResult {
 

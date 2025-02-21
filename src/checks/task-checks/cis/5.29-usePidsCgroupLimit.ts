@@ -21,7 +21,7 @@ export const cis_5_29_usePidsCgroupLimit: Check = {
       } else {
         return {
           state: isSwarm ? State.info : State.fail
-          , message: 'Do not use \'latest\' tag'
+          , message: 'PidsLimit not set'
         }
       }
     } else {

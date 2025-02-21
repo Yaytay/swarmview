@@ -8,7 +8,15 @@ export const other_1_0_0_capDropAll: Check = {
   , remediation: "Specify cap-drop=all and do not specify cap-add."
   , remediationImpact: ""
   , reference: ''
-
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+    cap_drop:
+    - ALL
+`
   , evaluate: function (args: CheckArguments): CheckResult {
 
     if (args.container) {

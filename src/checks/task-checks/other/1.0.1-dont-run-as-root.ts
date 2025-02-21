@@ -8,6 +8,14 @@ export const other_1_0_1_dontRunAsRoot: Check = {
   , remediation: "Specify the user in either the compose file or the dockerfile"
   , remediationImpact: ""
   , reference: ''
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+    user: <uid>>:<gid>
+`
 
   , evaluate: function (args: CheckArguments): CheckResult {
 

@@ -15,6 +15,17 @@ Example:
 Enable use --tmpfs for temporary file writes to /tmp
 Use Docker shared data volumes for persistent data writes`
   , reference: ''
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+    read_only: true
+    volumes:
+      - type: tmpfs
+        target: /tmp
+  `
 
   , evaluate: function (args: CheckArguments): CheckResult {
 

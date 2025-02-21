@@ -10,6 +10,18 @@ export const cis_5_15_restartOnFailure: Check = {
 docker run --detach --restart=on-failure:5 nginx`
   , remediationImpact: "If this option is set, a container will only attempt to restart itself 5 times."
   , reference: ''
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+        delay: 15s
+        window: 120s
+  `
 
   , evaluate: function (args: CheckArguments): CheckResult {
 

@@ -8,6 +8,17 @@ export const other_1_0_3_taskUpdateConfig: Check = {
   , remediation: "Define an update config"
   , remediationImpact: ""
   , reference: ''
+  , example: `
+services:
+  swarmview:
+    image: ...
+    deploy:
+      ...
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+`
 
   , evaluate: function (args: CheckArguments): CheckResult {
 
