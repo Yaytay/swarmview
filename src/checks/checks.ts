@@ -38,6 +38,7 @@ export interface Check {
   , remediation: string
   , remediationImpact: string
   , reference: string
+  , example?: string
 
   , evaluate(args: CheckArguments) : CheckResult
 }
