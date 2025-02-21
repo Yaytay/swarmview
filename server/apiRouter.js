@@ -205,7 +205,7 @@ function getDockerApiEndpointForNode(nodeid) {
 }
 
 function getDockerApiUrlForNodeForGivenProxyUrl(nodeid, proxyUrl, proxyServiceName, proxyServicePort) {
-  console.log(proxyUrl)
+  // console.log(proxyUrl)
   return fetch(proxyUrl)
     .then(r => r.json())
     .then(j => {
@@ -363,7 +363,7 @@ function getContainersStats(endpoint, startTime, node, stats) {
   return fetch('http://' + endpoint + '/v1.45/containers/json')
     .then(r => r.json())
     .then(containers => {
-      console.log('Time to get containers from ' + endpoint + ': ' + (performance.now() - startTime))
+      // console.log('Time to get containers from ' + endpoint + ': ' + (performance.now() - startTime))
       const promises = []
       if (Array.isArray(containers)) {
         containers.forEach(container => {
@@ -378,7 +378,7 @@ function getMetrics(serviceProxiesUrl, proxyServiceName, proxyServicePort, start
   return fetch(serviceProxiesUrl)
     .then(r => r.json())
     .then(dockerProxyTasks => {
-      console.log('Time to get docker proxy tasks from ' + serviceProxiesUrl + ': ' + (performance.now() - startTime))
+      // console.log('Time to get docker proxy tasks from ' + serviceProxiesUrl + ': ' + (performance.now() - startTime))
       const promises = []
       if (Array.isArray(dockerProxyTasks)) {
         dockerProxyTasks.forEach(dockerProxyTask => {
@@ -396,7 +396,6 @@ function getMetrics(serviceProxiesUrl, proxyServiceName, proxyServicePort, start
 router.use('/metrics', (req, res) => {
   let start = performance.now()
   let stats = newStats()
-  console.log(newStats)
 
   const promises = []
   fetch('http://' + endpoint + '/v1.45/nodes')
@@ -409,11 +408,10 @@ router.use('/metrics', (req, res) => {
     
       Promise.all(promises)
           .then(results => {
-            console.log('Time to get stats: ' + (performance.now() - start))
+            // console.log('Time to get stats: ' + (performance.now() - start))
             res.set('Content-Type', 'text/plain; version=0.0.4');
             res.status(200)
             Object.values(stats).forEach(stat => {
-              console.log(stat[1])
               stat.forEach(line => {
                 res.write(line)
                 res.write('\n')

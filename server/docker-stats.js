@@ -54,8 +54,6 @@ build(staticStats, 'ctr_network_usage_tx_dropped', 'counter', 'Number of outboun
 build(staticStats, 'ctr_network_usage_tx_errors', 'counter', 'Errors sending network packets')
 build(staticStats, 'ctr_network_usage_tx_packets', 'counter', 'Network packets sent by the container via its network interface')
 
-console.log(staticStats)
-
 export function newStats() {
   var stats = {}
   for (const key in staticStats) {
