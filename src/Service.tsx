@@ -3,7 +3,7 @@ import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Service } from './docker-schema';
+import { Containers, Service, SystemInfo, Task } from './docker-schema';
 import Section from './Section'
 import Grid from '@mui/material/Grid2';
 import Tabs from '@mui/material/Tabs';
@@ -18,6 +18,7 @@ import SecretsTable, { buildServicesBySecret, createSecretDetails, SecretDetails
 import ConfigsTable, { buildServicesByConfig, ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
 import NetworkAttachmentsTable, { createNetworkAttachmentDetails, NetworkAttachmentDetails } from './tables/NetworkAttachmentsTable';
 import SimpleTable from './SimpleTable';
+import TaskChecks from './TaskChecks';
 
 interface ServiceProps {
   baseUrl: string
@@ -41,9 +42,15 @@ function ServiceUi(props: ServiceProps) {
   const [secretDetails, setSecretDetails] = useState<SecretDetails[]>([])
   const [taskDetails, setTaskDetails] = useState<TaskDetails[]>([])
   
+  const [runningTasks, setRunningTasks] = useState<Task[]>([])
   const [mounts, setMounts] = useState<(string | undefined)[][]>([]) 
   const [resources, setResources] = useState<(string | number | null)[][]>([]) 
   const [ports, setPorts] = useState<(string | number | null | undefined)[][]>([]) 
+
+  // Values for TaskChecks
+  const [system, setSystem] = useState<SystemInfo | undefined>()
+  const [container, setContainer] = useState<Containers.ContainerInspect.ResponseBody | undefined>()
+  const [top, setTop] = useState<Containers.ContainerTop.ResponseBody | undefined>()
 
 
   const [reachGraph, setReachGraph] = useState<GraphData>({})
@@ -73,7 +80,6 @@ function ServiceUi(props: ServiceProps) {
         }
         return result
       }, new Map<string, Service>())
-
 
       const svc = services.find(svc => { return svc.ID === id })
       setService(svc)
@@ -127,6 +133,12 @@ function ServiceUi(props: ServiceProps) {
         }
         return result
       }, [] as TaskDetails[]))
+      setRunningTasks(tasks.reduce((result, current) => {
+        if (current.ServiceID === id && current.ID && current.Status?.State == 'running') {
+          result.push(current)
+        }
+        return result
+      }, [] as Task[]))
 
       setMounts(svc?.Spec?.TaskTemplate?.ContainerSpec?.Mounts?.map(mount => [ mount.Type, mount.Target, mount.Source, mount.ReadOnly ? 'true' : 'false' ]) || [])
 
@@ -200,6 +212,23 @@ function ServiceUi(props: ServiceProps) {
   }
     , [props, id])
 
+  useEffect(() => {
+    if (runningTasks && runningTasks.length > 0 && runningTasks[0].NodeID && runningTasks[0].ID) {
+      Promise.all([
+        props.docker.container(runningTasks[0].NodeID, runningTasks[0].ID)
+        , props.docker.system(runningTasks[0].NodeID)
+      ]).then(value => {
+        setContainer(value[0].container)
+        setTop(value[0].top)
+        setSystem(value[1])
+      })
+    } else {
+      setContainer(undefined)
+      setTop(undefined)
+      setSystem(undefined)
+    }
+  }, [runningTasks])
+
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
@@ -258,6 +287,7 @@ function ServiceUi(props: ServiceProps) {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={tab} onChange={handleTabChange} aria-label="Task tabs: Details, Logs, Raw">
           <Tab label="Details" />
+          <Tab label="Checks" />
           <Tab label="Logs" />
           <Tab label="Raw" />
           </Tabs>
@@ -365,13 +395,53 @@ function ServiceUi(props: ServiceProps) {
         }
         {
           tab === 1 &&
+          <Box sx={{height: '100%'}}>
+            <Box sx={{ flexGrow: 1 }}>
+            {
+              (runningTasks.length <= 0) &&
+                <Grid container spacing={2}>
+                  <Section id="service.checks.overview" heading="Overview" >
+                    This service has {runningTasks.length} running tasks, checks require running tasks.
+                  </Section>
+                </Grid>
+            }
+            {
+              (runningTasks.length == 1) &&
+                <Grid container spacing={2}>
+                  <Section id="service.checks.overview" heading="Overview" >
+                    This service has {runningTasks.length} running tasks, checks require running tasks.
+                  </Section>
+
+                  <TaskChecks task={runningTasks[0]} service={service} system={system} container={container} top={top} />
+                </Grid>
+            }
+            {
+              (runningTasks.length > 1) &&
+                <Grid container spacing={2}>
+                  <Section id="service.checks.overview" heading="Overview" >
+                    This service has {runningTasks.length} running tasks, checks are carried out using task {runningTasks[0].ID}.
+                    Please check specific tasks from the table below.
+                  </Section>
+
+                  <Section id="service.tasks" heading="Tasks" xs={12}>
+                    <TasksTable id="service.tasks.table" tasks={taskDetails} />
+                  </Section>
+
+                  <TaskChecks task={runningTasks[0]} service={service} system={system} container={container} top={top} />
+                </Grid>
+            }
+            </Box>
+          </Box>
+        }
+        {
+          tab === 2 &&
           <LogsView
             logsUrl={props.baseUrl + 'services/' + id + '/logs'}
             id='tasks.logs' 
             />
         }
         {
-          tab === 2 &&
+          tab === 3 &&
           <Box>
             <JSONPretty data={service} />
           </Box>
