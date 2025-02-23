@@ -17,6 +17,7 @@ const service_port = process.env.DOCKER_PROXY_SERVICE_PORT || '2375'
 const workers_service = process.env.DOCKER_PROXY_WORKERS_SERVICE
 const workers_service_port = process.env.DOCKER_PROXY_WORKERS_SERVICE_PORT || '2375'
 const service_redirect = JSON.parse(process.env.DOCKER_PROXY_SERVICE_REDIRECT || '{}')
+const prometheus_api_endpoint = process.env.PROMETHEUS_API_ENDPOINT
 
 if (!process.env.DOCKER_PROXY_SERVICE) {
   console.log('Set the environment variable DOCKER_PROXY_SERVICE to enable dynamic discovery of docker services.\n'
@@ -41,6 +42,20 @@ router.use('/docker', proxy(endpoint, {
     return res.status(status).send(String(err))
   }
 }))
+
+if (prometheus_api_endpoint) {
+  router.use('/prometheus', proxy(prometheus_api_endpoint, {
+    filter: (req) => {
+      console.log('Request to ' + req.url)
+      return req.method === 'GET'
+    }
+    , proxyErrorHandler: function(err, res) {  
+      let status = 500
+      console.log('Reporting err ' + err + ' as ' + status)
+      return res.status(status).send(String(err))
+    }
+  }))
+}
 
 // Get all the exports for one image
 function getExportsForImage(result, url) {
@@ -147,6 +162,16 @@ function getExportsFromAllDockerProxies(result, url, svc, port) {
       console.log('Failed to get ' + url + ': ', ex)
     })
 }
+
+router.use('/api/prometheus', (_, res) => {
+  if (prometheus_api_endpoint) {
+
+
+    res.status(200).send(prometheus_api_endpoint)
+  } else {
+    res.status(404).send('Not configured for prometheus')
+  }
+})
 
 router.use('/api/exposed', (_, res) => {
   if (!service) {

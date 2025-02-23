@@ -1,4 +1,5 @@
 import { Containers, Config, Network, Node, Secret, Service, SystemInfo, Task } from "./docker-schema";
+import { PrometheusResults } from "./prometheus";
 
 class Cache {
   lastUpdate: Date = new Date()
@@ -67,6 +68,36 @@ export class DockerApi {
 
   private getAll<Type>(path: string, type: string, queryString?: string): Promise<Type[]> {
     return this.get<Type[]>('docker/v1.45/' + path, type, queryString)
+  }
+
+  prometheusQueryRange(query : string, seconds : number): Promise<PrometheusResults | null> {
+    const endTime = Math.round(new Date().getTime() / 1000);
+    const startTime = endTime - seconds
+    const step = seconds / 1000
+
+    const url = this.baseUrl 
+        + 'prometheus/api/v1/query_range' 
+        + '?query=' + encodeURIComponent(query)
+        + '&start=' + encodeURIComponent(startTime)
+        + '&end=' + encodeURIComponent(endTime)
+        + '&step=' + encodeURIComponent(step)
+
+    return fetch(url)
+        .then(r => {
+          if (r.ok) {
+            return r.json();
+          } else {
+            console.log('Fetch failed: ', r)
+            return r.text().then(t => {
+              console.log(t)
+              throw new Error('Failed to get prometheus data :  (' + String(r.status) + ') ' + t)
+            })
+          }
+        })
+        .catch(reason => {
+          console.log('Failed to get prometheus API endpoint')
+          throw reason
+        })
   }
 
   clearCache() {

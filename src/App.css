@@ -109,3 +109,7 @@ div.MuiButtonBase-root.MuiAccordionSummary-root {
   min-height: 24px !important;
   padding-top: 4px;
 }
+
+div.MuiGrid2-container {
+  padding-bottom: 10px;
+}
