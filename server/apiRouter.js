@@ -335,18 +335,18 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
         if (cpuStats['cpu_usage']) {
           let cpuUsage = cpuStats['cpu_usage']
           if (cpuUsage['total_usage']) {
-            stats['ctr_cpu_usage_total'].push('ctr_cpu_usage_total{' + standardLabels + '} ' + cpuUsage['total_usage'])
+            stats['ctr_cpu_usage_total'].push('ctr_cpu_usage_total{' + standardLabels + '} ' + (cpuUsage['total_usage'] / 1000000000.0))
           }
           if (cpuUsage['usage_in_kernelmode']) {
-            stats['ctr_cpu_usage_kernelmode'].push('ctr_cpu_usage_kernelmode{' + standardLabels + '} ' + cpuUsage['usage_in_kernelmode'])
+            stats['ctr_cpu_usage_kernelmode'].push('ctr_cpu_usage_kernelmode{' + standardLabels + '} ' + (cpuUsage['usage_in_kernelmode'] / 1000000000.0))
           }
           if (cpuUsage['usage_in_usermode']) {
-            stats['ctr_cpu_usage_usermode'].push('ctr_cpu_usage_usermode{' + standardLabels + '} ' + cpuUsage['usage_in_usermode'])
+            stats['ctr_cpu_usage_usermode'].push('ctr_cpu_usage_usermode{' + standardLabels + '} ' + (cpuUsage['usage_in_usermode'] / 1000000000.0))
           }
           if (cpuUsage['percpu_usage']) {
             let perCpuUsage = cpuUsage['percpu_usage']
             for (let i = 0; i < perCpuUsage.length; i++) {
-              stats['ctr_cpu_usage_percpu'].push('ctr_cpu_usage_percpu{' + standardLabels + ',cpu="' + i.toString().padStart(2, '0') + '} ' + perCpuUsage[i])
+              stats['ctr_cpu_usage_percpu'].push('ctr_cpu_usage_percpu{' + standardLabels + ',cpu="' + i.toString().padStart(2, '0') + '} ' + (perCpuUsage[i] / 1000000000.0))
             }
           }
         }

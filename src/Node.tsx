@@ -171,8 +171,7 @@ if (!node) {
                   docker={props.docker}
                   promQuery={'rate(ctr_cpu_usage_total{ctr_nodeid="' + id + '",job="swarm_service"}[1m])'}
                   id='node.cpu'
-                  title='CPU Usage (seconds per minute)'
-                  scale={1000 * 1000000.0 / 60}
+                  title='CPU Usage (seconds per second)'
                   />
             </Grid>
           </Box>
