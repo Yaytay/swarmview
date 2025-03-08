@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
-import { Task, Node, SystemInfo, Service, Containers } from './docker-schema';
+import { Task, Node, SystemInfo, Service, Containers, Network } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
 import { Tabs, Tab } from '@mui/material';
@@ -40,6 +40,7 @@ function TaskUi(props: TaskUiProps) {
   const [system, setSystem] = useState<SystemInfo | undefined>()
   const [container, setContainer] = useState<Containers.ContainerInspect.ResponseBody | undefined>()
   const [top, setTop] = useState<Containers.ContainerTop.ResponseBody | undefined>()
+  const [networksById, setNetworksById] = useState<Map<string, Network>>()
 
   const [tab, setTab] = useState(0)
 
@@ -57,14 +58,14 @@ function TaskUi(props: TaskUiProps) {
     ]).then(value => {
       const tasks = value[0]
       const servicesById = value[1]
-      const networksById = value[2]
+      const netsById = value[2]
       const nodesById = value[3]
       const exposedPorts = value[4]
 
+      setNetworksById(netsById)
       const tsk = tasks.find(tsk => { return tsk.ID === id })
       setTask(tsk)
       const title = 'Task: ' + (tsk ? ((tsk.ServiceID && servicesById.get(tsk.ServiceID)?.Spec?.Name) ?? tsk.ServiceID) + '.' + (tsk.Slot ? tsk.Slot : tsk.NodeID) : id)
-      console.log(title)
       props.setTitle(title)
       setNodes(nodesById)
       if (tsk?.ServiceID) {
@@ -80,13 +81,13 @@ function TaskUi(props: TaskUiProps) {
       
       setNetworkDetails(task?.Spec?.Networks?.reduce((result, current) => {
         if (current.Target) {
-          const net = networksById.get(current.Target)          
+          const net = netsById.get(current.Target)          
           if (net) {
             result.push(
               createNetworkAttachmentDetails(
                 net
                 , service?.Spec?.TaskTemplate?.Networks?.find(nac => nac.Target === current.Target)
-                , Object.entries(container?.NetworkSettings?.Networks || {})?.find(entry => entry[1].NetworkID === current.Target)?.[1].IPAddress
+                , container?.NetworkSettings?.Networks ? container.NetworkSettings.Networks[net.Name || '']?.IPAddress : ''
               )
             )
           }
@@ -98,7 +99,7 @@ function TaskUi(props: TaskUiProps) {
         setServiceDetails([createServiceDetails(service, exposedPorts)])
       }
 
-      if (servicesById && networksById && task) {
+      if (servicesById && netsById && task) {
         const nodes: NetworkNode[] = []
         const edges: Edge[] = []
 
@@ -108,7 +109,7 @@ function TaskUi(props: TaskUiProps) {
           , group: 'base'
         })
         service?.Spec?.TaskTemplate?.Networks?.forEach(net => {
-          const netName = networksById.get(net.Target || '')?.Name || net.Target
+          const netName = netsById.get(net.Target || '')?.Name || net.Target
           nodes.push({
             id: net.Target
             , label: netName
@@ -168,26 +169,28 @@ function TaskUi(props: TaskUiProps) {
           setTop(value[0].top)
           setSystem(value[1])
 
-          setNetworkDetails(task?.Spec?.Networks?.reduce((result, current) => {
-            if (current.Target) {
-              const net = networksById.get(current.Target)          
-              if (net) {
-                result.push(
-                  createNetworkAttachmentDetails(
-                    net
-                    , service?.Spec?.TaskTemplate?.Networks?.find(nac => nac.Target === current.Target)
-                    , Object.entries(container?.NetworkSettings?.Networks || {})?.find(entry => entry[1].NetworkID === current.Target)?.[1].IPAddress
-                  )
-                )
-              }
-            }
-            return result
-          }, [] as NetworkAttachmentDetails[]) || [])    
         })
       }
     })
-
   }, [props, id])
+
+  useEffect(() => {
+    setNetworkDetails(task?.Spec?.Networks?.reduce((result, current) => {
+      if (current.Target) {
+        const net = networksById?.get(current.Target)          
+        if (net) {
+          result.push(
+            createNetworkAttachmentDetails(
+              net
+              , service?.Spec?.TaskTemplate?.Networks?.find(nac => nac.Target === current.Target)
+              , container?.NetworkSettings?.Networks ? container.NetworkSettings.Networks[net.Name || '']?.IPAddress : ''
+            )
+          )
+        }
+      }
+      return result
+    }, [] as NetworkAttachmentDetails[]) || [])    
+  }, [task, service, networksById, container])
 
   const reachOptions = {
     height: (500 * Math.log10(reachGraph.nodes?.length || 1)) + "px"
