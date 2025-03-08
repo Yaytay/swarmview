@@ -85,7 +85,8 @@ function TaskUi(props: TaskUiProps) {
             result.push(
               createNetworkAttachmentDetails(
                 net
-                , service?.Spec?.Networks?.find(nac => nac.Target === current.Target)
+                , service?.Spec?.TaskTemplate?.Networks?.find(nac => nac.Target === current.Target)
+                , Object.entries(container?.NetworkSettings?.Networks || {})?.find(entry => entry[1].NetworkID === current.Target)?.[1].IPAddress
               )
             )
           }
@@ -137,8 +138,6 @@ function TaskUi(props: TaskUiProps) {
             }
           })
         })
-        console.log(nodes)
-        console.log(edges)
         setReachGraph({ nodes: nodes, edges: edges })
       } else {
         setReachGraph({})
@@ -176,8 +175,8 @@ function TaskUi(props: TaskUiProps) {
                 result.push(
                   createNetworkAttachmentDetails(
                     net
-                    , service?.Spec?.Networks?.find(nac => nac.Target === current.Target)
-                    , Object.entries(container?.NetworkSettings?.Networks || {})?.find(entry => entry[1].NetworkID === current.Target)?.[1]
+                    , service?.Spec?.TaskTemplate?.Networks?.find(nac => nac.Target === current.Target)
+                    , Object.entries(container?.NetworkSettings?.Networks || {})?.find(entry => entry[1].NetworkID === current.Target)?.[1].IPAddress
                   )
                 )
               }

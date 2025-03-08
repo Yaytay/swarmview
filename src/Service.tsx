@@ -95,7 +95,14 @@ function ServiceUi(props: ServiceProps) {
           if (current.Target) {
             const net = networks.find(n => n.Id = current.Target)
             if (net) {
-              result.push(createNetworkAttachmentDetails(net, service?.Spec?.Networks?.find(nac => nac.Target == current.Target)))
+              const vip = service.Endpoint?.VirtualIPs?.find(vip => vip.NetworkID === current.Target)
+              result.push(
+                createNetworkAttachmentDetails(
+                  net
+                  , service?.Spec?.TaskTemplate?.Networks?.find(nac => nac.Target === current.Target)
+                  , vip?.Addr
+                )
+              )
             }
           }
           return result

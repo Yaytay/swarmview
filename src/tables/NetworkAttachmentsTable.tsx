@@ -71,13 +71,13 @@ function NetworkAttachmentsTable(props: NetworkAttachmentsTableProps) {
   )
 }
 
-export function createNetworkAttachmentDetails(net: Network, attachment?: NetworkAttachmentConfig, endpoint?: EndpointSettings): NetworkAttachmentDetails {
+export function createNetworkAttachmentDetails(net: Network, attachment?: NetworkAttachmentConfig, address?: string): NetworkAttachmentDetails {
 
   return {
     id: net.Id || ''
     , name: net.Name
-    , aliases: attachment?.Aliases?.join(', ') || ''
-    , address: endpoint?.IPAddress || ''
+    , aliases: [...new Set(attachment?.Aliases)].join(', ')
+    , address: address
     , driver: net.Driver
     , scope: net.Scope
     , encrypted: net?.Options?.encrypted
