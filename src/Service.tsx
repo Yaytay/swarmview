@@ -93,7 +93,8 @@ function ServiceUi(props: ServiceProps) {
       if (service?.Spec?.TaskTemplate?.Networks) {
         setNetworkDetails(service?.Spec?.TaskTemplate?.Networks.reduce((result, current) => {
           if (current.Target) {
-            const net = networks.find(n => n.Id = current.Target)
+            const net = networks.find(n => n.Id === current.Target)
+            console.log(net)
             if (net) {
               const vip = service.Endpoint?.VirtualIPs?.find(vip => vip.NetworkID === current.Target)
               result.push(
@@ -180,6 +181,13 @@ function ServiceUi(props: ServiceProps) {
           id: svc.ID
           , label: svc.Spec?.Name || svc.ID
           , group: 'base'
+          , borderWidth: 2
+          , font: {
+            size: 16
+          }
+          , x: 0
+          , y: 0
+          
         })
         svc?.Spec?.TaskTemplate?.Networks?.forEach(net => {
           const netName = networks.find(n => n.Id == net.Target)?.Name || net?.Target
@@ -198,9 +206,15 @@ function ServiceUi(props: ServiceProps) {
             if (svc.ID !== service?.ID) {
               const svcnet = svc.Spec?.TaskTemplate?.Networks?.find(n => n.Target == net.Target)
               if (svcnet) {
+
+                let title = svc?.Spec?.Name || svc?.ID
+                if (svcnet.Aliases) {
+                  title = title + ' (' + [...new Set(svcnet.Aliases)].join(', ') + ')'
+                }
+
                 nodes.push({
                   id: svc?.ID +'@' + net.Target
-                  , label: svc?.Spec?.Name || svc?.ID
+                  , label: title
                   , group: netName
                 })
                 edges.push({
