@@ -56,7 +56,7 @@ services:
         - traefik.http.routers.swarmview.entrypoints=internal
         - traefik.http.routers.swarmview.rule=Host(`swarmview`)
         - traefik.http.services.swarmview.loadbalancer.server.port=5173
-        - traefik.docker.network=monitoring-ingress
+        - traefik.swarm.network=monitoring-ingress
         - traefik.enable=true
     healthcheck:
       test: [ 'CMD', '/health' ]
