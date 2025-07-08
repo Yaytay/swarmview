@@ -10,7 +10,7 @@
   "dependencies": {
     "@types/node": "^22.13.13",
     "dotenv": "^16.4.7",
-    "express": "^5.0.1",
+    "express": "^5.1.0",
     "express-http-proxy": "^2.1.1",
     "morgan": "^1.10.0"
   },
