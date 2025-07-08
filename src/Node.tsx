@@ -5,7 +5,7 @@ import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
 import { Node, Task } from './docker-schema';
 import Section from './Section'
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import NodeChecks from './NodeChecks';

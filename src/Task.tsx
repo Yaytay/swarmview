@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Task, Node, SystemInfo, Service, Containers, Network } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';

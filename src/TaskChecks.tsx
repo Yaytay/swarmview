@@ -36,6 +36,8 @@ import { cis_5_30_dontUseDocker0Bridge } from "./checks/task-checks/cis/5.30-don
 import { cis_5_31_dontUseHostUserNamespace } from "./checks/task-checks/cis/5.31-dont-use-host-user-namespace";
 import { cis_5_32_dontMountDockerSocket } from "./checks/task-checks/cis/5.32-dont-mount-docker-socket";
 import { other_1_0_3_taskUpdateConfig } from "./checks/task-checks/other/1.0.3-task-update-config";
+import { other_1_0_4_only_one_replica } from "./checks/task-checks/other/1.0.4-only-one-replica";
+import { other_1_0_5_shutdown_grace_period } from "./checks/task-checks/other/1.0.5-shutdown-grace-period";
 
 interface TaskChecksProps {
   task: Task
@@ -83,6 +85,8 @@ function TaskChecks(props: TaskChecksProps) {
     , other_1_0_1_dontRunAsRoot
     , other_1_0_2_taskRestartPolicyDelay
     , other_1_0_3_taskUpdateConfig
+    , other_1_0_4_only_one_replica
+    , other_1_0_5_shutdown_grace_period
   ]
 
   const args = { task: props.task, service: props.service, system: props.system, container: props.container, top: props.top }
