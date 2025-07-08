@@ -38,6 +38,7 @@ import { cis_5_32_dontMountDockerSocket } from "./checks/task-checks/cis/5.32-do
 import { other_1_0_3_taskUpdateConfig } from "./checks/task-checks/other/1.0.3-task-update-config";
 import { other_1_0_4_only_one_replica } from "./checks/task-checks/other/1.0.4-only-one-replica";
 import { other_1_0_5_shutdown_grace_period } from "./checks/task-checks/other/1.0.5-shutdown-grace-period";
+import { other_1_0_6_hostname_specified } from "./checks/task-checks/other/1.0.6-hostname-specified";
 
 interface TaskChecksProps {
   task: Task
@@ -87,6 +88,7 @@ function TaskChecks(props: TaskChecksProps) {
     , other_1_0_3_taskUpdateConfig
     , other_1_0_4_only_one_replica
     , other_1_0_5_shutdown_grace_period
+    , other_1_0_6_hostname_specified
   ]
 
   const args = { task: props.task, service: props.service, system: props.system, container: props.container, top: props.top }
