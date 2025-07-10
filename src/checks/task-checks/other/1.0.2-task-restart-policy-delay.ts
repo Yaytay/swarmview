@@ -23,8 +23,8 @@ services:
 
   , evaluate: function (args: CheckArguments): CheckResult {
 
-    if (args.task) {
-      if (args.task?.Spec?.RestartPolicy?.Delay) {
+    if (args.service) {
+      if (args.service?.Spec?.TaskTemplate?.RestartPolicy?.Delay) {
         return {
           state: State.pass
           , value: args.task?.Spec?.RestartPolicy?.Delay
