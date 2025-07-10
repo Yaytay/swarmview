@@ -52,14 +52,16 @@ services:
       }
     }
 
-    if (!mode?.Replicated) {
+    const replicated = mode?.Replicated;
+
+    if (!replicated) {
       return {
         state: State.warning
         , message: 'Unrecognised service mode'
       }
     }
 
-    const replicas = mode?.Replicated.Replicas;
+    const replicas = replicated.Replicas;
 
     if (!replicas) {
       return {
