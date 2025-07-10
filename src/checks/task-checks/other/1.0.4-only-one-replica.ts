@@ -36,28 +36,30 @@ services:
       }
     }
 
-    if (service?.Spec?.Mode?.Global) {
+    const mode = service.Spec?.Mode;
+
+    if (mode?.Global) {
       return {
         state: State.pass
         , message: 'Global task, runs on all nodes'
       }
     }
 
-    if (service?.Spec?.Mode?.GlobalJob || service?.Spec?.Mode?.ReplicatedJob) {
+    if (mode?.GlobalJob || mode?.ReplicatedJob) {
       return {
         state: State.pass
         , message: 'Task is a job, resilience is not required'
       }
     }
 
-    if (!service?.Spec?.Mode?.Replicated) {
+    if (!mode?.Replicated) {
       return {
         state: State.warning
         , message: 'Unrecognised service mode'
       }
     }
 
-    const replicas = service?.Spec?.Mode?.Replicated.Replicas;
+    const replicas = mode?.Replicated.Replicas;
 
     if (!replicas) {
       return {
