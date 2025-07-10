@@ -25,6 +25,39 @@ services:
 
   , evaluate: function (args: CheckArguments): CheckResult {
 
+    if (args.service) {
+      const rp = args.service.Spec?.TaskTemplate?.RestartPolicy;
+      if (rp) {
+        if (rp.Condition != 'on-failure') {
+          return {
+            state: State.fail
+            , message: 'service restart-policy configured with condition == ' + rp.Condition
+          }
+        }
+        if (!rp.MaxAttempts) {
+          return {
+            state: State.fail
+            , message: 'service restart-policy not configured with a maximum retry count'
+          }
+        }
+        if (rp.MaxAttempts < 5) {
+          return {
+            state: State.warning
+            , message: 'service restart-policy configured with a very low maximum retry count (' + rp.MaxAttempts + ')'
+          }
+        } else if (rp.MaxAttempts > 5) {
+          return {
+            state: State.warning
+            , message: 'service restart-policy configured with a high maximum retry count (' + rp.MaxAttempts + ')'
+          }
+        } else {
+          return {
+            state: State.pass
+          }
+        }
+      }
+    } 
+    
     if (args.task) {
       const rp = args.task?.Spec?.RestartPolicy;
       if (rp) {
