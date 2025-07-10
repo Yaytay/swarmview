@@ -27,56 +27,58 @@ services:
       }
     }
 
-    if (!args.service) {
+    const service = args.service;
+
+    if (!service) {
       return {
         state: State.error
         , message: 'service not set'
       }
     }
 
-    if (args.service?.Spec?.Mode?.Global) {
+    if (service?.Spec?.Mode?.Global) {
       return {
         state: State.pass
         , message: 'Global task, runs on all nodes'
       }
     }
 
-    if (args.service?.Spec?.Mode?.GlobalJob || args.service?.Spec?.Mode?.ReplicatedJob) {
+    if (service?.Spec?.Mode?.GlobalJob || service?.Spec?.Mode?.ReplicatedJob) {
       return {
         state: State.pass
         , message: 'Task is a job, resilience is not required'
       }
     }
 
-    if (!args.service?.Spec?.Mode?.Replicated) {
+    if (!service?.Spec?.Mode?.Replicated) {
       return {
         state: State.warning
         , message: 'Unrecognised service mode'
       }
     }
 
-    if (!args.service?.Spec?.Mode?.Replicated.Replicas) {
+    if (!service?.Spec?.Mode?.Replicated.Replicas) {
       return {
         state: State.warning
-        , value: args.service?.Spec?.Mode?.Replicated.Replicas
+        , value: service?.Spec?.Mode?.Replicated.Replicas
         , message: 'Service replicas not configured'
         , threshold: 2
       }
     }
 
-    if (args.service?.Spec?.Mode?.Replicated.Replicas < 2) {
+    if (service?.Spec?.Mode?.Replicated.Replicas < 2) {
       return {
         state: State.warning
-        , value: args.service?.Spec?.Mode?.Replicated.Replicas
-        , message: 'Service has ' + args.service?.Spec?.Mode?.Replicated.Replicas + ' replica'
-          + ((args.service?.Spec?.Mode?.Replicated.Replicas == 1) ? '' : 's')
+        , value: service?.Spec?.Mode?.Replicated.Replicas
+        , message: 'Service has ' + service?.Spec?.Mode?.Replicated.Replicas + ' replica'
+          + ((service?.Spec?.Mode?.Replicated.Replicas == 1) ? '' : 's')
         , threshold: 2
       }
     }
 
     return {
       state: State.pass
-      , value: args.service?.Spec?.Mode?.Replicated.Replicas
+      , value: service?.Spec?.Mode?.Replicated.Replicas
       , threshold: 2
     }
   }
