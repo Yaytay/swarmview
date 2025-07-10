@@ -57,28 +57,30 @@ services:
       }
     }
 
-    if (!service?.Spec?.Mode?.Replicated.Replicas) {
+    const replicas = service?.Spec?.Mode?.Replicated.Replicas;
+
+    if (!replicas) {
       return {
         state: State.warning
-        , value: service?.Spec?.Mode?.Replicated.Replicas
+        , value: replicas
         , message: 'Service replicas not configured'
         , threshold: 2
       }
     }
 
-    if (service?.Spec?.Mode?.Replicated.Replicas < 2) {
+    if (replicas < 2) {
       return {
         state: State.warning
-        , value: service?.Spec?.Mode?.Replicated.Replicas
-        , message: 'Service has ' + service?.Spec?.Mode?.Replicated.Replicas + ' replica'
-          + ((service?.Spec?.Mode?.Replicated.Replicas == 1) ? '' : 's')
+        , value: replicas
+        , message: 'Service has ' + replicas + ' replica'
+          + ((replicas == 1) ? '' : 's')
         , threshold: 2
       }
     }
 
     return {
       state: State.pass
-      , value: service?.Spec?.Mode?.Replicated.Replicas
+      , value: replicas
       , threshold: 2
     }
   }
