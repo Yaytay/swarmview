@@ -13,7 +13,7 @@
   "dependencies": {
     "@mui/system": "^7.2.0",
     "chart.js": "^4.5.0",
-    "dotenv": "^17.1.0",
+    "dotenv": "^17.2.0",
     "duration-fns": "^3.0.2",
     "install": "^0.13.0",
     "material-react-table": "^3.2.1",
