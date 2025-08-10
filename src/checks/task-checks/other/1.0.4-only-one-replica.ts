@@ -27,53 +27,65 @@ services:
       }
     }
 
-    if (args.service) {
-      if (args.service?.Spec?.Mode?.Replicated) {
-        if (args.service?.Spec?.Mode?.Replicated.Replicas) {
-          if (args.service?.Spec?.Mode?.Replicated.Replicas < 2 ) {
-            return {
-              state: State.warning
-              , value: args.service?.Spec?.Mode?.Replicated.Replicas
-              , message: 'Service has ' + args.service?.Spec?.Mode?.Replicated.Replicas + ' replica'
-                + ((args.service?.Spec?.Mode?.Replicated.Replicas == 1) ? '' : 's')
-              , threshold: 2
-            }
-          } else {
-            return {
-              state: State.pass
-              , value: args.service?.Spec?.Mode?.Replicated.Replicas
-              , threshold: 2
-            }
-          }
-        } else {
-          return {
-            state: State.warning
-            , value: args.service?.Spec?.Mode?.Replicated.Replicas
-            , message: 'Service replicas not configured'
-            , threshold: 2
-          }
-        }
-       } else if (args.service?.Spec?.Mode?.Global) {
-        return {
-          state: State.pass
-          , message: 'Global task, runs on all nodes'
-        }
-      } else if (args.service?.Spec?.Mode?.GlobalJob || args.service?.Spec?.Mode?.ReplicatedJob) {
-        return {
-          state: State.pass
-          , message: 'Task is a job, resilience is not required'
-        }
-      } else {
-        return {
-          state: State.warning
-          , message: 'Unrecognised service mode'
-        }
-      }
-    } else {
+    const service = args.service;
+
+    if (!service) {
       return {
         state: State.error
         , message: 'service not set'
       }
+    }
+
+    const mode = service.Spec?.Mode;
+
+    if (mode?.Global) {
+      return {
+        state: State.pass
+        , message: 'Global task, runs on all nodes'
+      }
+    }
+
+    if (mode?.GlobalJob || mode?.ReplicatedJob) {
+      return {
+        state: State.pass
+        , message: 'Task is a job, resilience is not required'
+      }
+    }
+
+    const replicated = mode?.Replicated;
+
+    if (!replicated) {
+      return {
+        state: State.warning
+        , message: 'Unrecognised service mode'
+      }
+    }
+
+    const replicas = replicated.Replicas;
+
+    if (!replicas) {
+      return {
+        state: State.warning
+        , value: replicas
+        , message: 'Service replicas not configured'
+        , threshold: 2
+      }
+    }
+
+    if (replicas < 2) {
+      return {
+        state: State.warning
+        , value: replicas
+        , message: 'Service has ' + replicas + ' replica'
+          + ((replicas == 1) ? '' : 's')
+        , threshold: 2
+      }
+    }
+
+    return {
+      state: State.pass
+      , value: replicas
+      , threshold: 2
     }
   }
 }
