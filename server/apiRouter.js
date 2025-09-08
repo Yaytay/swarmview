@@ -165,8 +165,6 @@ function getExportsFromAllDockerProxies(result, url, svc, port) {
 
 router.use('/api/prometheus', (_, res) => {
   if (prometheus_api_endpoint) {
-
-
     res.status(200).send(prometheus_api_endpoint)
   } else {
     res.status(404).send('Not configured for prometheus')
@@ -309,7 +307,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
   return fetch('http://' + endpoint + '/v1.45/containers/' + containerId + '/stats?stream=false&one-shot=true')
     .then(r => r.json())
     .then(cs => {
-      // console.log('Time to get stats for ' + containerId + ' from ' + endpoint + ': ' + (performance.now() - startTime))
+      console.log('Time to get stats for ' + containerId + ' from ' + endpoint + ': ' + (performance.now() - startTime))
       let standardLabels = buildStandardLabels(node, container)
 
       if (cs['blkio_stats']) {
