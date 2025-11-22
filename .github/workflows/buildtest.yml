@@ -29,6 +29,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
 
+    - name: Ensure correct npm version
+      run: npm install -g npm@11.6.3
+
     - name: Build UI
       run: |
         sed -i 's#<meta name="version" content="" />#<meta name="version" content="'${GITHUB_REF_NAME}'@'${GITHUB_SHA}'" />#' index.html
