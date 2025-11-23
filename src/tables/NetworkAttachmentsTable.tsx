@@ -1,7 +1,7 @@
 import MaterialTable from '../MaterialTable';
 import { Link } from 'react-router-dom';
 import { MRT_ColumnDef } from 'material-react-table';
-import { EndpointSettings, Network, NetworkAttachmentConfig } from '../docker-schema';
+import { Network, NetworkAttachmentConfig } from '../docker-schema';
 import { Dimensions } from '../app-types';
 
 export interface NetworkAttachmentDetails {

@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { DockerApi } from './DockerApi';
 import NetworksTable, { createNetworkDetails, NetworkDetails } from './tables/NetworksTable';
 import { Dimensions } from './app-types';
+import { SetTitle } from './App';
 
 interface NetworksProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
   maxSize?: Dimensions

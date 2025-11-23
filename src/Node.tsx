@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SyntheticEvent } from 'react';
 import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
@@ -15,11 +15,12 @@ import LabelsTable, { createLabelDetails, LabelDetails } from './tables/LabelsTa
 import TasksTable, { createTaskDetails, processTaskDetailsSubRows, TaskDetails } from './tables/TasksTable';
 import PluginsTable, { createPluginDetails, PluginDetails } from './tables/PluginsTable';
 import PromChart from './PromChart';
+import { SetTitle } from './App';
 
 
 interface NodeProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
 }
@@ -105,7 +106,7 @@ function NodeUi(props: NodeProps) {
     , [props, id])
 
 
-const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+const handleTabChange = (_: SyntheticEvent, newValue: number) => {
   setTab(newValue);
 };
 

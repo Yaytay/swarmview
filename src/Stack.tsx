@@ -7,10 +7,11 @@ import { DockerApi } from './DockerApi';
 import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
 import TasksTable, { createTaskDetails, processTaskDetailsSubRows, TaskDetails } from './tables/TasksTable';
 import NetworksTable, { createNetworkDetails, NetworkDetails } from './tables/NetworksTable';
+import { SetTitle } from './App';
 
 interface StackUiProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
 }
@@ -80,7 +81,7 @@ function StackUi(props: StackUiProps) {
         )
       )
     })
-  }, [props])
+  }, [props, id])
 
   return (
     <Box>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SyntheticEvent } from 'react';
 import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
@@ -11,11 +11,12 @@ import Tab from '@mui/material/Tab';
 import { DockerApi } from './DockerApi';
 import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
 import KeyValueTable from './KeyValueTable';
+import { SetTitle } from './App';
 
 
 interface SecretProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
 }
@@ -59,9 +60,9 @@ function SecretUi(props: SecretProps) {
       }
     })
 
-  }, [props, id])
+  }, [props, id, secret?.ID, secret?.Spec?.Name])
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 

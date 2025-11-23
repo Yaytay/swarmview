@@ -30,6 +30,8 @@ function onlyDifferByFollow(a : LogsContentProps, b : LogsContentProps) {
   return (a.url === b.url && a.tail === b.tail && a.filter === b.filter)
 }
 
+let reader : ReadableStreamDefaultReader<Uint8Array> | undefined = undefined
+
 function LogsContent(props: LogsContentProps) {
   
   useEffect(() => {
@@ -71,8 +73,6 @@ function LogsContent(props: LogsContentProps) {
   const filterRegex = props.filter && parseRegex(props.filter)
 
   const textDecoder = new TextDecoder()
-
-  let reader : ReadableStreamDefaultReader<Uint8Array> | undefined = undefined
 
   function startProcessing() {
     let prevData: Uint8Array | null = null

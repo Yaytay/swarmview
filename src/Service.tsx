@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SyntheticEvent } from 'react';
 import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
@@ -19,10 +19,11 @@ import ConfigsTable, { buildServicesByConfig, ConfigDetails, createConfigDetails
 import NetworkAttachmentsTable, { createNetworkAttachmentDetails, NetworkAttachmentDetails } from './tables/NetworkAttachmentsTable';
 import SimpleTable from './SimpleTable';
 import TaskChecks from './TaskChecks';
+import { SetTitle } from './App';
 
 interface ServiceProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
 }
@@ -230,8 +231,7 @@ function ServiceUi(props: ServiceProps) {
         setReachGraph({})
       }
     })
-  }
-    , [props, id])
+  }, [props, id, service])
 
   useEffect(() => {
     if (runningTasks && runningTasks.length > 0 && runningTasks[0].NodeID && runningTasks[0].ID) {
@@ -248,9 +248,9 @@ function ServiceUi(props: ServiceProps) {
       setTop(undefined)
       setSystem(undefined)
     }
-  }, [runningTasks])
+  }, [props.docker, runningTasks])
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 
@@ -259,7 +259,6 @@ function ServiceUi(props: ServiceProps) {
   };
 
   const reachEvents = {
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
     doubleClick: (params : any) => {
       console.log(params)
       if (params.nodes.length == 1) {
@@ -292,7 +291,7 @@ function ServiceUi(props: ServiceProps) {
       Object.entries(service?.Spec?.Labels).forEach(e => {
         if (labelRe.test(e[0])) {
           let match
-          while(match = hostRe.exec(e[1])) {
+          while((match = hostRe.exec(e[1]))) {
             const proto = match[1].includes('.lb.') ? 'http://' : 'https://'
             result.push({link: proto + match[1], value: proto + match[1] })
           }

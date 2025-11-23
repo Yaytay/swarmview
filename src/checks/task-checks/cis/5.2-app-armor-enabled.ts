@@ -23,7 +23,7 @@ export const cis_5_2_appArmorEnabled: Check = {
           state: args.task?.Spec?.ContainerSpec?.Privileges?.AppArmor.Mode == 'disabled' ? State.fail : State.pass
         }
       } else {
-        const isSwarm = args.container?.Config?.Labels?.hasOwnProperty('com.docker.stack.namespace')
+        const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')
 
         return {
           state: isSwarm ? State.info : State.fail

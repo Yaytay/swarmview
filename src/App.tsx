@@ -41,7 +41,12 @@ import { Dimensions } from './app-types';
 const heightOffset = 128
 const widthOffset = 180
 
+// Define and export the function type
+// eslint-disable-next-line no-unused-vars
+export type SetTitle = (title : string) => void
+
 function App() {
+
 
   const baseUrl = ''
 
@@ -176,5 +181,3 @@ function App() {
 }
 
 export default App
-
-

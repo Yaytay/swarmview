@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { DockerApi } from './DockerApi';
 import NodesTable, { createNodeDetails, NodeDetails } from './tables/NodesTable';
 import { Dimensions } from './app-types';
+import { SetTitle } from './App';
 
 interface NodesProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
   maxSize?: Dimensions

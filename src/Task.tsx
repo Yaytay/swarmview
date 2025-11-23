@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SyntheticEvent } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { Task, Node, SystemInfo, Service, Containers, Network } from './docker-schema';
@@ -15,10 +15,11 @@ import SimpleTable from './SimpleTable';
 import LabelsTable, { LabelDetails, createLabels } from './tables/LabelsTable';
 import NetworkAttachmentsTable, { createNetworkAttachmentDetails, NetworkAttachmentDetails } from './tables/NetworkAttachmentsTable';
 import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
+import { SetTitle } from './App';
 
 interface TaskUiProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi  
   refresh: Date
 }
@@ -172,7 +173,7 @@ function TaskUi(props: TaskUiProps) {
         })
       }
     })
-  }, [props, id])
+  }, [props, id, container?.NetworkSettings?.Networks, task])
 
   useEffect(() => {
     setNetworkDetails(task?.Spec?.Networks?.reduce((result, current) => {
@@ -197,7 +198,6 @@ function TaskUi(props: TaskUiProps) {
   };
 
   const reachEvents = {
-    /* eslint-disable  @typescript-eslint/no-explicit-any */
     doubleClick: (params: any) => {
       console.log(params)
       if (params.nodes.length == 1) {
@@ -212,7 +212,7 @@ function TaskUi(props: TaskUiProps) {
     }
   };
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 

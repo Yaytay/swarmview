@@ -23,6 +23,8 @@ export const nodeMemorylimit : Check = {
         state: (args.node.Description?.Resources?.MemoryBytes || 0) > totalRequirement ? State.pass : State.fail
         , threshold: (args.node.Description?.Resources?.MemoryBytes || 0) / 1048576
         , value: totalRequirement / 1048576
+        , message: ((args.node.Description?.Resources?.MemoryBytes || 0) / 1048576) + "MB on node, " 
+              + (totalRequirement / 1048576) + "MB allocated"
       }
 
     } else {

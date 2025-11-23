@@ -22,19 +22,19 @@ interface KeyValueTableProps {
   kvTable?: boolean
   rows: (KeyValueTableValue)[][]
   sx?: SxProps<Theme>
-  rowStyle?: (row: KeyValueTableValue[]) => SxProps<Theme> | undefined
+  rowStyle?: (_: KeyValueTableValue[]) => SxProps<Theme> | undefined
 }
 
 interface KeyValueTableValueProps {
   value: KeyValueTableValue
 }
-function KeyValueTableValue(props: KeyValueTableValueProps) {
+function KeyValueTableValueComp(props: KeyValueTableValueProps) {
   if (!props.value) {
     return (<></>)
   } else if (Array.isArray(props.value)) {
     return (<>{
       props.value.map((member, index) => {
-        return (<KeyValueTableValue key={String(index)} value={member} />)
+        return (<KeyValueTableValueComp key={String(index)} value={member} />)
       })
     }</>)
   } else if (typeof props.value === 'object') {
@@ -62,10 +62,10 @@ function KeyValueTable(props: KeyValueTableProps) {
                 return (
                   <TableRow key={ir} sx={[...(Array.isArray(style) ? style : [style])]} >
                     <TableCell key={ir + '_0'} sx={{ verticalAlign: 'top'}}>
-                      <KeyValueTableValue value={r[0]} />
+                      <KeyValueTableValueComp value={r[0]} />
                     </TableCell>
                     <TableCell key={ir + '_1'} sx={{ verticalAlign: 'top'}}>
-                      <KeyValueTableValue value={r[1]} />
+                      <KeyValueTableValueComp value={r[1]} />
                     </TableCell>
                   </TableRow>
                 )

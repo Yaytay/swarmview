@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, SyntheticEvent, useState } from 'react'
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -21,7 +21,7 @@ function Section(props: SectionProps) {
   })
 
   const handleChange =
-    () => (_: React.SyntheticEvent, isExpanded: boolean) => {
+    () => (_: SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded);
       localStorage.setItem(props.id, isExpanded.toString());
     };

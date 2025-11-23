@@ -223,6 +223,7 @@ function getDockerApiEndpointForNode(nodeid) {
         return url;
       })
       .catch(error => {
+        console.log(error)
         throw new HttpError(404, 'Cannot find proxy service for node ' + nodeid);
       })
 }
@@ -293,7 +294,7 @@ function buildStandardLabels(node, container) {
 
   if (container.Labels) {
     for (let [key, value] of Object.entries(container.Labels)) {
-      key = key.toLowerCase().replace(/[\s,=\.]+/g, '_').replace(/"/g, '')
+      key = key.toLowerCase().replace(/[\s,=.]+/g, '_').replace(/"/g, '')
       if (permittedStandardLabels.has(key)) {
         value = value.replace(/"/g, '')
         labels = labels + ',ctr_label_' + key + '="' + value + '"' 
@@ -314,7 +315,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
         if (cs['blkio_stats']['io_service_bytes_recursive']) {
           cs['blkio_stats']['io_service_bytes_recursive'].forEach(iosb => {
             let key = 'ctr_blkio_stats_io_service_bytes_recursive_' + iosb['op'].toLowerCase()
-            if (stats.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(stats, key)) {
               stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '} ' + iosb['value'])
             }
           })
@@ -322,7 +323,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
         if (cs['blkio_stats']['io_service_recursive']) {
           cs['blkio_stats']['io_service_recursive'].forEach(iosb => {
             let key = 'ctr_blkio_stats_io_service_recursive_' + iosb['op'].toLowerCase()
-            if (stats.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(stats, key)) {
               stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '} ' + iosb['value'])
             }
           })
@@ -363,7 +364,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
         if (memStats['stats']) {
           Object.entries(memStats['stats']).forEach(([stat, value]) => {
             let key = 'ctr_memory_stats_' + stat.toLowerCase()
-            if (stats.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(stats, key)) {
               stats[key].push(key + '{' + standardLabels + '} ' + value)
             }
           })
@@ -373,7 +374,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
         Object.entries(cs['networks']).forEach(([iface, ifaceStats]) => {
           Object.entries(ifaceStats).forEach(([stat, value]) => {
             let key = 'ctr_network_usage_' + stat.toLowerCase()
-            if (stats.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(stats, key)) {
               stats[key].push(key + '{' + standardLabels + ',iface="' + iface + '"} ' + value)
             }
           })
@@ -430,8 +431,8 @@ router.use('/metrics', (req, res) => {
       }
     
       Promise.all(promises)
-          .then(results => {
-            // console.log('Time to get stats: ' + (performance.now() - start))
+          .then(() => {
+            console.log('Time to get stats: ' + (performance.now() - start))
             res.set('Content-Type', 'text/plain; version=0.0.4');
             res.status(200)
             Object.values(stats).forEach(stat => {

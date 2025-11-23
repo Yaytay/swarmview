@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { DockerApi } from './DockerApi';
 import StacksTable, { StackDetails } from './tables/StacksTable';
 import { Dimensions } from './app-types';
+import { SetTitle } from './App';
 
 interface StacksProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
   maxSize: Dimensions

@@ -16,7 +16,7 @@ interface SimpleTableProps {
   headers?: string[]
   rows: (SimpleTableValue)[][] | undefined
   sx?: SxProps<Theme>
-  rowStyle?: (row: SimpleTableValue[]) => SxProps<Theme> | undefined
+  rowStyle?: (_: SimpleTableValue[]) => SxProps<Theme> | undefined
 }
 
 function SimpleTable(props: SimpleTableProps) {

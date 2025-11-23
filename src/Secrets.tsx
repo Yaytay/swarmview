@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { DockerApi } from './DockerApi';
 import { Dimensions } from './app-types';
 import SecretsTable, { buildServicesBySecret, SecretDetails, createSecretDetails } from './tables/SecretsTable';
+import { SetTitle } from './App';
 
 interface SecretsProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
   maxSize: Dimensions
@@ -37,7 +38,7 @@ function Secrets(props: SecretsProps) {
           , [] as SecretDetails[])
       )
     })
-  }, [props.refresh])
+  }, [props])
 
   return (
     <SecretsTable id="secrets" secrets={secrets} border={true} maxSize={props.maxSize} />

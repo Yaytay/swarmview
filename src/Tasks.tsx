@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { DockerApi } from './DockerApi';
 import { Dimensions } from './app-types';
 import TasksTable, { createTaskDetails, processTaskDetailsSubRows, TaskDetails } from './tables/TasksTable';
+import { SetTitle } from './App';
 
 interface TasksProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
   maxSize: Dimensions

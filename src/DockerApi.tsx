@@ -26,12 +26,15 @@ export interface ContainerData {
   , top?: Containers.ContainerTop.ResponseBody
 }
 
+// eslint-disable-next-line no-unused-vars
+export type ErrorCallback = (err : string) => void
+
 export class DockerApi {
   baseUrl: string
   private cache: Cache
-  errorCallback: (err : string) => void
+  errorCallback: ErrorCallback
 
-  constructor(baseUrl: string, errorCallback: (err : string) => void) {
+  constructor(baseUrl: string, errorCallback: ErrorCallback) {
     this.baseUrl = baseUrl.endsWith('/') ? baseUrl : (baseUrl + '/')
     this.cache = new Cache()
     this.errorCallback = errorCallback

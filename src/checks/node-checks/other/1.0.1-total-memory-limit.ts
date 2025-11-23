@@ -26,6 +26,8 @@ export const swarmMemorylimit : Check = {
         state: totalNodes > totalRequirement ? State.pass : State.fail
         , threshold: totalNodes / 1048576
         , value: totalRequirement / 1048576
+        , message: (totalNodes / 1048576) + "MB on swarm, " 
+              + (totalRequirement / 1048576) + "MB allocated"
       }
 
     } else {

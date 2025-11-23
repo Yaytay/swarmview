@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { DockerApi } from './DockerApi';
 import { Dimensions } from './app-types';
 import ConfigsTable, { buildServicesByConfig, ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
+import { SetTitle } from './App';
 
 interface ConfigsProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
   maxSize: Dimensions
@@ -37,7 +38,7 @@ function Configs(props: ConfigsProps) {
           , [] as ConfigDetails[])
       )
     })
-  }, [props.refresh])
+  }, [props])
 
   return (
     <ConfigsTable id="configs" configs={configs} border={true} maxSize={props.maxSize} />

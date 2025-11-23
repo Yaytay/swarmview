@@ -11,7 +11,7 @@ export const cis_5_29_usePidsCgroupLimit: Check = {
 
   , evaluate: function (args: CheckArguments): CheckResult {
 
-    const isSwarm = args.container?.Config?.Labels?.hasOwnProperty('com.docker.stack.namespace')
+    const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
 
     if (args.container) {
       if (args.container?.HostConfig?.PidsLimit) {

@@ -14,7 +14,8 @@ docker run --rm -it --security-opt=no-new-privileges ubuntu bash`
   , evaluate: function (args: CheckArguments): CheckResult {
 
     if (args.container) {
-      if (args.container.Config?.Labels?.hasOwnProperty('com.docker.stack.namespace')) {
+      const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
+      if (isSwarm) {
         return {
           state: State.info
           , message: "No way to set SecurityOptions on swarm"

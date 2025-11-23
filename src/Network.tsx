@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SyntheticEvent } from 'react';
 import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
@@ -14,11 +14,12 @@ import LabelsTable, { createLabelDetails, LabelDetails } from './tables/LabelsTa
 import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
 import IpamConfigsTable, { createIpamConfigDetails, IpamConfigDetails } from './tables/IpamConfigsTable';
 import NetworkTasksTable, { createNetworkTaskDetails, NetworkTaskDetails } from './tables/NetworkTasksTable';
+import { SetTitle } from './App';
 
 
 interface NetworkProps {
   baseUrl: string
-  setTitle: (title: string) => void
+  setTitle: SetTitle
   docker: DockerApi
   refresh: Date
 }
@@ -137,7 +138,7 @@ function NetworkUi(props: NetworkProps) {
   }
     , [props, id])
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_: SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 

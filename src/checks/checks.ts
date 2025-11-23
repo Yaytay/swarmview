@@ -15,6 +15,7 @@ export interface CheckArguments {
   , tasks?: Task[]
 }
 
+/* eslint-disable no-unused-vars */
 export enum State {
   pass = 'pass'
   , info = 'info'
@@ -22,6 +23,7 @@ export enum State {
   , warning = 'warning'
   , error = 'error'
 }
+/* eslint-enable no-unused-vars */
 
 export interface CheckResult {
   state: State
@@ -40,5 +42,5 @@ export interface Check {
   , reference: string
   , example?: string
 
-  , evaluate(args: CheckArguments) : CheckResult
+  , evaluate(_: CheckArguments) : CheckResult
 }

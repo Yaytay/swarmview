@@ -37,7 +37,7 @@ interface MaterialTableProps<Type extends MRT_RowData> {
   subrows?: boolean
   muiTableContainerProps?: TableContainerProps
   muiTablePaperProps?: PaperProps
-  muiTableBodyRowProps?: ((props: {
+  muiTableBodyRowProps?: ((_: {
     isDetailPanel?: boolean;
     row: MRT_Row<Type>;
     staticRowIndex: number;
@@ -83,7 +83,7 @@ function MaterialTable<Type extends MRT_RowData>(props: MaterialTableProps<Type>
     } else {
       isFirstRender.current = false;
     }
-  }, [state]);
+  }, [state, props.id]);
 
   function resetState() {
     console.log('Resetting state for ' + props.id + ':', state)

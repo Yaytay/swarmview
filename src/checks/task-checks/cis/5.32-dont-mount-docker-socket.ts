@@ -12,8 +12,9 @@ export const cis_5_32_dontMountDockerSocket: Check = {
   , evaluate: function (args: CheckArguments): CheckResult {
 
     if (args.container) {
-      if (args.container.HostConfig?.Mounts && args.container.HostConfig?.Mounts.length > 0) {
-        for (const mount of args.container.HostConfig?.Mounts) {
+      const mounts = args.container.HostConfig?.Mounts
+      if (mounts  && mounts.length > 0) {
+        for (const mount of mounts) {
           if (mount.Source?.includes('docker.sock')) {
             return {
               state: State.fail
