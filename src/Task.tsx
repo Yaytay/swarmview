@@ -27,6 +27,11 @@ type TaskUiParams = {
   id: string;
 };
 function TaskUi(props: TaskUiProps) {
+
+  const baseUrl = props.baseUrl.endsWith('/') ? props.baseUrl : (props.baseUrl + '/')
+
+  console.log("base URL: ", baseUrl)
+
   const { id } = useParams<TaskUiParams>();
 
   const [labelDetails, setLabelDetails] = useState<LabelDetails[]>([])
@@ -328,7 +333,7 @@ function TaskUi(props: TaskUiProps) {
         {
           tab === 1 &&
           <LogsView
-            logsUrl={props.baseUrl + 'tasks/' + id + '/logs'}
+            logsUrl={baseUrl + 'docker/v1.45/tasks/' + id + '/logs'}
             id='tasks.logs'
           />
         }

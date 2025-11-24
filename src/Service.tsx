@@ -32,6 +32,10 @@ type ServiceUiParams = {
 };
 function ServiceUi(props: ServiceProps) {
 
+  const baseUrl = props.baseUrl.endsWith('/') ? props.baseUrl : (props.baseUrl + '/')
+
+  console.log("base URL: ", baseUrl)
+
   const { id } = useParams<ServiceUiParams>();
 
   const [service, setService] = useState<Service | undefined>()
@@ -456,7 +460,7 @@ function ServiceUi(props: ServiceProps) {
         {
           tab === 2 &&
           <LogsView
-            logsUrl={props.baseUrl + 'services/' + id + '/logs'}
+            logsUrl={baseUrl + 'docker/v1.45/services/' + id + '/logs'}
             id='tasks.logs' 
             />
         }

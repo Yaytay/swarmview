@@ -47,7 +47,6 @@ export type SetTitle = (title : string) => void
 
 function App() {
 
-
   const baseUrl = ''
 
   const [title, setTitle] = useState('Swarm View')
