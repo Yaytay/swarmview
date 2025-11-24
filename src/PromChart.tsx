@@ -71,8 +71,8 @@ function PromChart(props: PromChartProps) {
               left: 0,
               bottom: 0,
             }}
-            onMouseMove={(_, native) => {
-              const value = native?.target?.attributes?.getNamedItem('name')?.value
+            onMouseMove={(_, event) => {
+              const value = event.currentTarget.getAttribute('name')
               if (value && value !== activeDataset) {
                 activeDataset = value
               }
@@ -97,7 +97,7 @@ function PromChart(props: PromChartProps) {
                   return (
                     <Box sx={{ padding: '10px' }}>
                       <Paper>
-                        {new Date(x.label * 1000).toISOString()}
+                        {new Date(Number(x.label) * 1000).toISOString()}
                         <br />
                         {activeDataset}
                         <br />
