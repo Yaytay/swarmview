@@ -28,8 +28,8 @@ if (!process.env.DOCKER_PROXY_SERVICE) {
   )
 }
 
-const serviceProxiesUrl = 'http://' + endpoint + '/v1.45/tasks?filters={%22name%22:[%22' + service + '%22],%22desired-state%22:[%22running%22]}'
-const workersServiceProxiesUrl = workers_service ? 'http://' + endpoint + '/v1.45/tasks?filters={%22name%22:[%22' + workers_service + '%22],%22desired-state%22:[%22running%22]}' : null
+const serviceProxiesUrl = 'http://' + endpoint + '/v1.52/tasks?filters={%22name%22:[%22' + service + '%22],%22desired-state%22:[%22running%22]}'
+const workersServiceProxiesUrl = workers_service ? 'http://' + endpoint + '/v1.52/tasks?filters={%22name%22:[%22' + workers_service + '%22],%22desired-state%22:[%22running%22]}' : null
 
 router.use('/docker', proxy(endpoint, {
   filter: (req) => {
@@ -76,7 +76,7 @@ function getExportsForImage(result, url) {
 
 // Get all the exports for all the images known one on host
 function getExportsForKnownImages(result, host) {
-  const url = 'http://' + host + '/v1.45/images/json'
+  const url = 'http://' + host + '/v1.52/images/json'
   return fetch(url)
     .then(r => r.json())
     .then(j => {
@@ -86,7 +86,7 @@ function getExportsForKnownImages(result, host) {
         j.forEach(img => {
           if (img.Id) {
             promises.push(
-              getExportsForImage(result, 'http://' + host + '/v1.45/images/' + img.Id + '/json')
+              getExportsForImage(result, 'http://' + host + '/v1.52/images/' + img.Id + '/json')
             )
           }
         })
@@ -100,7 +100,7 @@ function getExportsForKnownImages(result, host) {
 
 // Get docker system info for one host
 function getSystemInfo(host) {
-  const url = 'http://' + host + '/v1.45/info'
+  const url = 'http://' + host + '/v1.52/info'
   return fetch(url)
     .then(r => r.json())
     .then(j => {
@@ -110,14 +110,14 @@ function getSystemInfo(host) {
 
 // Inspect container on a host given its task ID
 function getContainerDetails(host, taskid) {
-  const urlQuery = 'http://' + host + '/v1.45/containers/json?filters={%22label%22:[%22com.docker.swarm.task.id=' + taskid + '%22]}'
+  const urlQuery = 'http://' + host + '/v1.52/containers/json?filters={%22label%22:[%22com.docker.swarm.task.id=' + taskid + '%22]}'
   return fetch(urlQuery)
     .then(r => r.json())
     .then(j => {
       if (Array.isArray(j) && j.length > 0) {
-        const url = 'http://' + host + '/v1.45/containers/' + j[0].Id + '/json'
+        const url = 'http://' + host + '/v1.52/containers/' + j[0].Id + '/json'
         const prom1 = fetch(url).then(r => r.json())  
-        const urlTop = 'http://' + host + '/v1.45/containers/' + j[0].Id + '/top'
+        const urlTop = 'http://' + host + '/v1.52/containers/' + j[0].Id + '/top'
         const prom2 = fetch(urlTop).then(r => r.json())
 
         return Promise.all([prom1, prom2]).then(v => {
@@ -305,7 +305,7 @@ function buildStandardLabels(node, container) {
 }
 
 function getContainerStats(endpoint, containerId, startTime, node, container, stats) {
-  return fetch('http://' + endpoint + '/v1.45/containers/' + containerId + '/stats?stream=false&one-shot=true')
+  return fetch('http://' + endpoint + '/v1.52/containers/' + containerId + '/stats?stream=false&one-shot=true')
     .then(r => r.json())
     .then(cs => {
       console.log('Time to get stats for ' + containerId + ' from ' + endpoint + ': ' + (performance.now() - startTime))
@@ -384,7 +384,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
 }
 
 function getContainersStats(endpoint, startTime, node, stats) {
-  return fetch('http://' + endpoint + '/v1.45/containers/json')
+  return fetch('http://' + endpoint + '/v1.52/containers/json')
     .then(r => r.json())
     .then(containers => {
       // console.log('Time to get containers from ' + endpoint + ': ' + (performance.now() - startTime))
@@ -422,7 +422,7 @@ router.use('/metrics', (req, res) => {
   let stats = newStats()
 
   const promises = []
-  fetch('http://' + endpoint + '/v1.45/nodes')
+  fetch('http://' + endpoint + '/v1.52/nodes')
     .then(r => r.json())
     .then(nodes => {
       promises.push(getMetrics(serviceProxiesUrl, service, service_port, start, nodes, stats))

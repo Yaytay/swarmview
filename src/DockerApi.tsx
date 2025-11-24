@@ -70,7 +70,7 @@ export class DockerApi {
   }
 
   private getAll<Type>(path: string, type: string, queryString?: string): Promise<Type[]> {
-    return this.get<Type[]>('docker/v1.45/' + path, type, queryString)
+    return this.get<Type[]>('docker/v1.52/' + path, type, queryString)
   }
 
   prometheusQueryRange(query : string, seconds : number): Promise<PrometheusResults | null> {

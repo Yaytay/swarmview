@@ -333,7 +333,7 @@ function TaskUi(props: TaskUiProps) {
         {
           tab === 1 &&
           <LogsView
-            logsUrl={baseUrl + 'docker/v1.45/tasks/' + id + '/logs'}
+            logsUrl={baseUrl + 'docker/v1.52/tasks/' + id + '/logs'}
             id='tasks.logs'
           />
         }

@@ -1,5 +1,6 @@
 /* eslint-disable */
 /* tslint:disable */
+// @ts-nocheck
 /*
  * ---------------------------------------------------------------
  * ## THIS FILE WAS GENERATED VIA SWAGGER-TYPESCRIPT-API        ##
@@ -8,6 +9,75 @@
  * ## SOURCE: https://github.com/acacode/swagger-typescript-api ##
  * ---------------------------------------------------------------
  */
+
+/**
+ * Current local status of this node.
+ * @default ""
+ * @example "active"
+ */
+export enum LocalNodeState {
+  Value = "",
+  Inactive = "inactive",
+  Pending = "pending",
+  Active = "active",
+  Error = "error",
+  Locked = "locked",
+}
+
+export enum TaskState {
+  New = "new",
+  Allocated = "allocated",
+  Pending = "pending",
+  Assigned = "assigned",
+  Accepted = "accepted",
+  Preparing = "preparing",
+  Ready = "ready",
+  Starting = "starting",
+  Running = "running",
+  Complete = "complete",
+  Shutdown = "shutdown",
+  Failed = "failed",
+  Rejected = "rejected",
+  Remove = "remove",
+  Orphaned = "orphaned",
+}
+
+/**
+ * Reachability represents the reachability of a node.
+ * @example "reachable"
+ */
+export enum Reachability {
+  Unknown = "unknown",
+  Unreachable = "unreachable",
+  Reachable = "reachable",
+}
+
+/**
+ * NodeState represents the state of a node.
+ * @example "ready"
+ */
+export enum NodeState {
+  Unknown = "unknown",
+  Down = "down",
+  Ready = "ready",
+  Disconnected = "disconnected",
+}
+
+/**
+ * Kind of change
+ *
+ * Can be one of:
+ *
+ * - `0`: Modified ("C")
+ * - `1`: Added ("A")
+ * - `2`: Deleted ("D")
+ * @format uint8
+ */
+export enum ChangeType {
+  Value0 = 0,
+  Value1 = 1,
+  Value2 = 2,
+}
 
 /**
  * An open port on a container
@@ -160,7 +230,13 @@ export interface Mount {
   /** Optional configuration for the `bind` type. */
   BindOptions?: {
     /** A propagation mode with the value `[r]private`, `[r]shared`, or `[r]slave`. */
-    Propagation?: "private" | "rprivate" | "shared" | "rshared" | "slave" | "rslave";
+    Propagation?:
+      | "private"
+      | "rprivate"
+      | "shared"
+      | "rshared"
+      | "slave"
+      | "rslave";
     /**
      * Disable recursive bind mount.
      * @default false
@@ -651,7 +727,16 @@ export type HostConfig = Resources & {
   ContainerIDFile?: string;
   /** The logging configuration for this container */
   LogConfig?: {
-    Type?: "json-file" | "syslog" | "journald" | "gelf" | "fluentd" | "awslogs" | "splunk" | "etwlogs" | "none";
+    Type?:
+      | "json-file"
+      | "syslog"
+      | "journald"
+      | "gelf"
+      | "fluentd"
+      | "awslogs"
+      | "splunk"
+      | "etwlogs"
+      | "none";
     Config?: Record<string, string>;
   };
   /**
@@ -978,7 +1063,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always empty. It must not be used, and will be removed in API v1.48.
+   * > always empty. It must not be used, and will be removed in API v1.50.
    * @example ""
    */
   Hostname?: string;
@@ -988,7 +1073,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always empty. It must not be used, and will be removed in API v1.48.
+   * > always empty. It must not be used, and will be removed in API v1.50.
    * @example ""
    */
   Domainname?: string;
@@ -1003,7 +1088,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always false. It must not be used, and will be removed in API v1.48.
+   * > always false. It must not be used, and will be removed in API v1.50.
    * @default false
    * @example false
    */
@@ -1014,7 +1099,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always false. It must not be used, and will be removed in API v1.48.
+   * > always false. It must not be used, and will be removed in API v1.50.
    * @default false
    * @example false
    */
@@ -1025,7 +1110,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always false. It must not be used, and will be removed in API v1.48.
+   * > always false. It must not be used, and will be removed in API v1.50.
    * @default false
    * @example false
    */
@@ -1043,7 +1128,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always false. It must not be used, and will be removed in API v1.48.
+   * > always false. It must not be used, and will be removed in API v1.50.
    * @default false
    * @example false
    */
@@ -1054,7 +1139,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always false. It must not be used, and will be removed in API v1.48.
+   * > always false. It must not be used, and will be removed in API v1.50.
    * @default false
    * @example false
    */
@@ -1065,7 +1150,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always false. It must not be used, and will be removed in API v1.48.
+   * > always false. It must not be used, and will be removed in API v1.50.
    * @default false
    * @example false
    */
@@ -1097,7 +1182,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always empty. It must not be used, and will be removed in API v1.48.
+   * > always empty. It must not be used, and will be removed in API v1.50.
    * @default ""
    * @example ""
    */
@@ -1128,7 +1213,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always omitted. It must not be used, and will be removed in API v1.48.
+   * > always omitted. It must not be used, and will be removed in API v1.50.
    * @default false
    * @example false
    */
@@ -1139,7 +1224,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always omitted. It must not be used, and will be removed in API v1.48.
+   * > always omitted. It must not be used, and will be removed in API v1.50.
    * @default ""
    * @example ""
    */
@@ -1165,7 +1250,7 @@ export interface ImageConfig {
    * <p><br /></p>
    *
    * > **Deprecated**: this field is not part of the image specification and is
-   * > always omitted. It must not be used, and will be removed in API v1.48.
+   * > always omitted. It must not be used, and will be removed in API v1.50.
    * @default 10
    */
   StopTimeout?: number | null;
@@ -1423,22 +1508,6 @@ export interface FilesystemChange {
   Kind: ChangeType;
 }
 
-/**
- * Kind of change
- *
- * Can be one of:
- *
- * - `0`: Modified ("C")
- * - `1`: Added ("A")
- * - `2`: Deleted ("D")
- * @format uint8
- */
-export enum ChangeType {
-  Value0 = 0,
-  Value1 = 1,
-  Value2 = 2,
-}
-
 /** Information about an image in the local image cache. */
 export interface ImageInspect {
   /**
@@ -1544,14 +1613,6 @@ export interface ImageInspect {
    */
   Size: number;
   /**
-   * Total size of the image including all layers it is composed of.
-   *
-   * Deprecated: this field is omitted in API v1.44, but kept for backward compatibility. Use Size instead.
-   * @format int64
-   * @example 1239828
-   */
-  VirtualSize?: number;
-  /**
    * Information about the storage driver used to store the container's and
    * image's filesystem.
    */
@@ -1647,14 +1708,6 @@ export interface ImageSummary {
    */
   SharedSize: number;
   /**
-   * Total size of the image including all layers it is composed of.
-   *
-   * Deprecated: this field is omitted in API v1.44, but kept for backward compatibility. Use Size instead.
-   * @format int64
-   * @example 172064416
-   */
-  VirtualSize?: number;
-  /**
    * User-defined key/value metadata.
    * @example {"com.example.some-label":"some-value","com.example.some-other-label":"some-other-value"}
    */
@@ -1683,6 +1736,11 @@ export interface ImageSummary {
 export interface AuthConfig {
   username?: string;
   password?: string;
+  /**
+   * Email is an optional value associated with the username.
+   *
+   * > **Deprecated**: This field is deprecated since docker 1.11 (API v1.23) and will be removed in a future release.
+   */
   email?: string;
   serveraddress?: string;
 }
@@ -2024,13 +2082,6 @@ export interface BuildCache {
    */
   ID?: string;
   /**
-   * ID of the parent build cache record.
-   *
-   * > **Deprecated**: This field is deprecated, and omitted if empty.
-   * @example ""
-   */
-  Parent?: string | null;
-  /**
    * List of parent build cache record IDs.
    * @example ["hw53o5aio51xtltp5xjp8v7fx"]
    */
@@ -2039,7 +2090,13 @@ export interface BuildCache {
    * Cache record type.
    * @example "regular"
    */
-  Type?: "internal" | "frontend" | "source.local" | "source.git.checkout" | "exec.cachemount" | "regular";
+  Type?:
+    | "internal"
+    | "frontend"
+    | "source.local"
+    | "source.git.checkout"
+    | "exec.cachemount"
+    | "regular";
   /**
    * Description of the build-step that produced the build cache.
    * @example "mount / from exec /bin/sh -c echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache"
@@ -2539,17 +2596,6 @@ export interface NodeStatus {
 }
 
 /**
- * NodeState represents the state of a node.
- * @example "ready"
- */
-export enum NodeState {
-  Unknown = "unknown",
-  Down = "down",
-  Ready = "ready",
-  Disconnected = "disconnected",
-}
-
-/**
  * ManagerStatus represents the status of a manager.
  *
  * It provides the current status of a node's manager component, if the node
@@ -2569,16 +2615,6 @@ export type ManagerStatus = {
    */
   Addr?: string;
 } | null;
-
-/**
- * Reachability represents the reachability of a node.
- * @example "reachable"
- */
-export enum Reachability {
-  Unknown = "unknown",
-  Unreachable = "unreachable",
-  Reachable = "reachable",
-}
 
 /** User modifiable swarm configuration. */
 export interface SwarmSpec {
@@ -3234,6 +3270,7 @@ export interface TaskSpec {
   /**
    * A counter that triggers an update even if no relevant parameters have
    * been changed.
+   * @format uint64
    */
   ForceUpdate?: number;
   /** Runtime is the type of runtime specified for the task executor. */
@@ -3249,24 +3286,6 @@ export interface TaskSpec {
     Name?: string;
     Options?: Record<string, string>;
   };
-}
-
-export enum TaskState {
-  New = "new",
-  Allocated = "allocated",
-  Pending = "pending",
-  Assigned = "assigned",
-  Accepted = "accepted",
-  Preparing = "preparing",
-  Ready = "ready",
-  Starting = "starting",
-  Running = "running",
-  Complete = "complete",
-  Shutdown = "shutdown",
-  Failed = "failed",
-  Rejected = "rejected",
-  Remove = "remove",
-  Orphaned = "orphaned",
 }
 
 /** represents the status of a container. */
@@ -3702,8 +3721,11 @@ export interface SecretSpec {
    */
   Labels?: Record<string, string>;
   /**
-   * Base64-url-safe-encoded ([RFC 4648](https://tools.ietf.org/html/rfc4648#section-5))
-   * data to store as secret.
+   * Data is the data to store as a secret, formatted as a Base64-url-safe-encoded
+   * ([RFC 4648](https://tools.ietf.org/html/rfc4648#section-5)) string.
+   * It must be empty if the Driver field is set, in which case the data is
+   * loaded from an external secret store. The maximum allowed size is 500KB,
+   * as defined in [MaxSecretSize](https://pkg.go.dev/github.com/moby/swarmkit/v2@v2.0.0/api/validation#MaxSecretSize).
    *
    * This field is only used to _create_ a secret, and is not returned by
    * other endpoints.
@@ -3759,8 +3781,9 @@ export interface ConfigSpec {
   /** User-defined key/value metadata. */
   Labels?: Record<string, string>;
   /**
-   * Base64-url-safe-encoded ([RFC 4648](https://tools.ietf.org/html/rfc4648#section-5))
-   * config data.
+   * Data is the data to store as a config, formatted as a Base64-url-safe-encoded
+   * ([RFC 4648](https://tools.ietf.org/html/rfc4648#section-5)) string.
+   * The maximum allowed size is 1000KB, as defined in [MaxConfigSize](https://pkg.go.dev/github.com/moby/swarmkit/v2@v2.0.0-20250103191802-8c1959736554/manager/controlapi#MaxConfigSize).
    */
   Data?: string;
   /**
@@ -3804,7 +3827,14 @@ export type ContainerState = {
    * "running", "paused", "restarting", "removing", "exited", or "dead".
    * @example "running"
    */
-  Status?: "created" | "running" | "paused" | "restarting" | "removing" | "exited" | "dead";
+  Status?:
+    | "created"
+    | "running"
+    | "paused"
+    | "restarting"
+    | "removing"
+    | "exited"
+    | "dead";
   /**
    * Whether this container is running.
    *
@@ -4116,7 +4146,10 @@ export interface SystemInfo {
    */
   IPv4Forwarding?: boolean;
   /**
-   * Indicates if `bridge-nf-call-iptables` is available on the host.
+   * Indicates if `bridge-nf-call-iptables` is available on the host when
+   * the daemon was started.
+   *
+   * The `br_netfilter`
    * @example true
    */
   BridgeNfIptables?: boolean;
@@ -4526,49 +4559,22 @@ export type RegistryServiceConfig = {
    * List of IP ranges to which nondistributable artifacts can be pushed,
    * using the CIDR syntax [RFC 4632](https://tools.ietf.org/html/4632).
    *
-   * Some images (for example, Windows base images) contain artifacts
-   * whose distribution is restricted by license. When these images are
-   * pushed to a registry, restricted artifacts are not included.
+   * <p><br /></p>
    *
-   * This configuration override this behavior, and enables the daemon to
-   * push nondistributable artifacts to all registries whose resolved IP
-   * address is within the subnet described by the CIDR syntax.
-   *
-   * This option is useful when pushing images containing
-   * nondistributable artifacts to a registry on an air-gapped network so
-   * hosts on that network can pull the images without connecting to
-   * another server.
-   *
-   * > **Warning**: Nondistributable artifacts typically have restrictions
-   * > on how and where they can be distributed and shared. Only use this
-   * > feature to push artifacts to private registries and ensure that you
-   * > are in compliance with any terms that cover redistributing
-   * > nondistributable artifacts.
-   * @example ["::1/128","127.0.0.0/8"]
+   * > **Deprecated**: Pushing nondistributable artifacts is now always enabled
+   * > and this field is always `null`.
+   * @example []
    */
   AllowNondistributableArtifactsCIDRs?: string[];
   /**
    * List of registry hostnames to which nondistributable artifacts can be
    * pushed, using the format `<hostname>[:<port>]` or `<IP address>[:<port>]`.
    *
-   * Some images (for example, Windows base images) contain artifacts
-   * whose distribution is restricted by license. When these images are
-   * pushed to a registry, restricted artifacts are not included.
+   * <p><br /></p>
    *
-   * This configuration override this behavior for the specified
-   * registries.
-   *
-   * This option is useful when pushing images containing
-   * nondistributable artifacts to a registry on an air-gapped network so
-   * hosts on that network can pull the images without connecting to
-   * another server.
-   *
-   * > **Warning**: Nondistributable artifacts typically have restrictions
-   * > on how and where they can be distributed and shared. Only use this
-   * > feature to push artifacts to private registries and ensure that you
-   * > are in compliance with any terms that cover redistributing
-   * > nondistributable artifacts.
-   * @example ["registry.internal.corp.example.com:3000","[2001:db8:a0b:12f0::1]:443"]
+   * > **Deprecated**: Pushing nondistributable artifacts is now always enabled
+   * > and this field is always `null`.
+   * @example []
    */
   AllowNondistributableArtifactsHostnames?: string[];
   /**
@@ -4748,20 +4754,6 @@ export interface SwarmInfo {
    * "/info" endpoint. Join-tokens are not included.
    */
   Cluster?: ClusterInfo;
-}
-
-/**
- * Current local status of this node.
- * @default ""
- * @example "active"
- */
-export enum LocalNodeState {
-  Value = "",
-  Inactive = "inactive",
-  Pending = "pending",
-  Active = "active",
-  Error = "error",
-  Locked = "locked",
 }
 
 /** Represents a peer-node in the swarm */
@@ -4990,7 +4982,11 @@ export interface ClusterVolume {
      * * `pending-node-unpublish` The volume should be unpublished from the node, and the manager is awaiting confirmation from the worker that it has done so.
      * * `pending-controller-unpublish` The volume is successfully unpublished from the node, but has not yet been successfully unpublished on the controller.
      */
-    State?: "pending-publish" | "published" | "pending-node-unpublish" | "pending-controller-unpublish";
+    State?:
+      | "pending-publish"
+      | "published"
+      | "pending-node-unpublish"
+      | "pending-controller-unpublish";
     /**
      * A map of strings to strings returned by the CSI controller
      * plugin when a volume is published.
@@ -6432,7 +6428,7 @@ export namespace Images {
   }
 
   /**
-   * @description Get a tarball containing all images and metadata for a repository. If `name` is a specific name and tag (e.g. `ubuntu:latest`), then only that image (and its parents) are returned. If `name` is an image ID, similarly only that image (and its parents) are returned, but with the exclusion of the `repositories` file in the tarball, as there were no image names referenced. ### Image tarball format An image tarball contains one directory per image layer (named using its long ID), each containing these files: - `VERSION`: currently `1.0` - the file format version - `json`: detailed layer information, similar to `docker inspect layer_id` - `layer.tar`: A tarfile containing the filesystem changes in this layer The `layer.tar` file contains `aufs` style `.wh..wh.aufs` files and directories for storing attribute changes and deletions. If the tarball defines a repository, the tarball should also include a `repositories` file at the root that contains a list of repository and tag names mapped to layer IDs. ```json { "hello-world": { "latest": "565a9d68a73f6706862bfe8409a7f659776d4d60a8d096eb4a3cbce6999cc2a1" } } ```
+   * @description Get a tarball containing all images and metadata for a repository. If `name` is a specific name and tag (e.g. `ubuntu:latest`), then only that image (and its parents) are returned. If `name` is an image ID, similarly only that image (and its parents) are returned, but with the exclusion of the `repositories` file in the tarball, as there were no image names referenced. ### Image tarball format An image tarball contains [Content as defined in the OCI Image Layout Specification](https://github.com/opencontainers/image-spec/blob/v1.1.1/image-layout.md#content). Additionally, includes the manifest.json file associated with a backwards compatible docker save format. If the tarball defines a repository, the tarball should also include a `repositories` file at the root that contains a list of repository and tag names mapped to layer IDs. ```json { "hello-world": { "latest": "565a9d68a73f6706862bfe8409a7f659776d4d60a8d096eb4a3cbce6999cc2a1" } } ```
    * @tags Image
    * @name ImageGet
    * @summary Export an image
@@ -6579,7 +6575,17 @@ export namespace Build {
        */
       target?: string;
       /**
-       * BuildKit output configuration
+       * BuildKit output configuration in the format of a stringified JSON array of objects.
+       * Each object must have two top-level properties: `Type` and `Attrs`.
+       * The `Type` property must be set to 'moby'.
+       * The `Attrs` property is a map of attributes for the BuildKit output configuration.
+       * See https://docs.docker.com/build/exporters/oci-docker/ for more information.
+       *
+       * Example:
+       *
+       * ```
+       * [{"Type":"moby","Attrs":{"type":"image","force-compression":"true","compression":"zstd"}}]
+       * ```
        * @default ""
        */
       outputs?: string;
@@ -8521,16 +8527,22 @@ export interface FullRequestParams extends Omit<RequestInit, "body"> {
   cancelToken?: CancelToken;
 }
 
-export type RequestParams = Omit<FullRequestParams, "body" | "method" | "query" | "path">;
+export type RequestParams = Omit<
+  FullRequestParams,
+  "body" | "method" | "query" | "path"
+>;
 
 export interface ApiConfig<SecurityDataType = unknown> {
   baseUrl?: string;
   baseApiParams?: Omit<RequestParams, "baseUrl" | "cancelToken" | "signal">;
-  securityWorker?: (securityData: SecurityDataType | null) => Promise<RequestParams | void> | RequestParams | void;
+  securityWorker?: (
+    securityData: SecurityDataType | null,
+  ) => Promise<RequestParams | void> | RequestParams | void;
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown> extends Response {
+export interface HttpResponse<D extends unknown, E extends unknown = unknown>
+  extends Response {
   data: D;
   error: E;
 }
@@ -8539,6 +8551,7 @@ type CancelToken = Symbol | string | number;
 
 export enum ContentType {
   Json = "application/json",
+  JsonApi = "application/vnd.api+json",
   FormData = "multipart/form-data",
   UrlEncoded = "application/x-www-form-urlencoded",
   Text = "text/plain",
@@ -8549,7 +8562,8 @@ export class HttpClient<SecurityDataType = unknown> {
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
-  private customFetch = (...fetchParams: Parameters<typeof fetch>) => fetch(...fetchParams);
+  private customFetch = (...fetchParams: Parameters<typeof fetch>) =>
+    fetch(...fetchParams);
 
   private baseApiParams: RequestParams = {
     credentials: "same-origin",
@@ -8582,9 +8596,15 @@ export class HttpClient<SecurityDataType = unknown> {
 
   protected toQueryString(rawQuery?: QueryParamsType): string {
     const query = rawQuery || {};
-    const keys = Object.keys(query).filter((key) => "undefined" !== typeof query[key]);
+    const keys = Object.keys(query).filter(
+      (key) => "undefined" !== typeof query[key],
+    );
     return keys
-      .map((key) => (Array.isArray(query[key]) ? this.addArrayQueryParam(query, key) : this.addQueryParam(query, key)))
+      .map((key) =>
+        Array.isArray(query[key])
+          ? this.addArrayQueryParam(query, key)
+          : this.addQueryParam(query, key),
+      )
       .join("&");
   }
 
@@ -8595,10 +8615,23 @@ export class HttpClient<SecurityDataType = unknown> {
 
   private contentFormatters: Record<ContentType, (input: any) => any> = {
     [ContentType.Json]: (input: any) =>
-      input !== null && (typeof input === "object" || typeof input === "string") ? JSON.stringify(input) : input,
-    [ContentType.Text]: (input: any) => (input !== null && typeof input !== "string" ? JSON.stringify(input) : input),
-    [ContentType.FormData]: (input: any) =>
-      Object.keys(input || {}).reduce((formData, key) => {
+      input !== null && (typeof input === "object" || typeof input === "string")
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.JsonApi]: (input: any) =>
+      input !== null && (typeof input === "object" || typeof input === "string")
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.Text]: (input: any) =>
+      input !== null && typeof input !== "string"
+        ? JSON.stringify(input)
+        : input,
+    [ContentType.FormData]: (input: any) => {
+      if (input instanceof FormData) {
+        return input;
+      }
+
+      return Object.keys(input || {}).reduce((formData, key) => {
         const property = input[key];
         formData.append(
           key,
@@ -8609,11 +8642,15 @@ export class HttpClient<SecurityDataType = unknown> {
               : `${property}`,
         );
         return formData;
-      }, new FormData()),
+      }, new FormData());
+    },
     [ContentType.UrlEncoded]: (input: any) => this.toQueryString(input),
   };
 
-  protected mergeRequestParams(params1: RequestParams, params2?: RequestParams): RequestParams {
+  protected mergeRequestParams(
+    params1: RequestParams,
+    params2?: RequestParams,
+  ): RequestParams {
     return {
       ...this.baseApiParams,
       ...params1,
@@ -8626,7 +8663,9 @@ export class HttpClient<SecurityDataType = unknown> {
     };
   }
 
-  protected createAbortSignal = (cancelToken: CancelToken): AbortSignal | undefined => {
+  protected createAbortSignal = (
+    cancelToken: CancelToken,
+  ): AbortSignal | undefined => {
     if (this.abortControllers.has(cancelToken)) {
       const abortController = this.abortControllers.get(cancelToken);
       if (abortController) {
@@ -8670,22 +8709,34 @@ export class HttpClient<SecurityDataType = unknown> {
     const payloadFormatter = this.contentFormatters[type || ContentType.Json];
     const responseFormat = format || requestParams.format;
 
-    return this.customFetch(`${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`, {
-      ...requestParams,
-      headers: {
-        ...(requestParams.headers || {}),
-        ...(type && type !== ContentType.FormData ? { "Content-Type": type } : {}),
+    return this.customFetch(
+      `${baseUrl || this.baseUrl || ""}${path}${queryString ? `?${queryString}` : ""}`,
+      {
+        ...requestParams,
+        headers: {
+          ...(requestParams.headers || {}),
+          ...(type && type !== ContentType.FormData
+            ? { "Content-Type": type }
+            : {}),
+        },
+        signal:
+          (cancelToken
+            ? this.createAbortSignal(cancelToken)
+            : requestParams.signal) || null,
+        body:
+          typeof body === "undefined" || body === null
+            ? null
+            : payloadFormatter(body),
       },
-      signal: (cancelToken ? this.createAbortSignal(cancelToken) : requestParams.signal) || null,
-      body: typeof body === "undefined" || body === null ? null : payloadFormatter(body),
-    }).then(async (response) => {
-      const r = response.clone() as HttpResponse<T, E>;
+    ).then(async (response) => {
+      const r = response as HttpResponse<T, E>;
       r.data = null as unknown as T;
       r.error = null as unknown as E;
 
+      const responseToParse = responseFormat ? response.clone() : response;
       const data = !responseFormat
         ? r
-        : await response[responseFormat]()
+        : await responseToParse[responseFormat]()
             .then((data) => {
               if (r.ok) {
                 r.data = data;
@@ -8769,7 +8820,6 @@ export class HttpClient<SecurityDataType = unknown> {
  * {
  *   "username": "string",
  *   "password": "string",
- *   "email": "string",
  *   "serveraddress": "string"
  * }
  * ```
@@ -8786,7 +8836,9 @@ export class HttpClient<SecurityDataType = unknown> {
  * }
  * ```
  */
-export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+export class Api<
+  SecurityDataType extends unknown,
+> extends HttpClient<SecurityDataType> {
   containers = {
     /**
      * @description Returns a list of containers. For details on the format, see the [inspect endpoint](#operation/ContainerInspect). Note that it uses a different, smaller representation of a container than inspecting a single container. For example, the list of linked containers is not propagated .
@@ -10074,7 +10126,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Get a tarball containing all images and metadata for a repository. If `name` is a specific name and tag (e.g. `ubuntu:latest`), then only that image (and its parents) are returned. If `name` is an image ID, similarly only that image (and its parents) are returned, but with the exclusion of the `repositories` file in the tarball, as there were no image names referenced. ### Image tarball format An image tarball contains one directory per image layer (named using its long ID), each containing these files: - `VERSION`: currently `1.0` - the file format version - `json`: detailed layer information, similar to `docker inspect layer_id` - `layer.tar`: A tarfile containing the filesystem changes in this layer The `layer.tar` file contains `aufs` style `.wh..wh.aufs` files and directories for storing attribute changes and deletions. If the tarball defines a repository, the tarball should also include a `repositories` file at the root that contains a list of repository and tag names mapped to layer IDs. ```json { "hello-world": { "latest": "565a9d68a73f6706862bfe8409a7f659776d4d60a8d096eb4a3cbce6999cc2a1" } } ```
+     * @description Get a tarball containing all images and metadata for a repository. If `name` is a specific name and tag (e.g. `ubuntu:latest`), then only that image (and its parents) are returned. If `name` is an image ID, similarly only that image (and its parents) are returned, but with the exclusion of the `repositories` file in the tarball, as there were no image names referenced. ### Image tarball format An image tarball contains [Content as defined in the OCI Image Layout Specification](https://github.com/opencontainers/image-spec/blob/v1.1.1/image-layout.md#content). Additionally, includes the manifest.json file associated with a backwards compatible docker save format. If the tarball defines a repository, the tarball should also include a `repositories` file at the root that contains a list of repository and tag names mapped to layer IDs. ```json { "hello-world": { "latest": "565a9d68a73f6706862bfe8409a7f659776d4d60a8d096eb4a3cbce6999cc2a1" } } ```
      *
      * @tags Image
      * @name ImageGet
@@ -10228,7 +10280,17 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
          */
         target?: string;
         /**
-         * BuildKit output configuration
+         * BuildKit output configuration in the format of a stringified JSON array of objects.
+         * Each object must have two top-level properties: `Type` and `Attrs`.
+         * The `Type` property must be set to 'moby'.
+         * The `Attrs` property is a map of attributes for the BuildKit output configuration.
+         * See https://docs.docker.com/build/exporters/oci-docker/ for more information.
+         *
+         * Example:
+         *
+         * ```
+         * [{"Type":"moby","Attrs":{"type":"image","force-compression":"true","compression":"zstd"}}]
+         * ```
          * @default ""
          */
         outputs?: string;
@@ -10653,7 +10715,10 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @summary Create a volume
      * @request POST:/volumes/create
      */
-    volumeCreate: (volumeConfig: VolumeCreateOptions, params: RequestParams = {}) =>
+    volumeCreate: (
+      volumeConfig: VolumeCreateOptions,
+      params: RequestParams = {},
+    ) =>
       this.request<Volume, ErrorResponse>({
         path: `/volumes/create`,
         method: "POST",
@@ -11129,6 +11194,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         query: query,
         body: body,
+        type: ContentType.Json,
         ...params,
       }),
 
@@ -11251,6 +11317,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         query: query,
         body: body,
+        type: ContentType.Json,
         ...params,
       }),
 

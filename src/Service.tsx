@@ -460,7 +460,7 @@ function ServiceUi(props: ServiceProps) {
         {
           tab === 2 &&
           <LogsView
-            logsUrl={baseUrl + 'docker/v1.45/services/' + id + '/logs'}
+            logsUrl={baseUrl + 'docker/v1.52/services/' + id + '/logs'}
             id='tasks.logs' 
             />
         }
