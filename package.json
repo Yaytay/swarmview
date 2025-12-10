@@ -50,6 +50,6 @@
     "nodemon": "^3.1.11",
     "react-router-dom": "^7.9.6",
     "typescript": "^5.9.3",
-    "vite": "^7.2.4"
+    "vite": "^7.2.7"
   }
 }
