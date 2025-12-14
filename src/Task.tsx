@@ -249,6 +249,7 @@ function TaskUi(props: TaskUiProps) {
                       , ['Updated', task.UpdatedAt || '']
                       , ['Stack', task?.Spec?.ContainerSpec?.Labels && task?.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'] ? { link: '/stack/' + task?.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'], value: task?.Spec?.ContainerSpec?.Labels['com.docker.stack.namespace'] } : '']
                       , ['Node', { link: '/node/' + task.NodeID, value: (nodes && task.NodeID && nodes.get(task.NodeID)?.Description?.Hostname || task.NodeID || '') }]
+                      , ['Hostname', (container?.Config?.Hostname ?? "") + (container?.Config?.Domainname ? `.${container?.Config?.Domainname}` : "")]
                     ]
                   }>
                   </KeyValueTable>
