@@ -23,7 +23,7 @@
     "react-dom": "^19.2.1",
     "react-json-pretty": "^2.2.0",
     "react-virtuoso": "^4.17.0",
-    "recharts": "^3.4.1",
+    "recharts": "^3.6.0",
     "vis-network": "^10.0.2"
   },
   "devDependencies": {
