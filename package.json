@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
-    "@babel/template": "^7.27.2",
+    "@babel/template": "^7.28.6",
     "@babel/types": "^7.28.5",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
