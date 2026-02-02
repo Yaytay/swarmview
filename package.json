@@ -27,7 +27,7 @@
     "vis-network": "^10.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.6",
+    "@babel/core": "^7.29.0",
     "@babel/template": "^7.27.2",
     "@babel/types": "^7.28.6",
     "@emotion/react": "^11.14.0",
