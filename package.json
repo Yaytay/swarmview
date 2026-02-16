@@ -11,7 +11,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@mui/system": "^7.3.7",
+    "@mui/system": "^7.3.8",
     "chart.js": "^4.5.1",
     "dotenv": "^17.2.4",
     "duration-fns": "^3.0.2",
