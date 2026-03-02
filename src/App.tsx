@@ -37,6 +37,7 @@ import { PaletteMode } from '@mui/material';
 import { DockerApi } from './DockerApi';
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
 import { Dimensions } from './app-types';
+import Overview from './Overview';
 
 const heightOffset = 128
 const widthOffset = 180
@@ -124,6 +125,8 @@ function App() {
           </Box>
           <hr />
           <Box>
+            <Link className='navlink' to="/overview"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1}><LayersIcon fontSize='small' /><Typography>Overview</Typography></Stack></Link>
+            <hr />
             <Link className='navlink' to="/stacks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1}><LayersIcon fontSize='small' /><Typography>Stacks</Typography></Stack></Link>
             <Link className='navlink' to="/services"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><MiscellaneousServicesIcon fontSize='small' /><Typography>Services</Typography></Stack></Link>
             <Link className='navlink' to="/tasks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><AssignmentIcon fontSize='small' /><Typography>Tasks</Typography></Stack></Link>
@@ -154,6 +157,7 @@ function App() {
           </Box>
           <Box className="content" sx={{ height: '100%' }}>
             <Routes>
+              <Route path='/overview' element={<Overview baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} maxSize={maxSize} />}></Route>
               <Route path='/stacks' element={<Stacks baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} maxSize={maxSize} />}></Route>
               <Route path='/stack/:id' element={<StackUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>
               <Route path='/service/:id' element={<ServiceUi baseUrl={baseUrl} setTitle={setTitle} docker={dockerApi} refresh={lastUpdate} />}></Route>

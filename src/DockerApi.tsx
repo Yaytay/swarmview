@@ -315,7 +315,7 @@ export class DockerApi {
     }
   }
 
-  system(nodeId: string) {
+  system(nodeId: string) : Promise<SystemInfo> {
     if (this.cache.systems && this.cache.systems[nodeId]) {
       return Promise.resolve(this.cache.systems[nodeId])
     } else {
@@ -329,10 +329,11 @@ export class DockerApi {
           }
           return sys
         })
-        .catch(_ => {
+        .catch(err => {
           if (this.cache.systems && this.cache.systems[nodeId]) {
-            return this.cache.systems[nodeId] = {}
+            this.cache.systems[nodeId] = {}
           }
+          throw err
         })
     }
   }
