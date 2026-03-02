@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MaterialReactTable, type MRT_ColumnDef, type MRT_ExpandedState } from 'material-react-table';
+import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Network, Node, Service, SystemInfo, Task } from '../docker-schema';
+import { Service, SystemInfo, Task } from '../docker-schema';
 import { DockerApi } from '../DockerApi';
 import { other_1_0_0_capDropAll } from "../checks/task-checks/other/1.0.0-cap-drop-all";
 import { other_1_0_1_dontRunAsRoot } from "../checks/task-checks/other/1.0.1-dont-run-as-root";
