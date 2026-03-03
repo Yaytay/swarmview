@@ -26,6 +26,11 @@ services:
             state: State.pass
             , message: 'Hostname set to ' + args.service?.Spec?.TaskTemplate?.ContainerSpec?.Hostname
           }
+        } else if (args.service?.Spec?.TaskTemplate?.ContainerSpec?.Hostname.includes('{{.Task.Slot}}')) {
+          return {
+            state: State.info
+            , message: 'Hostname set to ' + args.service?.Spec?.TaskTemplate?.ContainerSpec?.Hostname
+          }
         } else {
           return {
             state: State.warning
