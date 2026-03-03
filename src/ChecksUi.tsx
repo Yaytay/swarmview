@@ -1,6 +1,6 @@
 import Grid from "@mui/material/Grid";
 import Section from "./Section";
-import { Check, CheckArguments, State } from "./checks/checks";
+import { Check, CheckArguments, evaluateCheck, State } from "./checks/checks";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -83,7 +83,7 @@ function ChecksUi(props: ChecksUiProps) {
 
   function evaluate(check: Check, args: CheckArguments) {
     try {
-      const result = check.evaluate(args)
+      const result = evaluateCheck(check, args)
       return createCheckDetails(check, result)
     } catch (ex) {
       return createCheckDetails(check, {state: State.error, message: String(ex)})

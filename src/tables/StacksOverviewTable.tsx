@@ -41,7 +41,7 @@ import { other_1_0_3_taskUpdateConfig } from "../checks/task-checks/other/1.0.3-
 import { other_1_0_4_only_one_replica } from "../checks/task-checks/other/1.0.4-only-one-replica";
 import { other_1_0_5_shutdown_grace_period } from "../checks/task-checks/other/1.0.5-shutdown-grace-period";
 import { other_1_0_6_hostname_specified } from "../checks/task-checks/other/1.0.6-hostname-specified";
-import { Check, CheckResult } from '../checks/checks';
+import { Check, CheckResult, evaluateCheck } from '../checks/checks';
 
 //
 // ─────────────────────────────────────────────────────────────
@@ -254,8 +254,8 @@ export default function StacksOverviewTable(props: StackOverviewProps) {
               if (task && service && system && ctr?.container && ctr?.top) {
                 const args = { task: task, service: service, system: system, container: ctr.container, top: ctr.top }
                 const issues: Issue[] = []
-                checks.forEach(check => {
-                  const result = check.evaluate(args)
+                checks.forEach(check => {                  
+                  const result = evaluateCheck(check, args)
                   if (result.state != 'pass' && result.state != 'info') {
                     issues.push({check: check, result: result});
                   }

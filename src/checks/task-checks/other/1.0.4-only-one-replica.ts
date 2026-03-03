@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const other_1_0_4_only_one_replica: Check = {
   category: "Other"
   , id: "1.0.4"
+  , suppressionKey: 'other_1_0_4_only_one_replica'
   , title: 'Single replica'
   , description: "Tasks with only one replica will not remain available when nodes are maintained."
   , remediation: "Run two replicas"
@@ -18,7 +19,7 @@ services:
 
   , evaluate: function (args: CheckArguments): CheckResult {
 
-    const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
+    const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')
 
     if (!isSwarm) {
       return {

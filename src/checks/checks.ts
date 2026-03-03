@@ -35,6 +35,7 @@ export interface CheckResult {
 export interface Check {
   category: string
   , id: string
+  , suppressionKey: string
   , title: string
   , description: string
   , remediation: string
@@ -43,4 +44,18 @@ export interface Check {
   , example?: string
 
   , evaluate(_: CheckArguments) : CheckResult
+}
+
+export function evaluateCheck(check : Check, args : CheckArguments) : CheckResult {
+
+  const suppression = args.container?.Config?.Labels?.['swarmview.suppress']
+  if (suppression && suppression.includes(check.suppressionKey)) {
+    return {
+      state: State.info
+      , message: 'Check suppressed'
+    }
+  }
+
+  return check.evaluate(args);
+
 }
