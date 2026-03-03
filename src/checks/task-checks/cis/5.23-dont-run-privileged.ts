@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_23_dontRunPrivileges: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.23"
+  , suppressionKey: "cis_5_23_dontRunPrivileges"
   , title: "Don't run privileged"
   , description: "Ensure that docker exec commands are not used with the privileged option"
   , remediation: "You should not use the --privileged option in docker exec commands."

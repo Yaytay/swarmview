@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_27_configureHealthCheck: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.27"
+  , suppressionKey: "cis_5_27_configureHealthCheck"
   , title: "Configure health check"
   , description: "Ensure that container health is checked at runtime"
   , remediation: `You should run the container using the --health-cmd parameter.`

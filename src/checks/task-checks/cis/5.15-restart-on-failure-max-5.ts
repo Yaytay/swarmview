@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_15_restartOnFailure: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.15"
+  , suppressionKey: "cis_5_15_restartOnFailure"
   , title: 'Restart on-failure max 5'
   , description: "Ensure that the 'on-failure' container restart policy is set to '5'"
   , remediation: `If you wish a container to be automatically restarted, a sample command is as below:

@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_17_dontUseHostIpcNamespace: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.17"
+  , suppressionKey: "cis_5_17_dontUseHostIpcNamespace"
   , title: "Don't use host's IPC namespace"
   , description: "Ensure that the host's IPC namespace is not shared"
   , remediation: "You should not start a container with the --ipc=host argument."

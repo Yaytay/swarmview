@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_21_dontUseHostUts: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.21"
+  , suppressionKey: "cis_5_21_dontUseHostUts"
   , title: "Don't use host UTS"
   , description: "Ensure that the host's UTS namespace is not shared"
   , remediation: "You should not start a container with the --uts=host argument."

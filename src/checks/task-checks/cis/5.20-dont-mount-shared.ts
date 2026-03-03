@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_20_dont_mount_shared: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.20"
+  , suppressionKey: "cis_5_20_dont_mount_shared"
   , title: "Don't mount with shared propagation"
   , description: "Ensure mount propagation mode is not set to shared"
   , remediation: "Do not mount volumes in shared mode propagation."

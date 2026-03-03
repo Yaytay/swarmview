@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_29_usePidsCgroupLimit: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.29"
+  , suppressionKey: "cis_5_29_usePidsCgroupLimit"
   , title: "Use PIDs cgroup limit"
   , description: "Ensure that the PIDs cgroup limit is used"
   , remediation: `Use --pids-limit flag with an appropriate value when launching the container.`

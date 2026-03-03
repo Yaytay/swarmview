@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const other_1_0_6_hostname_specified: Check = {
   category: "Other"
   , id: "1.0.6"
+  , suppressionKey: "other_1_0_6_hostname_specified"
   , title: 'Hostname specified'
   , description: "The configuration specifies a hostname for the container.  This does not directly cause problems but it can lead clients to connect to that hostname, which can caused extended periods of disconnect whilst their DNS entries timeout."
   , remediation: "Do not specify a hostname other than {{.Service.Name}}-{{.Task.Slot}}-{{.Node.Hostname}}.  More importantly, do not address a container by hostname."

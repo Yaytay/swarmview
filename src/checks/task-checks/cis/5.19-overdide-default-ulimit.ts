@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_19_override_default_ulimit: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.19"
+  , suppressionKey: "cis_5_19_override_default_ulimit"
   , title: "Override default ulimit"
   , description: "Ensure that the default ulimit is overwritten at runtime"
   , remediation: "You should only override the default ulimit settings if needed in a specific case."

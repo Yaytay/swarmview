@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const other_1_0_1_dontRunAsRoot: Check = {
   category: "Other"
   , id: "1.0.1"
+  , suppressionKey: "other_1_0_1_dontRunAsRoot"
   , title: 'Don\'t run as root'
   , description: "Ensure containers do not run as root"
   , remediation: "Specify the user in either the compose file or the dockerfile"

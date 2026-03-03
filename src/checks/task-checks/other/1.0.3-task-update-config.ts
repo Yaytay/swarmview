@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const other_1_0_3_taskUpdateConfig: Check = {
   category: "Other"
   , id: "1.0.3"
+  , suppressionKey: "other_1_0_3_taskUpdateConfig"
   , title: 'Update config'
   , description: "Does this task define an update config?"
   , remediation: "Define an update config"

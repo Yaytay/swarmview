@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_4_kernelCapabilities: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.4"
+  , suppressionKey: "cis_5_4_kernelCapabilities"
   , title: 'Kernel capabilities'
   , description: "Ensure that Linux kernel capabilities are restricted within containers (Automated)"
   , remediation: "You could remove all the currently configured capabilities and then restore only the ones you specifically use: docker run --cap-drop=all --cap-add={<Capability 1>,<Capability 2>} <Run arguments> <Container Image Name or ID> <Command>"

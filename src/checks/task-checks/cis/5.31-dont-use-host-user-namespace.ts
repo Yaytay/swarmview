@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_31_dontUseHostUserNamespace: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.31"
+  , suppressionKey: "cis_5_31_dontUseHostUserNamespace"
   , title: "Don't use host user namespace"
   , description: "Ensure that the host's user namespaces are not shared"
   , remediation: "You should not share user namespaces between host and containers."

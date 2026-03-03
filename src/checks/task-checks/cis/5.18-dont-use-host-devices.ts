@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_18_dontUseHostDevices: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.18"
+  , suppressionKey: "cis_5_18_dontUseHostDevices"
   , title: "Don't use host devices"
   , description: "Ensure that host devices are not directly exposed to containers"
   , remediation: "You should not start a container with the --ipc=host argument."

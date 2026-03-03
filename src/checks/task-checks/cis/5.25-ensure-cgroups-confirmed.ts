@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_25_ensureCgroupsConfirmed: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.25"
+  , suppressionKey: "cis_5_25_ensureCgroupsConfirmed"
   , title: "Ensure CGroups confirmed"
   , description: "Ensure that cgroup usage is confirmed"
   , remediation: "You should not use the --cgroup-parent option within the docker run command unless strictly required."

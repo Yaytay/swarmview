@@ -1,8 +1,9 @@
 import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
-export const swarmMemorylimit : Check = {
+export const other_1_0_1_swarmMemorylimit : Check = {
   category: "Other"
   , id: "1.0.1"
+  , suppressionKey: "other_1_0_1_swarmMemorylimit"
   , title: 'Swarm memory limit'
   , description: "Is the total memory of all nodes sufficient for the tasks running on the swarm?"
   , remediation: "Increase the memory of the nodes, increase the number of nodes, or reduce the memory limit of the tasks"

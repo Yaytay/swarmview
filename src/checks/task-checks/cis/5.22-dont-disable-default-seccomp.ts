@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_22_dontDisableDefaultSeccomp: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.22"
+  , suppressionKey: "cis_5_22_dontDisableDefaultSeccomp"
   , title: "Don't disable default seccomp profile"
   , description: "Ensure the default seccomp profile is not Disabled"
   , remediation: "By default, seccomp profiles are enabled. You do not need to do anything unless you want to modify and use a modified seccomp profile."

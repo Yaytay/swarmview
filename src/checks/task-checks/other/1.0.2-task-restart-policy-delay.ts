@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const other_1_0_2_taskRestartPolicyDelay: Check = {
   category: "Other"
   , id: "1.0.2"
+  , suppressionKey: "other_1_0_2_taskRestartPolicyDelay"
   , title: 'Restart policy with delay'
   , description: "Does this task define a restart policy with a delay?"
   , remediation: "Define a restart policy with a delay to control restart-loops"

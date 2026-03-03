@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_30_dontUseDocker0Bridge: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.30"
+  , suppressionKey: "cis_5_30_dontUseDocker0Bridge"
   , title: "Don't use default bridge 'docker0'"
   , description: "Ensure that Docker's default bridge \"docker0\" is not used"
   , remediation: `You should follow the Docker documentation and set up a user-defined network. All the containers should be run in this network.`

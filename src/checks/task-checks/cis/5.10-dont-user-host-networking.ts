@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_10_dontUseHostNetworking: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.10"
+  , suppressionKey: "cis_5_10_dontUseHostNetworking"
   , title: 'Don\'t use Host networking'
   , description: "Ensure that the host's network namespace is not shared"
   , remediation: "You should not pass the --net=host option when starting any container."

@@ -1,8 +1,9 @@
 import { Check, CheckArguments, CheckResult, State } from "../../checks"
 
-export const nodeMemorylimit : Check = {
+export const other_1_0_0_nodeMemorylimit : Check = {
   category: "Other"
   , id: "1.0.0"
+  , suppressionKey: "other_1_0_0_nodeMemorylimit"
   , title: 'Node memory limit'
   , description: "Does this node have more memory than the limit of the tasks running on it?"
   , remediation: "Increase the memory of the node, increase the number of nodes, or reduce the memory limit of the tasks"

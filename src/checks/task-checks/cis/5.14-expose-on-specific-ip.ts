@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_14_exposeOnSpecificIp: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.14"
+  , suppressionKey: "cis_5_14_exposeOnSpecificIp"
   , title: 'Bind to a specific IP'
   , description: " Ensure that incoming container traffic is bound to a specific host interface"
   , remediation: "You should not pass the --net=host option when starting any container."

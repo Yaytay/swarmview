@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_12_limitCpu: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.12"
+  , suppressionKey: "cis_5_12_limitCpu"
   , title: 'Limit CPU shares'
   , description: "Ensure that CPU priority is set appropriately on containers"
   , remediation: "You should manage the CPU runtime between your containers dependent on their priority within your organization. To do so start the container using the --cpu-shares argument."

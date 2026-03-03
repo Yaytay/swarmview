@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_26_preventAdditionalPrivileges: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.26"
+  , suppressionKey: "cis_5_26_preventAdditionalPrivileges"
   , title: "Prevent additional privileges"
   , description: "5.26 Ensure that the container is restricted from acquiring additional privileges"
   , remediation: `You should start your container with the options below:

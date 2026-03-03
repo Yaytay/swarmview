@@ -5,6 +5,7 @@ const unacceptable_mounts = ['/', '/boot', '/dev', '/etc', '/lib', '/proc', '/sy
 export const cis_5_6_sensitiveDirectories: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.6"
+  , suppressionKey: "cis_5_6_sensitiveDirectories"
   , title: 'Sensitive directories'
   , description: "Ensure sensitive host system directories are not mounted on containers (Automated)"
   , remediation: "You should not mount directories which are security sensitive on the host within containers, especially in read-write mode."

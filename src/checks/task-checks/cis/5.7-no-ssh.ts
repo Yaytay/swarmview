@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_7_noSsh: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.7"
+  , suppressionKey: "cis_5_7_noSsh"
   , title: 'No SSH'
   , description: "Ensure sshd is not run within containers (Automated)"
   , remediation: "Uninstall the SSH daemon from the container and use docker exec to enter a container on the remote host."

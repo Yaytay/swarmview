@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const other_1_0_0_capDropAll: Check = {
   category: "Other"
   , id: "1.0.0"
+  , suppressionKey: "other_1_0_0_capDropAll"
   , title: 'Cap-drop All'
   , description: "Ensure that containers are run without additional capabilities"
   , remediation: "Specify cap-drop=all and do not specify cap-add."

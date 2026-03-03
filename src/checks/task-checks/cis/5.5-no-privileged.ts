@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_5_noPrivileges: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.5"
+  , suppressionKey: "cis_5_5_noPrivileges"
   , title: 'Not privileged'
   , reference: ''
   , description: "Ensure that privileged containers are not used (Automated)"

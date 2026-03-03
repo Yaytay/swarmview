@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_2_appArmorEnabled: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.2"
+  , suppressionKey: "cis_5_2_appArmorEnabled"
   , title: 'AppArmor Enabled'
   , description: "Ensure that, if applicable, an AppArmor Profile is enabled (Automated)"
   , remediation: `If AppArmor is applicable for your Linux OS, you should enable it. Alternatively, Docker's default AppArmor policy can be used.`

@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_28_useMostRecentImage: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.28"
+  , suppressionKey: "cis_5_28_useMostRecentImage"
   , title: "Use most recent image"
   , description: "Ensure that Docker commands always make use of the latest version of their image"
   , remediation: `You should use proper version pinning mechanisms (the "latest" tag which is assigned by default is still vulnerable to caching attacks) to avoid extracting cached older versions. Version pinning mechanisms should be used for base images, packages, and entire images. You can customize version pinning rules according to your requirements.`

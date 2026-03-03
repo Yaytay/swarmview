@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_11_limitMemory: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.11"
+  , suppressionKey: "cis_5_11_limitMemory"
   , title: 'Limit memory'
   , description: "Ensure that the memory usage for containers is limited"
   , remediation: "You should run the container with only as much memory as it requires by using the --memory argument."

@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_3_seLinuxEnabled: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.3"
+  , suppressionKey: "cis_5_3_seLinuxEnabled"
   , title: 'SELinux Enabled'
   , description: "Ensure that, if applicable, SELinux security options are set (Automated)"
   , remediation: "Set the SELinux State. Set the SELinux Policy. Create or import a SELinux policy template for Docker containers. Start Docker in daemon mode with SELinux enabled. Start your Docker container using the security options."

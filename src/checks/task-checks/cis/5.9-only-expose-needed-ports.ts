@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_9_onlyExposeNeededPorts: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.9"
+  , suppressionKey: "cis_5_9_onlyExposeNeededPorts"
   , title: 'Only expose needed ports'
   , description: "Ensure that only needed ports are open on the container"
   , remediation: "You should ensure that the Dockerfile for each container image only exposes needed ports."

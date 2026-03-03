@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const cis_5_16_dontUseHostProcessNamespace: Check = {
   category: "CIS Docker Benchmarks"
   , id: "5.16"
+  , suppressionKey: "cis_5_16_dontUseHostProcessNamespace"
   , title: "Don't use host's process namespace"
   , description: "Ensure that the host's process namespace is not shared"
   , remediation: "You should not start a container with the --pid=host argument."

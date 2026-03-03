@@ -3,6 +3,7 @@ import { Check, CheckArguments, CheckResult, State } from "../../checks"
 export const other_1_0_5_shutdown_grace_period: Check = {
   category: "Other"
   , id: "1.0.5"
+  , suppressionKey: "other_1_0_5_shutdown_grace_period"
   , title: 'Shutdown grace period'
   , description: "A shutdown grace period should be defined."
   , remediation: "Specify a shutdown grace period."
