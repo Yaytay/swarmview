@@ -12,6 +12,7 @@ import ChecksTable, { CheckDetails, createCheckDetails } from "./tables/ChecksTa
 interface ChecksUiProps {
   id: string
   , checks: Check[]
+  , suppressionLabel: string | undefined
   , args: CheckArguments
 }
 class CheckResultsCategory {
@@ -83,7 +84,7 @@ function ChecksUi(props: ChecksUiProps) {
 
   function evaluate(check: Check, args: CheckArguments) {
     try {
-      const result = evaluateCheck(check, args)
+      const result = evaluateCheck(check, props.suppressionLabel, args)
       return createCheckDetails(check, result)
     } catch (ex) {
       return createCheckDetails(check, {state: State.error, message: String(ex)})

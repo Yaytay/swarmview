@@ -253,9 +253,10 @@ export default function StacksOverviewTable(props: StackOverviewProps) {
               const system = systemsByNodeId?.get(task.NodeID);
               if (task && service && system && ctr?.container && ctr?.top) {
                 const args = { task: task, service: service, system: system, container: ctr.container, top: ctr.top }
+                const suppressionLabel = ctr.container?.Config?.Labels?.['swarmview.suppress']
                 const issues: Issue[] = []
                 checks.forEach(check => {                  
-                  const result = evaluateCheck(check, args)
+                  const result = evaluateCheck(check, suppressionLabel, args)
                   if (result.state != 'pass' && result.state != 'info') {
                     issues.push({check: check, result: result});
                   }

@@ -94,7 +94,7 @@ function TaskChecks(props: TaskChecksProps) {
   const args = { task: props.task, service: props.service, system: props.system, container: props.container, top: props.top }
 
   return (
-    <ChecksUi id='task.checks' checks={checks} args={args} />
+    <ChecksUi id='task.checks' checks={checks} suppressionLabel={args.container?.Config?.Labels?.['swarmview.suppress']} args={args} />
   )
 }
 

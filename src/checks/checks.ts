@@ -46,10 +46,9 @@ export interface Check {
   , evaluate(_: CheckArguments) : CheckResult
 }
 
-export function evaluateCheck(check : Check, args : CheckArguments) : CheckResult {
+export function evaluateCheck(check : Check, suppressionLabel: string | undefined, args : CheckArguments) : CheckResult {
 
-  const suppression = args.container?.Config?.Labels?.['swarmview.suppress']
-  if (suppression && suppression.includes(check.suppressionKey)) {
+  if (suppressionLabel && suppressionLabel.includes(check.suppressionKey)) {
     return {
       state: State.info
       , message: 'Check suppressed'

@@ -1,7 +1,7 @@
 import { Check } from "./checks/checks";
 import { Node, Task } from "./docker-schema";
-import { nodeMemorylimit } from "./checks/node-checks/other/1.0.0-memory-limit";
-import { swarmMemorylimit } from "./checks/node-checks/other/1.0.1-total-memory-limit";
+import { other_1_0_0_nodeMemorylimit } from "./checks/node-checks/other/1.0.0-memory-limit";
+import { other_1_0_1_swarmMemorylimit } from "./checks/node-checks/other/1.0.1-total-memory-limit";
 import ChecksUi from "./ChecksUi";
 
 interface NodeChecksProps {
@@ -12,14 +12,14 @@ interface NodeChecksProps {
 function NodeChecks(props: NodeChecksProps) {
 
   const checks: Check[] = [
-    nodeMemorylimit
-    , swarmMemorylimit
+    other_1_0_0_nodeMemorylimit
+    , other_1_0_1_swarmMemorylimit
   ]
 
   const args = {node: props.node, nodes: props.nodes, tasks: props.tasks}
 
   return (
-    <ChecksUi id='node.checks' checks={checks} args={args} />
+    <ChecksUi id='node.checks' checks={checks} suppressionLabel={args.node?.Spec?.Labels?.['swarmview.suppress']} args={args} />
   )
 }
 
