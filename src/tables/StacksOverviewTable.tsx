@@ -309,6 +309,8 @@ export default function StacksOverviewTable(props: StackOverviewProps) {
         columns={stackColumns}
         data={stacks}
         enableExpanding
+        enablePagination={false}
+        enableBottomToolbar={false}
         renderDetailPanel={({ row }) => (
           <ServicesTable services={row.original.services} />
         )}
