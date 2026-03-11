@@ -76,7 +76,6 @@ jobs:
           -t ghcr.io/yaytay/${GITHUB_REPOSITORY#*/}:${GITHUB_REF_NAME}-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }} \
           --push .
 
-
     - name: Create SBOMs
       run: |
         npx --yes @cyclonedx/cyclonedx-npm --output-file swarmview-ui.sbom.json
@@ -84,20 +83,17 @@ jobs:
         npx --yes @cyclonedx/cyclonedx-npm --output-file ../swarmview-server.sbom.json
         cd ..
         PLATFORM_TAG=${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
-        docker run -v /var/run/docker.sock:/var/run/docker.sock -v$(pwd):/app:rw aquasec/trivy:0.63.0 image --platform ${{ matrix.platform }} --format cyclonedx --output /app/swarmview-docker.sbom.json ghcr.io/yaytay/${GITHUB_REPOSITORY#*/}:${GITHUB_REF_NAME}-${PLATFORM_TAG}
+        docker run -v /var/run/docker.sock:/var/run/docker.sock -v$(pwd):/app:rw aquasec/trivy image --skip-version-check --platform ${{ matrix.platform }} --format cyclonedx --output /app/swarmview-docker.sbom.json ghcr.io/yaytay/${GITHUB_REPOSITORY#*/}:${GITHUB_REF_NAME}-${PLATFORM_TAG}
         sed -i 's#"specVersion": "1.6"#"specVersion": "1.5"#' swarmview-docker.sbom.json
-        docker run -v .:/files cyclonedx/cyclonedx-cli merge --input-files /files/swarmview-docker.sbom.json /files/swarmview-server.sbom.json /files/swarmview-ui.sbom.json --output-file /files/swarmview.sbom.json --group spudspy --name swarmview --version "$GITHUB_REF_NAME" --hierarchical
 
-    - name: Attach SBOM to image
-      run: |
-        PLATFORM_TAG=${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
-        docker run --rm -v .:/workspace -v ${HOME}/.docker:/root/.docker -v /var/run/docker:/var/run/docker ghcr.io/oras-project/oras:v1.2.0 attach --artifact-type application/vnd.cyclonedx+json ghcr.io/yaytay/${GITHUB_REPOSITORY#*/}:${GITHUB_REF_NAME}-${PLATFORM_TAG} swarmview.sbom.json
-        
     - name: Upload SBOMs
       uses: actions/upload-artifact@v4
       with:
         name: sbom-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
-        path: swarmview*.sbom.json
+        path: |
+          swarmview-ui.sbom.json
+          swarmview-server.sbom.json
+          swarmview-docker.sbom.json
 
   merge:
     needs: build
@@ -110,7 +106,23 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         pattern: sbom-*
-        merge-multiple: true
+        merge-multiple: false
+
+    - name: Merge SBOMs
+      run: |
+        docker run --rm -v "${PWD}:/files" cyclonedx/cyclonedx-cli merge \
+          --input-files \
+            /files/sbom-amd64/swarmview-docker.sbom.json \
+            /files/sbom-amd64/swarmview-server.sbom.json \
+            /files/sbom-amd64/swarmview-ui.sbom.json \
+            /files/sbom-arm64/swarmview-docker.sbom.json \
+            /files/sbom-arm64/swarmview-server.sbom.json \
+            /files/sbom-arm64/swarmview-ui.sbom.json \
+          --output-file /files/swarmview.sbom.json \
+          --group spudspy \
+          --name swarmview \
+          --version "${GITHUB_REF_NAME}" \
+          --hierarchical
 
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
@@ -128,6 +140,5 @@ jobs:
     - name: Create release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "swarmview*.sbom.json"
+        artifacts: "swarmview.sbom.json"
         token: ${{ github.token }}
-
