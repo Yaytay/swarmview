@@ -59,7 +59,7 @@ jobs:
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: build
+        name: build-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
         path: |
           build.tar.gz
 
