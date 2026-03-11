@@ -12,12 +12,23 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+
+    permissions:
+      contents: write
+      packages: write
+      attestations: write
+      id-token: write
 
     strategy:
       matrix:
-        node-version: [24.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        include:
+          - runner: ubuntu-latest
+            platform: linux/amd64
+            node-version: 24.x
+          - runner: ubuntu-24.04-arm64
+            platform: linux/arm64
+            node-version: 24.x
 
     steps:
     - name: Checkout
