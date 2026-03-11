@@ -26,7 +26,7 @@ jobs:
           - runner: ubuntu-latest
             platform: linux/amd64
             node-version: 24.x
-          - runner: ubuntu-24.04-arm64
+          - runner: ubuntu-24.04-arm
             platform: linux/arm64
             node-version: 24.x
 
