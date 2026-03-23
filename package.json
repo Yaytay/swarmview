@@ -48,7 +48,7 @@
     "globals": "^17.4.0",
     "morgan": "^1.10.1",
     "nodemon": "^3.1.14",
-    "react-router-dom": "^7.13.1",
+    "react-router-dom": "^7.13.2",
     "typescript": "^5.9.3",
     "vite": "^7.3.1"
   }
