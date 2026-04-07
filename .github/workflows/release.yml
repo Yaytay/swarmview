@@ -104,7 +104,7 @@ jobs:
 
     steps:
     - name: Download all SBOMs
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         pattern: sbom-*
         merge-multiple: false
