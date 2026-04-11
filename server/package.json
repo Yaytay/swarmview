@@ -8,7 +8,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
-    "@types/node": "^25.5.2",
+    "@types/node": "^25.6.0",
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
     "express-http-proxy": "^2.1.2",
