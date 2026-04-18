@@ -42,7 +42,7 @@
     "concurrently": "^9.2.1",
     "eslint": "^10.2.0",
     "express": "^5.2.1",
-    "globals": "^17.4.0",
+    "globals": "^17.5.0",
     "morgan": "^1.10.1",
     "nodemon": "^3.1.14",
     "react-router-dom": "^7.14.0",
