@@ -118,34 +118,34 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <Box id="navbar" className="sidebar" borderRight='2px solid' borderColor="gray" sx={{ height: '100%' }}>
+        <Box id="navbar" className="sidebar" sx={{ height: '100%', borderRight: '2px solid', borderColor: 'gray' }}>
           <Box sx={{ padding: '2px' }}>
             <Typography variant='h6'>Swarm View</Typography>
             <Typography variant='body2'>Version <Version /></Typography>
           </Box>
           <hr />
           <Box>
-            <Link className='navlink' to="/overview"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1}><LayersIcon fontSize='small' /><Typography>Overview</Typography></Stack></Link>
+            <Link className='navlink' to="/overview"><Stack sx={{alignItems: "center", direction: "row", spacing: 1, paddingLeft: 1}}><LayersIcon fontSize='small' /><Typography>Overview</Typography></Stack></Link>
             <hr />
-            <Link className='navlink' to="/stacks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1}><LayersIcon fontSize='small' /><Typography>Stacks</Typography></Stack></Link>
-            <Link className='navlink' to="/services"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><MiscellaneousServicesIcon fontSize='small' /><Typography>Services</Typography></Stack></Link>
-            <Link className='navlink' to="/tasks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><AssignmentIcon fontSize='small' /><Typography>Tasks</Typography></Stack></Link>
+            <Link className='navlink' to="/stacks"><Stack sx={{alignItems: "center", direction: "row", spacing: 1, paddingLeft: 1}}><LayersIcon fontSize='small' /><Typography>Stacks</Typography></Stack></Link>
+            <Link className='navlink' to="/services"><Stack sx={{alignItems: "center", direction: "row", spacing: 1, paddingLeft: 1}}><MiscellaneousServicesIcon fontSize='small' /><Typography>Services</Typography></Stack></Link>
+            <Link className='navlink' to="/tasks"><Stack sx={{alignItems: "center", direction: "row", spacing: 1, paddingLeft: 1}}><AssignmentIcon fontSize='small' /><Typography>Tasks</Typography></Stack></Link>
             <hr />
-            <Link className='navlink' to="/nodes"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><HubIcon fontSize='small' /><Typography>Nodes</Typography></Stack></Link>
-            <Link className='navlink' to="/networks"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><WifiIcon fontSize='small' /><Typography>Networks</Typography></Stack></Link>
+            <Link className='navlink' to="/nodes"><Stack sx={{alignItems: "center", direction: "row", spacing: 1, paddingLeft: 1}}><HubIcon fontSize='small' /><Typography>Nodes</Typography></Stack></Link>
+            <Link className='navlink' to="/networks"><Stack sx={{alignItems: "center", direction: "row", spacing: 1, paddingLeft: 1}}><WifiIcon fontSize='small' /><Typography>Networks</Typography></Stack></Link>
             <hr />
-            <Link className='navlink' to="/configs"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><DisplaySettingsIcon fontSize='small' /><Typography>Configs</Typography></Stack></Link>
-            <Link className='navlink' to="/secrets"><Stack alignItems="center" direction="row" spacing={1} paddingLeft={1} ><KeyIcon fontSize='small' /><Typography>Secrets</Typography></Stack></Link>
+            <Link className='navlink' to="/configs"><Stack sx={{alignItems: "center", direction: "row", spacing: 1, paddingLeft: 1}}><DisplaySettingsIcon fontSize='small' /><Typography>Configs</Typography></Stack></Link>
+            <Link className='navlink' to="/secrets"><Stack sx={{alignItems: "center", direction: "row", spacing: 1, paddingLeft: 1}}><KeyIcon fontSize='small' /><Typography>Secrets</Typography></Stack></Link>
           </Box>
           <Box sx={{ position: 'absolute', bottom: 0 }}>
-            <Typography fontSize={'8pt'} padding='2px'>
+            <Typography sx={{ fontSize: '8pt', padding: '2px' }}>
               Data last updated:<br />{lastUpdate.toISOString()}
             </Typography>
           </Box>
         </Box>
         <Box className='notSideBar'>
-          <Box className='titleBar' bgcolor='primary.main' width='100%' sx={{ display: 'flex' }} >
-            <Typography variant='h4' flexGrow={1}>{title}</Typography>
+          <Box className='titleBar' sx={{ display: 'flex', bgcolor: 'primary.main', width: '100%' }} >
+            <Typography variant='h4' sx={{ flexGrow: 1}}>{title}</Typography>
             <Box>
               <CachedIcon onClick={() => { refreshCache() }} ></CachedIcon>
               {mode === 'light' ? (
