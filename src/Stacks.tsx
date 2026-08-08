@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { DockerApi } from './DockerApi';
-import StacksTable, { StackDetails } from './tables/StacksTable';
-import { Dimensions } from './app-types';
-import { SetTitle } from './App';
+import type { DockerApi } from './DockerApi';
+import StacksTable, { type StackDetails } from './tables/StacksTable';
+import type { Dimensions } from './app-types';
+import type { SetTitle } from './App';
 
 interface StacksProps {
   baseUrl: string

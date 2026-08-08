@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_3_seLinuxEnabled: Check = {
   category: "CIS Docker Benchmarks"
@@ -10,7 +10,7 @@ export const cis_5_3_seLinuxEnabled: Check = {
   , remediationImpact: "Any restrictions defined in the SELinux policy will be applied to your containers. It should be noted that if your SELinux policy is misconfigured, this may have an impact on the correct operation of the affected containers."
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.system && args.system.SecurityOptions && !args.system.SecurityOptions.find(v => v === 'name=selinux')) {
       return {

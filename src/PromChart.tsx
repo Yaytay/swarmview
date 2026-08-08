@@ -1,6 +1,6 @@
 import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { DockerApi } from "./DockerApi";
-import { ChartData, metricName, PrometheusResults, transformData } from "./prometheus";
+import type { DockerApi } from "./DockerApi";
+import { type ChartData, metricName, type PrometheusResults, transformData } from "./prometheus";
 import { useEffect, useState } from "react";
 import { Box } from "@mui/system";
 import { Paper } from "@mui/material";

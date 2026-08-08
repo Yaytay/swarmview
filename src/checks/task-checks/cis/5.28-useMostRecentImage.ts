@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_28_useMostRecentImage: Check = {
   category: "CIS Docker Benchmarks"
@@ -10,7 +10,7 @@ export const cis_5_28_useMostRecentImage: Check = {
   , remediationImpact: ``
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container?.Config?.Image) {
       if (args.container.Config.Image?.endsWith(':latest') || args.container.Config.Image.indexOf(':latest@') >= 0) {

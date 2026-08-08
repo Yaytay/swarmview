@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const other_1_0_1_swarmMemorylimit : Check = {
   category: "Other"
@@ -10,7 +10,7 @@ export const other_1_0_1_swarmMemorylimit : Check = {
   , remediationImpact: "Increased cost or load on VM hosts"
   , reference: ''
   
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.nodes && args.tasks) {
       const totalRequirement = args.tasks.reduce((acc, tsk) => {

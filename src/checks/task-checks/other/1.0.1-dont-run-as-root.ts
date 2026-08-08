@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const other_1_0_1_dontRunAsRoot: Check = {
   category: "Other"
@@ -18,7 +18,7 @@ services:
     user: <uid>>:<gid>
 `
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.top) {
       const uidCol = args.top.Titles?.findIndex(t => t === 'UID')

@@ -1,7 +1,7 @@
 import MaterialTable from '../MaterialTable';
 import { Link } from 'react-router-dom';
-import { MRT_ColumnDef } from 'material-react-table';
-import { Dimensions } from '../app-types';
+import type { MRT_ColumnDef } from 'material-react-table';
+import type { Dimensions } from '../app-types';
 
 export interface StackDetails {
   name: string

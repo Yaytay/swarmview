@@ -1,21 +1,21 @@
-import { useState, useEffect, SyntheticEvent } from 'react';
+import { useState, useEffect, type SyntheticEvent } from 'react';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import { Task, Node, SystemInfo, Service, Containers, Network } from './docker-schema';
+import type { Task, Node, SystemInfo, Service, Containers, Network } from './docker-schema';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
 import { Tabs, Tab } from '@mui/material';
 import JSONPretty from 'react-json-pretty';
-import VisNetwork, { GraphData, Node as NetworkNode, Edge } from './VisNetwork';
+import VisNetwork, { type GraphData, type Node as NetworkNode, type Edge } from './VisNetwork';
 import LogsView from './LogsView';
 import TaskChecks from './TaskChecks';
-import { DockerApi } from './DockerApi';
+import type { DockerApi } from './DockerApi';
 import KeyValueTable from './KeyValueTable';
 import SimpleTable from './SimpleTable';
-import LabelsTable, { LabelDetails, createLabels } from './tables/LabelsTable';
-import NetworkAttachmentsTable, { createNetworkAttachmentDetails, NetworkAttachmentDetails } from './tables/NetworkAttachmentsTable';
-import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
-import { SetTitle } from './App';
+import LabelsTable, { type LabelDetails, createLabels } from './tables/LabelsTable';
+import NetworkAttachmentsTable, { createNetworkAttachmentDetails, type NetworkAttachmentDetails } from './tables/NetworkAttachmentsTable';
+import ServicesTable, { createServiceDetails, type ServiceDetails } from './tables/ServicesTable';
+import type { SetTitle } from './App';
 
 interface TaskUiProps {
   baseUrl: string

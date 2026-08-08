@@ -1,7 +1,7 @@
-import MaterialTable, { MaterialTableState } from '../MaterialTable';
-import { MRT_ColumnDef } from 'material-react-table';
-import { Dimensions } from '../app-types';
-import { IPAMConfig } from '../docker-schema';
+import MaterialTable, { type MaterialTableState } from '../MaterialTable';
+import type { MRT_ColumnDef } from 'material-react-table';
+import type { Dimensions } from '../app-types';
+import type { IPAMConfig } from '../docker-schema';
 
 export interface IpamConfigDetails {
   id: string

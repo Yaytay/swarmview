@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { DockerApi } from './DockerApi';
-import { Dimensions } from './app-types';
-import TasksTable, { createTaskDetails, processTaskDetailsSubRows, TaskDetails } from './tables/TasksTable';
-import { SetTitle } from './App';
+import type { DockerApi } from './DockerApi';
+import type { Dimensions } from './app-types';
+import TasksTable, { createTaskDetails, processTaskDetailsSubRows, type TaskDetails } from './tables/TasksTable';
+import type { SetTitle } from './App';
 
 interface TasksProps {
   baseUrl: string

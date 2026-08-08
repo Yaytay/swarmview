@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { DockerApi } from './DockerApi';
-import { Dimensions } from './app-types';
-import ConfigsTable, { buildServicesByConfig, ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
-import { SetTitle } from './App';
+import type { DockerApi } from './DockerApi';
+import type { Dimensions } from './app-types';
+import ConfigsTable, { buildServicesByConfig, type ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
+import type { SetTitle } from './App';
 
 interface ConfigsProps {
   baseUrl: string

@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_22_dontDisableDefaultSeccomp: Check = {
   category: "CIS Docker Benchmarks"
@@ -10,7 +10,7 @@ export const cis_5_22_dontDisableDefaultSeccomp: Check = {
   , remediationImpact: `With Docker 1.10 and greater, the default seccomp profile blocks syscalls, regardless of --cap-add passed to the container. You should create your own custom seccomp profile in such cases. You may also disable the default seccomp profile by passing --security-opt=seccomp:unconfined on docker run.`
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
       if (args.container.HostConfig?.SecurityOpt?.includes('seccomp:unconfined')) {

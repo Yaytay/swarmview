@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { DockerApi } from './DockerApi';
-import NodesTable, { createNodeDetails, NodeDetails } from './tables/NodesTable';
-import { Dimensions } from './app-types';
-import { SetTitle } from './App';
+import type { DockerApi } from './DockerApi';
+import NodesTable, { createNodeDetails, type NodeDetails } from './tables/NodesTable';
+import type { Dimensions } from './app-types';
+import type { SetTitle } from './App';
 
 interface NodesProps {
   baseUrl: string

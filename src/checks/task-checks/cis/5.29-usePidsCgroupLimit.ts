@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_29_usePidsCgroupLimit: Check = {
   category: "CIS Docker Benchmarks"
@@ -10,9 +10,9 @@ export const cis_5_29_usePidsCgroupLimit: Check = {
   , remediationImpact: `Set the PIDs limit value as appropriate. Incorrect values might leave containers unusable.`
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
-    const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
+    const isSwarm = Object.hasOwn(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
 
     if (args.container) {
       if (args.container?.HostConfig?.PidsLimit) {

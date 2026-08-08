@@ -30,7 +30,7 @@ function onlyDifferByFollow(a : LogsContentProps, b : LogsContentProps) {
   return (a.url === b.url && a.tail === b.tail && a.filter === b.filter)
 }
 
-let reader : ReadableStreamDefaultReader<Uint8Array> | undefined = undefined
+let reader : ReadableStreamDefaultReader<Uint8Array> | undefined 
 
 function LogsContent(props: LogsContentProps) {
   

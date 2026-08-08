@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { DockerApi } from './DockerApi';
-import { Dimensions } from './app-types';
-import SecretsTable, { buildServicesBySecret, SecretDetails, createSecretDetails } from './tables/SecretsTable';
-import { SetTitle } from './App';
+import type { DockerApi } from './DockerApi';
+import type { Dimensions } from './app-types';
+import SecretsTable, { buildServicesBySecret, type SecretDetails, createSecretDetails } from './tables/SecretsTable';
+import type { SetTitle } from './App';
 
 interface SecretsProps {
   baseUrl: string

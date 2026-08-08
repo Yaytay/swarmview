@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_9_onlyExposeNeededPorts: Check = {
   category: "CIS Docker Benchmarks"
@@ -10,7 +10,7 @@ export const cis_5_9_onlyExposeNeededPorts: Check = {
   , remediationImpact: "Failing to expose required ports will impact functionality."
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
       const pb = args.container.HostConfig?.PortBindings

@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_19_override_default_ulimit: Check = {
   category: "CIS Docker Benchmarks"
@@ -20,7 +20,7 @@ services:
       nofile: 1000
   `
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
       if (args.container.HostConfig?.Ulimits && args.container.HostConfig?.Ulimits.length > 0) {

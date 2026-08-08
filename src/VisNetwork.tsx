@@ -1,6 +1,6 @@
-import { Node, Edge, Network, NetworkEvents, Options } from "vis-network"
+import { type Node, type Edge, Network, type NetworkEvents, type Options } from "vis-network"
 import 'vis-network/styles/vis-network.css'
-import { SxProps, Theme } from '@mui/material/styles';
+import type { SxProps, Theme } from '@mui/material/styles';
 import Box from "@mui/system/Box";
 import { useEffect, useRef } from "react";
 

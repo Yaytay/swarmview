@@ -1,9 +1,9 @@
-import { MRT_ColumnDef } from 'material-react-table';
-import MaterialTable, { MaterialTableState } from '../MaterialTable';
+import type { MRT_ColumnDef } from 'material-react-table';
+import MaterialTable, { type MaterialTableState } from '../MaterialTable';
 import { Link } from 'react-router-dom';
 import * as duration from 'duration-fns'
-import { Dimensions } from '../app-types';
-import { Service, Task, Node } from '../docker-schema';
+import type { Dimensions } from '../app-types';
+import type { Service, Task, Node } from '../docker-schema';
 
 export interface TaskDetails {
   id: string

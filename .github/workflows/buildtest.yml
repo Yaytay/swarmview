@@ -52,7 +52,6 @@ jobs:
         npm -v
         npm ci
         npx tsc --noEmit
-        # npx eslint 
         npm run build --if-present
         tar -czf build.tar.gz dist
 
@@ -69,7 +68,6 @@ jobs:
         npm ci
         npx tsc --noEmit
         cd ..
-        # npx eslint server
 
     - name: Build image
       run: |

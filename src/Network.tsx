@@ -1,20 +1,20 @@
-import { useState, useEffect, SyntheticEvent } from 'react';
+import { useState, useEffect, type SyntheticEvent } from 'react';
 import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Network, Service } from './docker-schema';
+import type { Network, Service } from './docker-schema';
 import Section from './Section'
 import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { ContainerData, DockerApi } from './DockerApi';
+import type { ContainerData, DockerApi } from './DockerApi';
 import KeyValueTable from './KeyValueTable';
-import LabelsTable, { createLabelDetails, LabelDetails } from './tables/LabelsTable';
-import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
-import IpamConfigsTable, { createIpamConfigDetails, IpamConfigDetails } from './tables/IpamConfigsTable';
-import NetworkTasksTable, { createNetworkTaskDetails, NetworkTaskDetails } from './tables/NetworkTasksTable';
-import { SetTitle } from './App';
+import LabelsTable, { createLabelDetails, type LabelDetails } from './tables/LabelsTable';
+import ServicesTable, { createServiceDetails, type ServiceDetails } from './tables/ServicesTable';
+import IpamConfigsTable, { createIpamConfigDetails, type IpamConfigDetails } from './tables/IpamConfigsTable';
+import NetworkTasksTable, { createNetworkTaskDetails, type NetworkTaskDetails } from './tables/NetworkTasksTable';
+import type { SetTitle } from './App';
 
 
 interface NetworkProps {

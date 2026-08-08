@@ -1,9 +1,9 @@
 import Box from '@mui/material/Box';
 import MaterialTable from '../MaterialTable';
 import { Link } from 'react-router-dom';
-import { MRT_ColumnDef } from 'material-react-table';
-import { Service } from '../docker-schema';
-import { Dimensions } from '../app-types';
+import type { MRT_ColumnDef } from 'material-react-table';
+import type { Service } from '../docker-schema';
+import type { Dimensions } from '../app-types';
 
 export interface ServiceDetails {
   id: string

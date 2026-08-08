@@ -33,10 +33,10 @@ import SecretUi from './Secret';
 import ConfigUi from './Config';
 import Version from './Version';
 import Stack from '@mui/material/Stack';
-import { PaletteMode } from '@mui/material';
+import type { PaletteMode } from '@mui/material';
 import { DockerApi } from './DockerApi';
 import { enqueueSnackbar, SnackbarProvider } from 'notistack';
-import { Dimensions } from './app-types';
+import type { Dimensions } from './app-types';
 import Overview from './Overview';
 
 const heightOffset = 128

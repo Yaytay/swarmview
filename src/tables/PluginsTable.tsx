@@ -1,6 +1,6 @@
-import MaterialTable, { MaterialTableState } from '../MaterialTable';
-import { MRT_ColumnDef } from 'material-react-table';
-import { Dimensions } from '../app-types';
+import MaterialTable, { type MaterialTableState } from '../MaterialTable';
+import type { MRT_ColumnDef } from 'material-react-table';
+import type { Dimensions } from '../app-types';
 
 export interface PluginDetails {
   id: string

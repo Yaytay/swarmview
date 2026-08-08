@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_26_preventAdditionalPrivileges: Check = {
   category: "CIS Docker Benchmarks"
@@ -12,10 +12,10 @@ docker run --rm -it --security-opt=no-new-privileges ubuntu bash`
   , remediationImpact: `The no_new_priv option prevents LSMs like SELinux from allowing processes to acquire new privileges`
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
-      const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
+      const isSwarm = Object.hasOwn(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
       if (isSwarm) {
         return {
           state: State.info

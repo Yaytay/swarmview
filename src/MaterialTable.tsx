@@ -1,5 +1,5 @@
-import { Box, IconButton, PaperProps, TableContainerProps, TableRowProps, Tooltip, useTheme } from "@mui/material";
-import { MaterialReactTable, MRT_ColumnDef, MRT_ColumnFiltersState, MRT_ColumnOrderState, MRT_ColumnSizingState, MRT_DensityState, MRT_Row, MRT_RowData, MRT_ShowHideColumnsButton, MRT_SortingState, MRT_TableInstance, MRT_ToggleDensePaddingButton, MRT_ToggleFiltersButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, MRT_VisibilityState, useMaterialReactTable } from "material-react-table"
+import { Box, IconButton, type PaperProps, type TableContainerProps, type TableRowProps, Tooltip, useTheme } from "@mui/material";
+import { MaterialReactTable, type MRT_ColumnDef, type MRT_ColumnFiltersState, type MRT_ColumnOrderState, type MRT_ColumnSizingState, type MRT_DensityState, type MRT_Row, type MRT_RowData, MRT_ShowHideColumnsButton, type MRT_SortingState, type MRT_TableInstance, MRT_ToggleDensePaddingButton, MRT_ToggleFiltersButton, MRT_ToggleFullScreenButton, MRT_ToggleGlobalFilterButton, type MRT_VisibilityState, useMaterialReactTable } from "material-react-table"
 import { useEffect, useRef, useState } from "react";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SearchIcon from '@mui/icons-material/Search';

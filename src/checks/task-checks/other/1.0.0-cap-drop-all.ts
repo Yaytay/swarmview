@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const other_1_0_0_capDropAll: Check = {
   category: "Other"
@@ -18,7 +18,7 @@ services:
     cap_drop:
     - ALL
 `
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
       if (args.container.HostConfig?.CapDrop && args.container.HostConfig?.CapDrop.length > 0) {

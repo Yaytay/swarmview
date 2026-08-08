@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_14_exposeOnSpecificIp: Check = {
   category: "CIS Docker Benchmarks"
@@ -10,10 +10,10 @@ export const cis_5_14_exposeOnSpecificIp: Check = {
   , remediationImpact: "."
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
-      const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')
+      const isSwarm = Object.hasOwn(args.container?.Config?.Labels, 'com.docker.stack.namespace')
 
       const pb = args.container.HostConfig?.PortBindings
       if (pb) {

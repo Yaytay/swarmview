@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const other_1_0_3_taskUpdateConfig: Check = {
   category: "Other"
@@ -21,9 +21,9 @@ services:
         order: start-first
 `
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
-    const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
+    const isSwarm = Object.hasOwn(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
 
     if (!isSwarm) {
       return {

@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const other_1_0_6_hostname_specified: Check = {
   category: "Other"
@@ -17,7 +17,7 @@ services:
     ...
   `
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.service) {
       if (args.service?.Spec?.TaskTemplate?.ContainerSpec?.Hostname) {

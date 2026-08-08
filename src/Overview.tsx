@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { DockerApi } from './DockerApi';
-import { Dimensions } from './app-types';
-import { SetTitle } from './App';
-import NodesTable, { createNodeDetails, NodeDetails } from './tables/NodesTable';
+import type { DockerApi } from './DockerApi';
+import type { Dimensions } from './app-types';
+import type { SetTitle } from './App';
+import NodesTable, { createNodeDetails, type NodeDetails } from './tables/NodesTable';
 import { Box, Grid } from '@mui/system';
 import Section from './Section';
 import StacksOverviewTable from './tables/StacksOverviewTable';

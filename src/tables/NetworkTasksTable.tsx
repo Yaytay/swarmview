@@ -1,10 +1,10 @@
-import { MRT_ColumnDef } from 'material-react-table';
-import MaterialTable, { MaterialTableState } from '../MaterialTable';
+import type { MRT_ColumnDef } from 'material-react-table';
+import MaterialTable, { type MaterialTableState } from '../MaterialTable';
 import { Link } from 'react-router-dom';
 import * as duration from 'duration-fns'
-import { Dimensions } from '../app-types';
-import { Service, Task, Node, Network } from '../docker-schema';
-import { ContainerData } from '../DockerApi';
+import type { Dimensions } from '../app-types';
+import type { Service, Task, Node, Network } from '../docker-schema';
+import type { ContainerData } from '../DockerApi';
 
 export interface NetworkTaskDetails {
   id: string

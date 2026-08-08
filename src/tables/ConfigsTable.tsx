@@ -1,8 +1,8 @@
 import MaterialTable from '../MaterialTable';
 import { Link } from 'react-router-dom';
-import { MRT_ColumnDef } from 'material-react-table';
-import { Config, Service } from '../docker-schema';
-import { Dimensions, IdName } from '../app-types';
+import type { MRT_ColumnDef } from 'material-react-table';
+import type { Config, Service } from '../docker-schema';
+import type { Dimensions, IdName } from '../app-types';
 import * as duration from 'duration-fns'
 import Box from '@mui/system/Box';
 

@@ -1,5 +1,5 @@
-import { Check } from "./checks/checks";
-import { Node, Task } from "./docker-schema";
+import type { Check } from "./checks/checks";
+import type { Node, Task } from "./docker-schema";
 import { other_1_0_0_nodeMemorylimit } from "./checks/node-checks/other/1.0.0-memory-limit";
 import { other_1_0_1_swarmMemorylimit } from "./checks/node-checks/other/1.0.1-total-memory-limit";
 import ChecksUi from "./ChecksUi";

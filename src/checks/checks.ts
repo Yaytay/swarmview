@@ -1,4 +1,4 @@
-import { Containers, Node, Service, SystemInfo, Task } from '../docker-schema'
+import type { Containers, Node, Service, SystemInfo, Task } from '../docker-schema'
 
 export interface CheckArguments {
     node?: Node

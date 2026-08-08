@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_11_limitMemory: Check = {
   category: "CIS Docker Benchmarks"
@@ -20,7 +20,7 @@ services:
           memory: 64M
   `
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
       if (args.container.HostConfig?.Memory) {

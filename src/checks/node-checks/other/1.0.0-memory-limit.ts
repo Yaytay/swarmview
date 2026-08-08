@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const other_1_0_0_nodeMemorylimit : Check = {
   category: "Other"
@@ -10,7 +10,7 @@ export const other_1_0_0_nodeMemorylimit : Check = {
   , remediationImpact: "Increased cost or load on VM hosts; insufficient memory available to tasks"
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.node && args.tasks) {
       const totalRequirement = args.tasks.reduce((acc, tsk) => {

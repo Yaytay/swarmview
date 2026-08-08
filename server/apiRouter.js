@@ -36,8 +36,8 @@ router.use('/docker', proxy(endpoint, {
     console.log('Request to ' + req.url)
     return req.method === 'GET'
   }
-  , proxyErrorHandler: function(err, res) {  
-    let status = 500
+  , proxyErrorHandler: (err, res) => {  
+    const status = 500
     console.log('Reporting err ' + err + ' as ' + status)
     return res.status(status).send(String(err))
   }
@@ -49,8 +49,8 @@ if (prometheus_api_endpoint) {
       console.log('Request to ' + req.url)
       return req.method === 'GET'
     }
-    , proxyErrorHandler: function(err, res) {  
-      let status = 500
+    , proxyErrorHandler: (err, res) => {  
+      const status = 500
       console.log('Reporting err ' + err + ' as ' + status)
       return res.status(status).send(String(err))
     }
@@ -151,7 +151,7 @@ function getExportsFromAllDockerProxies(result, url, svc, port) {
       if (Array.isArray(j)) {
         j.forEach(tsk => {
           if (tsk.ID && tsk.NodeID && tsk.Status.State === 'running') {
-            let dockerProxyHost = redirectServiceUrl(svc + '.' + tsk.NodeID + '.' + tsk.ID + ':' + port)
+            const dockerProxyHost = redirectServiceUrl(svc + '.' + tsk.NodeID + '.' + tsk.ID + ':' + port)
             promises.push(getExportsForKnownImages(result, dockerProxyHost))
           }
         })
@@ -309,30 +309,30 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
     .then(r => r.json())
     .then(cs => {
       console.log('Time to get stats for ' + containerId + ' from ' + endpoint + ': ' + (performance.now() - startTime))
-      let standardLabels = buildStandardLabels(node, container)
+      const standardLabels = buildStandardLabels(node, container)
 
       if (cs['blkio_stats']) {
         if (cs['blkio_stats']['io_service_bytes_recursive']) {
           cs['blkio_stats']['io_service_bytes_recursive'].forEach(iosb => {
-            let key = 'ctr_blkio_stats_io_service_bytes_recursive_' + iosb['op'].toLowerCase()
-            if (Object.prototype.hasOwnProperty.call(stats, key)) {
+            const key = 'ctr_blkio_stats_io_service_bytes_recursive_' + iosb['op'].toLowerCase()
+            if (Object.hasOwn(stats, key)) {
               stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '} ' + iosb['value'])
             }
           })
         }
         if (cs['blkio_stats']['io_service_recursive']) {
           cs['blkio_stats']['io_service_recursive'].forEach(iosb => {
-            let key = 'ctr_blkio_stats_io_service_recursive_' + iosb['op'].toLowerCase()
-            if (Object.prototype.hasOwnProperty.call(stats, key)) {
+            const key = 'ctr_blkio_stats_io_service_recursive_' + iosb['op'].toLowerCase()
+            if (Object.hasOwn(stats, key)) {
               stats[key].push(key + '{' + standardLabels + ',ctr_blkio_stats_device="' + iosb['major'] + ':' + iosb['minor'] +'"' + '} ' + iosb['value'])
             }
           })
         }
       }
       if (cs['cpu_stats']) {
-        let cpuStats = cs['cpu_stats']
+        const cpuStats = cs['cpu_stats']
         if (cpuStats['cpu_usage']) {
-          let cpuUsage = cpuStats['cpu_usage']
+          const cpuUsage = cpuStats['cpu_usage']
           if (cpuUsage['total_usage']) {
             stats['ctr_cpu_usage_total'].push('ctr_cpu_usage_total{' + standardLabels + '} ' + (cpuUsage['total_usage'] / 1000000000.0))
           }
@@ -343,7 +343,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
             stats['ctr_cpu_usage_usermode'].push('ctr_cpu_usage_usermode{' + standardLabels + '} ' + (cpuUsage['usage_in_usermode'] / 1000000000.0))
           }
           if (cpuUsage['percpu_usage']) {
-            let perCpuUsage = cpuUsage['percpu_usage']
+            const perCpuUsage = cpuUsage['percpu_usage']
             for (let i = 0; i < perCpuUsage.length; i++) {
               stats['ctr_cpu_usage_percpu'].push('ctr_cpu_usage_percpu{' + standardLabels + ',cpu="' + i.toString().padStart(2, '0') + '} ' + (perCpuUsage[i] / 1000000000.0))
             }
@@ -351,7 +351,7 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
         }
       }
       if (cs['memory_stats']) {
-        let memStats = cs['memory_stats']
+        const memStats = cs['memory_stats']
         if (memStats['usage']) {
           stats['ctr_memory_usage'].push('ctr_memory_usage{' + standardLabels + '} ' + memStats['usage'])
         }
@@ -363,8 +363,8 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
         }
         if (memStats['stats']) {
           Object.entries(memStats['stats']).forEach(([stat, value]) => {
-            let key = 'ctr_memory_stats_' + stat.toLowerCase()
-            if (Object.prototype.hasOwnProperty.call(stats, key)) {
+            const key = 'ctr_memory_stats_' + stat.toLowerCase()
+            if (Object.hasOwn(stats, key)) {
               stats[key].push(key + '{' + standardLabels + '} ' + value)
             }
           })
@@ -373,8 +373,8 @@ function getContainerStats(endpoint, containerId, startTime, node, container, st
       if (cs['networks']) {
         Object.entries(cs['networks']).forEach(([iface, ifaceStats]) => {
           Object.entries(ifaceStats).forEach(([stat, value]) => {
-            let key = 'ctr_network_usage_' + stat.toLowerCase()
-            if (Object.prototype.hasOwnProperty.call(stats, key)) {
+            const key = 'ctr_network_usage_' + stat.toLowerCase()
+            if (Object.hasOwn(stats, key)) {
               stats[key].push(key + '{' + standardLabels + ',iface="' + iface + '"} ' + value)
             }
           })
@@ -407,8 +407,8 @@ function getMetrics(serviceProxiesUrl, proxyServiceName, proxyServicePort, start
       if (Array.isArray(dockerProxyTasks)) {
         dockerProxyTasks.forEach(dockerProxyTask => {
           if (dockerProxyTask.ID && dockerProxyTask.NodeID && dockerProxyTask.Status.State === 'running') {
-            let node = nodes.find(n => n.ID === dockerProxyTask.NodeID);
-            let dockerProxyEndpoint = redirectServiceUrl(proxyServiceName + '.' + dockerProxyTask.NodeID + '.' + dockerProxyTask.ID + ':' + proxyServicePort)
+            const node = nodes.find(n => n.ID === dockerProxyTask.NodeID);
+            const dockerProxyEndpoint = redirectServiceUrl(proxyServiceName + '.' + dockerProxyTask.NodeID + '.' + dockerProxyTask.ID + ':' + proxyServicePort)
             promises.push(getContainersStats(dockerProxyEndpoint, startTime, node, stats))
           }
         })
@@ -418,8 +418,8 @@ function getMetrics(serviceProxiesUrl, proxyServiceName, proxyServicePort, start
 }
 
 router.use('/metrics', (req, res) => {
-  let start = performance.now()
-  let stats = newStats()
+  const start = performance.now()
+  const stats = newStats()
 
   const promises = []
   fetch('http://' + endpoint + '/v1.52/nodes')

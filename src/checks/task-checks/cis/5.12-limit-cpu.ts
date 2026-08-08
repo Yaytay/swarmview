@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_12_limitCpu: Check = {
   category: "CIS Docker Benchmarks"
@@ -20,7 +20,7 @@ services:
           cpus: '1'
   `
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
       if (args.container.HostConfig?.CpuShares) {
@@ -28,7 +28,7 @@ services:
           state: State.pass
         }
       } else {
-        const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')
+        const isSwarm = Object.hasOwn(args.container?.Config?.Labels, 'com.docker.stack.namespace')
 
         if (isSwarm) {
           return {

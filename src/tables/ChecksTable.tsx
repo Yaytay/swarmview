@@ -1,7 +1,7 @@
 import MaterialTable from '../MaterialTable';
-import { MRT_ColumnDef } from 'material-react-table';
-import { Dimensions } from '../app-types';
-import { Check, CheckResult, State } from '../checks/checks';
+import type { MRT_ColumnDef } from 'material-react-table';
+import type { Dimensions } from '../app-types';
+import { type Check, type CheckResult, State } from '../checks/checks';
 import { Link, Paper, Tooltip, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';

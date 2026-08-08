@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { DockerApi } from './DockerApi';
-import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
-import { Dimensions } from './app-types';
-import { SetTitle } from './App';
+import type { DockerApi } from './DockerApi';
+import ServicesTable, { createServiceDetails, type ServiceDetails } from './tables/ServicesTable';
+import type { Dimensions } from './app-types';
+import type { SetTitle } from './App';
 
 interface ServicesProps {
   baseUrl: string

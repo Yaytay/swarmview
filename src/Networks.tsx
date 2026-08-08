@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { DockerApi } from './DockerApi';
-import NetworksTable, { createNetworkDetails, NetworkDetails } from './tables/NetworksTable';
-import { Dimensions } from './app-types';
-import { SetTitle } from './App';
+import type { DockerApi } from './DockerApi';
+import NetworksTable, { createNetworkDetails, type NetworkDetails } from './tables/NetworksTable';
+import type { Dimensions } from './app-types';
+import type { SetTitle } from './App';
 
 interface NetworksProps {
   baseUrl: string

@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_4_kernelCapabilities: Check = {
   category: "CIS Docker Benchmarks"
@@ -19,7 +19,7 @@ services:
     - ALL
   `
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     /*
     if (args.system && args.system.SecurityOptions && !args.system.SecurityOptions.find(v => v === 'name=no-new-privileges')) {

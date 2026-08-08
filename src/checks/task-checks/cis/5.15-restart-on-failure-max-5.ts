@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_15_restartOnFailure: Check = {
   category: "CIS Docker Benchmarks"
@@ -24,7 +24,7 @@ services:
         window: 120s
   `
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.service) {
       const rp = args.service.Spec?.TaskTemplate?.RestartPolicy;

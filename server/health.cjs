@@ -5,18 +5,18 @@ var options = {
     port: 5173,
     path: '/health'
   };
-var req = http.get(options, function(response) {
+var req = http.get(options, (response) => {
   // handle the response
   var res_data = '';
-  response.on('data', function(chunk) {
+  response.on('data', (chunk) => {
     res_data += chunk;
   });
-  response.on('end', function() {
+  response.on('end', () => {
     console.log(res_data);
     process.exit(0);
   });
 });
-req.on('error', function(err) {
+req.on('error', (err) => {
   console.log("Request error: " + err.message);
   process.exit(1);
 });

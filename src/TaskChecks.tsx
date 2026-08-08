@@ -1,5 +1,5 @@
-import { Check } from "./checks/checks";
-import { Containers, Service, SystemInfo, Task } from "./docker-schema";
+import type { Check } from "./checks/checks";
+import type { Containers, Service, SystemInfo, Task } from "./docker-schema";
 import ChecksUi from "./ChecksUi";
 import { other_1_0_0_capDropAll } from "./checks/task-checks/other/1.0.0-cap-drop-all";
 import { other_1_0_1_dontRunAsRoot } from "./checks/task-checks/other/1.0.1-dont-run-as-root";

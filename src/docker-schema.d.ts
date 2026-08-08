@@ -8541,13 +8541,13 @@ export interface ApiConfig<SecurityDataType = unknown> {
   customFetch?: typeof fetch;
 }
 
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
+export interface HttpResponse<D, E = unknown>
   extends Response {
   data: D;
   error: E;
 }
 
-type CancelToken = Symbol | string | number;
+type CancelToken = symbol | string | number;
 
 export enum ContentType {
   Json = "application/json",
@@ -8837,7 +8837,7 @@ export class HttpClient<SecurityDataType = unknown> {
  * ```
  */
 export class Api<
-  SecurityDataType extends unknown,
+  SecurityDataType,
 > extends HttpClient<SecurityDataType> {
   containers = {
     /**

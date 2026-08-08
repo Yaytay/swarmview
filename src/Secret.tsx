@@ -1,17 +1,17 @@
-import { useState, useEffect, SyntheticEvent } from 'react';
+import { useState, useEffect, type SyntheticEvent } from 'react';
 import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Secret } from './docker-schema';
+import type { Secret } from './docker-schema';
 import Section from './Section'
 import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import { DockerApi } from './DockerApi';
-import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
+import type { DockerApi } from './DockerApi';
+import ServicesTable, { createServiceDetails, type ServiceDetails } from './tables/ServicesTable';
 import KeyValueTable from './KeyValueTable';
-import { SetTitle } from './App';
+import type { SetTitle } from './App';
 
 
 interface SecretProps {

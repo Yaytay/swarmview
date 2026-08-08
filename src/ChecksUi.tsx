@@ -1,13 +1,13 @@
 import Grid from "@mui/material/Grid";
 import Section from "./Section";
-import { Check, CheckArguments, evaluateCheck, State } from "./checks/checks";
+import { type Check, type CheckArguments, evaluateCheck, State } from "./checks/checks";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import DialogTitle from "@mui/material/DialogTitle";
 import Dialog from "@mui/material/Dialog";
 import Box from "@mui/system/Box";
 import Link from "@mui/material/Link";
-import ChecksTable, { CheckDetails, createCheckDetails } from "./tables/ChecksTable";
+import ChecksTable, { type CheckDetails, createCheckDetails } from "./tables/ChecksTable";
 
 interface ChecksUiProps {
   id: string

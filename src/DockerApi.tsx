@@ -1,5 +1,5 @@
-import { Containers, Config, Network, Node, Secret, Service, SystemInfo, Task } from "./docker-schema";
-import { PrometheusResults } from "./prometheus";
+import type { Containers, Config, Network, Node, Secret, Service, SystemInfo, Task } from "./docker-schema";
+import type { PrometheusResults } from "./prometheus";
 
 class Cache {
   lastUpdate: Date = new Date()

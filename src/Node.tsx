@@ -1,21 +1,21 @@
-import { useState, useEffect, SyntheticEvent } from 'react';
+import { useState, useEffect, type SyntheticEvent } from 'react';
 import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Node, Task } from './docker-schema';
+import type { Node, Task } from './docker-schema';
 import Section from './Section'
 import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import NodeChecks from './NodeChecks';
-import { DockerApi } from './DockerApi';
+import type { DockerApi } from './DockerApi';
 import KeyValueTable from './KeyValueTable';
-import LabelsTable, { createLabelDetails, LabelDetails } from './tables/LabelsTable';
-import TasksTable, { createTaskDetails, processTaskDetailsSubRows, TaskDetails } from './tables/TasksTable';
-import PluginsTable, { createPluginDetails, PluginDetails } from './tables/PluginsTable';
+import LabelsTable, { createLabelDetails, type LabelDetails } from './tables/LabelsTable';
+import TasksTable, { createTaskDetails, processTaskDetailsSubRows, type TaskDetails } from './tables/TasksTable';
+import PluginsTable, { createPluginDetails, type PluginDetails } from './tables/PluginsTable';
 import PromChart from './PromChart';
-import { SetTitle } from './App';
+import type { SetTitle } from './App';
 
 
 interface NodeProps {

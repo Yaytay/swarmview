@@ -1,8 +1,8 @@
 import MaterialTable from '../MaterialTable';
 import { Link } from 'react-router-dom';
-import { MRT_ColumnDef } from 'material-react-table';
-import { Network } from '../docker-schema';
-import { Dimensions } from '../app-types';
+import type { MRT_ColumnDef } from 'material-react-table';
+import type { Network } from '../docker-schema';
+import type { Dimensions } from '../app-types';
 
 export interface NetworkDetails {
   id: string

@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
 import CircularProgress from '@mui/material/CircularProgress';
-import { Service, SystemInfo, Task } from '../docker-schema';
-import { DockerApi } from '../DockerApi';
+import type { Service, SystemInfo, Task } from '../docker-schema';
+import type { DockerApi } from '../DockerApi';
 import { other_1_0_0_capDropAll } from "../checks/task-checks/other/1.0.0-cap-drop-all";
 import { other_1_0_1_dontRunAsRoot } from "../checks/task-checks/other/1.0.1-dont-run-as-root";
 import { other_1_0_2_taskRestartPolicyDelay } from "../checks/task-checks/other/1.0.2-task-restart-policy-delay";
@@ -41,7 +41,7 @@ import { other_1_0_3_taskUpdateConfig } from "../checks/task-checks/other/1.0.3-
 import { other_1_0_4_only_one_replica } from "../checks/task-checks/other/1.0.4-only-one-replica";
 import { other_1_0_5_shutdown_grace_period } from "../checks/task-checks/other/1.0.5-shutdown-grace-period";
 import { other_1_0_6_hostname_specified } from "../checks/task-checks/other/1.0.6-hostname-specified";
-import { Check, CheckResult, evaluateCheck } from '../checks/checks';
+import { type Check, type CheckResult, evaluateCheck } from '../checks/checks';
 
 //
 // ─────────────────────────────────────────────────────────────
@@ -320,7 +320,7 @@ export default function StacksOverviewTable(props: StackOverviewProps) {
 }
 
 export function createStackOverviews(services: Service[]): StackOverview[] {
-  let stackmap = services.reduce<Record<string, StackOverview>>((acc, svc) => {
+  const stackmap = services.reduce<Record<string, StackOverview>>((acc, svc) => {
     const stackName = svc.Spec?.Labels?.['com.docker.stack.namespace'] ?? 'unknown';
 
     // Create the stack entry if missing

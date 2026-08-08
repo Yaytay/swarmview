@@ -1,25 +1,25 @@
-import { useState, useEffect, SyntheticEvent } from 'react';
+import { useState, useEffect, type SyntheticEvent } from 'react';
 import { useParams } from 'react-router';
 import JSONPretty from 'react-json-pretty';
 import 'react-json-pretty/themes/monikai.css';
 import Box from '@mui/material/Box';
-import { Containers, Service, SystemInfo, Task } from './docker-schema';
+import type { Containers, Service, SystemInfo, Task } from './docker-schema';
 import Section from './Section'
 import Grid from '@mui/material/Grid';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import VisNetwork, { GraphData, Node, Edge } from './VisNetwork';
+import VisNetwork, { type GraphData, type Node, type Edge } from './VisNetwork';
 import LogsView from './LogsView';
-import { DockerApi } from './DockerApi';
-import KeyValueTable, { KeyValueTablePropsEntry, KeyValueTableValue } from './KeyValueTable';
-import LabelsTable, { createLabels, LabelDetails } from './tables/LabelsTable';
-import TasksTable, { createTaskDetails, TaskDetails } from './tables/TasksTable';
-import SecretsTable, { buildServicesBySecret, createSecretDetails, SecretDetails } from './tables/SecretsTable';
-import ConfigsTable, { buildServicesByConfig, ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
-import NetworkAttachmentsTable, { createNetworkAttachmentDetails, NetworkAttachmentDetails } from './tables/NetworkAttachmentsTable';
+import type { DockerApi } from './DockerApi';
+import KeyValueTable, { type KeyValueTablePropsEntry, type KeyValueTableValue } from './KeyValueTable';
+import LabelsTable, { createLabels, type LabelDetails } from './tables/LabelsTable';
+import TasksTable, { createTaskDetails, type TaskDetails } from './tables/TasksTable';
+import SecretsTable, { buildServicesBySecret, createSecretDetails, type SecretDetails } from './tables/SecretsTable';
+import ConfigsTable, { buildServicesByConfig, type ConfigDetails, createConfigDetails } from './tables/ConfigsTable';
+import NetworkAttachmentsTable, { createNetworkAttachmentDetails, type NetworkAttachmentDetails } from './tables/NetworkAttachmentsTable';
 import SimpleTable from './SimpleTable';
 import TaskChecks from './TaskChecks';
-import { SetTitle } from './App';
+import type { SetTitle } from './App';
 
 interface ServiceProps {
   baseUrl: string

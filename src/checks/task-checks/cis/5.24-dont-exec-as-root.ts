@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const cis_5_24_dontExecAsRoot: Check = {
   category: "CIS Docker Benchmarks"
@@ -10,11 +10,8 @@ export const cis_5_24_dontExecAsRoot: Check = {
   , remediationImpact: ``
   , reference: ''
 
-  , evaluate: function (_: CheckArguments): CheckResult {
-
-    return {
+  , evaluate: (_: CheckArguments): CheckResult => ({
       state: State.info
       , message: 'Cannot be tested'
-    }
-  }
+    })
 }

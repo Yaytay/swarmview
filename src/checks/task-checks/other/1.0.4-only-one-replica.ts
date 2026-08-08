@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 export const other_1_0_4_only_one_replica: Check = {
   category: "Other"
@@ -17,9 +17,9 @@ services:
       replicas: 2
 `
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
-    const isSwarm = Object.prototype.hasOwnProperty.call(args.container?.Config?.Labels, 'com.docker.stack.namespace')
+    const isSwarm = Object.hasOwn(args.container?.Config?.Labels, 'com.docker.stack.namespace')
 
     if (!isSwarm) {
       return {

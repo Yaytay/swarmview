@@ -1,4 +1,4 @@
-import { Check, CheckArguments, CheckResult, State } from "../../checks"
+import { type Check, type CheckArguments, type CheckResult, State } from "../../checks"
 
 const unacceptable_mounts = ['/', '/boot', '/dev', '/etc', '/lib', '/proc', '/sys', '/usr']
 
@@ -12,7 +12,7 @@ export const cis_5_6_sensitiveDirectories: Check = {
   , remediationImpact: "None."
   , reference: ''
 
-  , evaluate: function (args: CheckArguments): CheckResult {
+  , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.task) {
       if (args.task.Spec?.ContainerSpec?.Mounts) {

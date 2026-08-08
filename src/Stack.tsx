@@ -3,11 +3,11 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useParams } from 'react-router-dom';
 import Section from './Section';
-import { DockerApi } from './DockerApi';
-import ServicesTable, { createServiceDetails, ServiceDetails } from './tables/ServicesTable';
-import TasksTable, { createTaskDetails, processTaskDetailsSubRows, TaskDetails } from './tables/TasksTable';
-import NetworksTable, { createNetworkDetails, NetworkDetails } from './tables/NetworksTable';
-import { SetTitle } from './App';
+import type { DockerApi } from './DockerApi';
+import ServicesTable, { createServiceDetails, type ServiceDetails } from './tables/ServicesTable';
+import TasksTable, { createTaskDetails, processTaskDetailsSubRows, type TaskDetails } from './tables/TasksTable';
+import NetworksTable, { createNetworkDetails, type NetworkDetails } from './tables/NetworksTable';
+import type { SetTitle } from './App';
 
 interface StackUiProps {
   baseUrl: string
