@@ -13,7 +13,7 @@ export const cis_5_14_exposeOnSpecificIp: Check = {
   , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
-      const isSwarm = Object.hasOwn(args.container?.Config?.Labels, 'com.docker.stack.namespace')
+      const isSwarm = Object.hasOwn(args.container?.Config?.Labels ?? {}, 'com.docker.stack.namespace')
 
       const pb = args.container.HostConfig?.PortBindings
       if (pb) {

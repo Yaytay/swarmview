@@ -15,7 +15,7 @@ docker run --rm -it --security-opt=no-new-privileges ubuntu bash`
   , evaluate: (args: CheckArguments): CheckResult => {
 
     if (args.container) {
-      const isSwarm = Object.hasOwn(args.container?.Config?.Labels, 'com.docker.stack.namespace')      
+      const isSwarm = Object.hasOwn(args.container?.Config?.Labels ?? {}, 'com.docker.stack.namespace')
       if (isSwarm) {
         return {
           state: State.info

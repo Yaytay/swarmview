@@ -7,7 +7,11 @@
   "scripts": {
     "dev": "node server-dev.js",
     "build": "vite build --outDir dist",
-    "serve": "node server-prod.js"
+    "serve": "node server-prod.js",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format .",
+    "format:fix": "biome format --write ."
   },
   "dependencies": {
     "@mui/system": "^9.2.0",

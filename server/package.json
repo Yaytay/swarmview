@@ -4,8 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "serve": "node server-prod.js"
-  },
+    "serve": "node server-prod.js",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format .",
+    "format:fix": "biome format --write ."  },
   "dependencies": {
     "@types/node": "^26.1.2",
     "dotenv": "^17.4.2",

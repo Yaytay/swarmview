@@ -28,7 +28,7 @@ services:
           state: State.pass
         }
       } else {
-        const isSwarm = Object.hasOwn(args.container?.Config?.Labels, 'com.docker.stack.namespace')
+        const isSwarm = Object.hasOwn(args.container?.Config?.Labels ?? {}, 'com.docker.stack.namespace')
 
         if (isSwarm) {
           return {
