@@ -33,7 +33,7 @@
     "@babel/core": "^8.0.1",
     "@babel/template": "^8.0.0",
     "@babel/types": "^8.0.4",
-    "@biomejs/biome": "^2.5.7",
+    "@biomejs/biome": "^2.5.8",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.2.0",
