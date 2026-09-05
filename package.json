@@ -14,7 +14,7 @@
     "format:fix": "biome format --write ."
   },
   "dependencies": {
-    "@mui/system": "^9.2.0",
+    "@mui/system": "^9.4.0",
     "chart.js": "^4.5.1",
     "dotenv": "^17.4.2",
     "duration-fns": "^3.0.2",
