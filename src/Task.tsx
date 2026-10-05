@@ -279,9 +279,12 @@ function TaskUi(props: TaskUiProps) {
                       , ['State', task.Status?.State || '']
                       , ['Desired State', task.DesiredState || '']
                       , ['Message', task.Status?.Message || '']
+                      , ['Err', task.Status?.Err || '']
                       , ['Container ID', task.Status?.ContainerStatus?.ContainerID || '']
                       , ['PID', task.Status?.ContainerStatus?.PID || '']
                       , ['ExitCode', task.Status?.ContainerStatus?.ExitCode || '']
+                      , ['OOM Killed', String(container?.State?.OOMKilled ?? '')]
+                      , ['Error', container?.State?.Error || '']
                       , ['Port Status', task.Status?.PortStatus ? JSON.stringify(task.Status?.PortStatus) : '']
                     ]
                   }>
