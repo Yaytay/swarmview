@@ -30,7 +30,7 @@
     "vis-network": "^10.1.2"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.6",
+    "@babel/core": "^8.0.7",
     "@babel/template": "^8.0.0",
     "@babel/types": "^8.0.6",
     "@biomejs/biome": "^2.5.14",
