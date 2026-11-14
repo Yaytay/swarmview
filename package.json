@@ -27,7 +27,7 @@
     "react-json-pretty": "^2.2.0",
     "react-virtuoso": "^4.18.20",
     "recharts": "^3.10.1",
-    "vis-network": "^10.1.4"
+    "vis-network": "^10.1.5"
   },
   "devDependencies": {
     "@babel/core": "^8.0.10",
