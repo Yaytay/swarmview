@@ -32,7 +32,7 @@
   "devDependencies": {
     "@babel/core": "^8.0.10",
     "@babel/template": "^8.0.0",
-    "@babel/types": "^8.0.10",
+    "@babel/types": "^8.1.2",
     "@biomejs/biome": "^2.6.4",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
